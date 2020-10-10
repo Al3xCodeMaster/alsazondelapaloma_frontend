@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import Search_location from '../mapas/search_location';
-import { makeStyles } from '../login_cliente/node_modules/@material-ui/core/styles';
-import Stepper from '../formulario_usuario/node_modules/@material-ui/core/Stepper';
-import Step from '../formulario_usuario/node_modules/@material-ui/core/Step';
-import StepLabel from '../formulario_usuario/node_modules/@material-ui/core/StepLabel';
-import Button from '../login_cliente/node_modules/@material-ui/core/Button';
-import Typography from '../login_cliente/node_modules/@material-ui/core/Typography';
-import { TextField, Input } from '../formulario_usuario/node_modules/@material-ui/core';
-import Snackbar from '../login_cliente/node_modules/@material-ui/core/Snackbar';
-import MuiAlert from '../login_cliente/node_modules/@material-ui/lab/Alert';
+import { makeStyles } from '@material-ui/core/styles';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { TextField, Input } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import { useSelector, useDispatch } from 'react-redux';
 import {
 	set_cedula,
@@ -20,8 +20,8 @@ import {
 	subio_foto,
 	subio_recibo
 } from '../../redux/actions';
-import { CloudUpload } from '../login_cliente/node_modules/@material-ui/icons';
-import Grid from '../login_cliente/node_modules/@material-ui/core/Grid';
+import { CloudUpload } from '@material-ui/icons';
+import Grid from '@material-ui/core/Grid';
 
 
 function Alert(props) {

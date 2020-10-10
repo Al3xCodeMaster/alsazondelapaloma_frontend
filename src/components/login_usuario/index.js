@@ -2,29 +2,29 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { success_login, error_login } from '../../redux/actions';
 import { withRouter, Redirect } from 'react-router-dom';
-import Button from '../login_cliente/node_modules/@material-ui/core/Button';
-import CssBaseline from '../login_cliente/node_modules/@material-ui/core/CssBaseline';
-import TextField from '../login_cliente/node_modules/@material-ui/core/TextField';
-import FormControlLabel from '../login_cliente/node_modules/@material-ui/core/FormControlLabel';
-import Checkbox from '../login_cliente/node_modules/@material-ui/core/Checkbox';
-import Link from '../login_cliente/node_modules/@material-ui/core/Link';
-import Paper from '../login_cliente/node_modules/@material-ui/core/Paper';
-import Box from '../login_cliente/node_modules/@material-ui/core/Box';
-import Grid from '../login_cliente/node_modules/@material-ui/core/Grid';
-import LockOutlinedIcon from '../login_cliente/node_modules/@material-ui/icons/LockOutlined';
-import Typography from '../login_cliente/node_modules/@material-ui/core/Typography';
-import { makeStyles } from '../login_cliente/node_modules/@material-ui/core/styles';
-import logo from '../../images/logo.png';
-import presentacion2 from '../../images/presentacion2.mp4';
-import { KeyboardTab } from '../login_cliente/node_modules/@material-ui/icons';
-import Snackbar from '../login_cliente/node_modules/@material-ui/core/Snackbar';
-import Alert from '../login_cliente/node_modules/@material-ui/lab/Alert';
-import Dialog from '../login_cliente/node_modules/@material-ui/core/Dialog';
-import DialogActions from '../login_cliente/node_modules/@material-ui/core/DialogActions';
-import DialogContent from '../login_cliente/node_modules/@material-ui/core/DialogContent';
-import DialogContentText from '../login_cliente/node_modules/@material-ui/core/DialogContentText';
-import DialogTitle from '../login_cliente/node_modules/@material-ui/core/DialogTitle';
-import Slide from '../login_cliente/node_modules/@material-ui/core/Slide';
+import Button from '@material-ui/core/Button';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import TextField from '@material-ui/core/TextField';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import Link from '@material-ui/core/Link';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+//import logo from '../../images/logo.png';
+//import presentacion2 from '../../images/presentacion2.mp4';
+import { KeyboardTab } from '@material-ui/icons';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
 import Formulario_empleado from '../formulario_usuario';
 
 function Copyright() {
@@ -121,13 +121,9 @@ const Login_usuario = () => {
       {usuario.status===200 ? <Redirect to="/inicio_empleado" /> : null}
       <CssBaseline />
       <Grid item xs={false} sm={4} md={8} className={classes.image}>
-        <video width="100%" autoplay="autoPlay" loop muted>
-          <source src={presentacion2} type="video/mp4" />
-        </video>
       </Grid>
       <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
         <div className={classes.paper}>
-          <img src={logo} alt="Logo" height="60%" width="60%" />;
           <form className={classes.form} noValidate>
             <TextField
               error={error_cedula}

@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
 import Search_location from '../mapas/search_location';
-import { makeStyles } from '../login_cliente/node_modules/@material-ui/core/styles';
-import Stepper from '../formulario_cliente/node_modules/@material-ui/core/Stepper';
-import Step from '../formulario_cliente/node_modules/@material-ui/core/Step';
-import StepLabel from '../formulario_cliente/node_modules/@material-ui/core/StepLabel';
-import Button from '../login_cliente/node_modules/@material-ui/core/Button';
-import Typography from '../login_cliente/node_modules/@material-ui/core/Typography';
-import { TextField, Input } from '../formulario_cliente/node_modules/@material-ui/core';
-import Snackbar from '../login_cliente/node_modules/@material-ui/core/Snackbar';
-import MuiAlert from '../login_cliente/node_modules/@material-ui/lab/Alert';
+import { makeStyles } from '@material-ui/core/styles';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import { TextField, Input } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -23,16 +23,16 @@ import {
 	subio_cedula,
 	subio_foto
 } from '../../redux/actions';
-import { CloudUpload, CheckCircleOutline, DeleteOutline } from '../login_cliente/node_modules/@material-ui/icons';
+import { CloudUpload, CheckCircleOutline, DeleteOutline } from '@material-ui/icons';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '../login_cliente/node_modules/@material-ui/core/Paper';
-import Grid from '../login_cliente/node_modules/@material-ui/core/Grid';
-import { IconButton } from '../formulario_cliente/node_modules/@material-ui/core';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import { IconButton } from '@material-ui/core';
 
 function Alert(props) {
 	return <MuiAlert elevation={6} variant="filled" {...props} />;
