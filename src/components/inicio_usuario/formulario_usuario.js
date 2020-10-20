@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import Search_location from '../mapas/search_location';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -66,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-	return ['Información básica', 'Dirección', 'Seguridad'];
+	return ['Información básica', 'Seguridad'];
 }
 function Informacion_basica() {
 	const classes = useStyles();
@@ -398,8 +397,6 @@ function getStepContent(step) {
 		case 0:
 			return <Informacion_basica />;
 		case 1:
-			return <Search_location />;
-		case 2:
 			return <Informacion_seguridad />;
 		default:
 			return 'Unknown step';

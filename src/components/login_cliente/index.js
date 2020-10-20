@@ -24,13 +24,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import Formulario_usuario from '../formulario_cliente';
+import Formulario_cliente from '../formulario_cliente';
 import { success_login, error_login } from '../../redux/actions';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Mande'}
+      {'Copyright © Al sazón de la paloma '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -75,7 +75,7 @@ const Login_cliente = () => {
   const [pass_invalid, set_pass_invalid] = useState(false);
   const [helper_cedula, set_helper_cc] = useState('');
   const [helper_contrasenha, set_helper_pass] = useState('');
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const [error_contrasenha, set_error_contrasenha] = useState(false);
   const vertical = 'center';
   const horizontal = 'right';
@@ -134,7 +134,7 @@ const Login_cliente = () => {
               required
               fullWidth
               id="cedula"
-              label="Cédula"
+              label="ID"
               name="cedula"
               value={cedula}
               onChange={e => set_cedula(e.target.value)}
@@ -157,16 +157,16 @@ const Login_cliente = () => {
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              label="Recordar datos"
             />
             <Button
               fullWidth
               variant="contained"
               onClick={() => ingresar()}
-              style={{ background: '#65a84e', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
+              style={{ background: '#c62828', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
               className={classes.submit}
             >
-              Ingrese a Mande
+              Ingresar
                <KeyboardTab style={{ fontSize: 35, marginLeft: '10px' }} />
             </Button>
             <Snackbar open={pass_invalid} autoHideDuration={4000}
@@ -179,12 +179,12 @@ const Login_cliente = () => {
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" style={{ color: '#707070' }}>
-                  Forgot password?
+                  recuperar contraseña
                 </Link>
               </Grid>
               <Grid item>
                 <Link href="#" onClick={e => handleClickOpen()} variant="body2" style={{ color: '#707070' }}>
-                  {"dale click aquí para registrarte"}
+                  {"click para registrarte"}
                 </Link>
               </Grid>
             </Grid>
@@ -201,9 +201,7 @@ const Login_cliente = () => {
             >
               <DialogTitle id="alert-dialog-slide-title">{"Formulario de registro"}</DialogTitle>
               <DialogContent>
-                <DialogContentText id="alert-dialog-slide-description">
-                  <Formulario_usuario />
-                </DialogContentText>
+              <Formulario_cliente/>
               </DialogContent>
               <DialogActions>
               <Button onClick={handleClose} color="primary">

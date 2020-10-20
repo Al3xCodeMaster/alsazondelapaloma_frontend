@@ -15,10 +15,11 @@ export const SUBIO_RECIBO = 'SUBIO_RECIBO';
 export const SET_NAVBAR = 'SET_NAVBAR';
 
 //******************LOGIN*******************
-export const success_login = payload => {
+export const success_login = (payload,status) => {
     return {
         type: SUCCESS_LOGIN,
-        payload
+        payload,
+        status
     }
 }
 export const error_login = payload => {

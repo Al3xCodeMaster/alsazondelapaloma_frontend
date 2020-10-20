@@ -18,7 +18,7 @@ import {
     from './actions';
 
 const initialState = {
-    usuario: { id: '', cedula: '', nombre: '', apellido: '', celular: '', correo: '', contrasenha: '', servicios: '' },
+    usuario: "",
     message: 'Hola redux',
     cargando: false,
     coordenadas: { lat: 3.382225, lng: -76.531584 },
@@ -32,7 +32,7 @@ const initialState = {
 function redux_reducer(state = initialState, action) {
     switch (action.type) {
         case SUCCESS_LOGIN:
-            return { ...state, usuario: action.payload};
+            return { ...state, usuario: {token: action.payload, status: action.status}};
         case ERROR_LOGIN:
             return { ...state, usuario: action.payload };
         case SET_COORDINATES:

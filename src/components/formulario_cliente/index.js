@@ -9,6 +9,13 @@ import Typography from '@material-ui/core/Typography';
 import { TextField, Input } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import DateFnsUtils from '@date-io/date-fns';
+import {
+	MuiPickersUtilsProvider,
+	KeyboardDatePicker,
+  } from '@material-ui/pickers';
 import { useSelector, useDispatch } from 'react-redux';
 import {
 	set_cedula,
@@ -65,6 +72,10 @@ function Informacion_basica() {
 	const [apellido, set_last_name] = useState('');
 	const [celular, set_cellphone] = useState('');
 	const [correo, set_email] = useState('');
+	const [open, setOpen] = useState(false);
+	const [options, setOptions] = useState([]);
+	const loading = open && options.length === 0;
+	const [selectedDate, setSelectedDate] = useState(new Date(Date.now()));
 	const { usuario } = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
 	}));
@@ -89,13 +100,84 @@ function Informacion_basica() {
 		dispatch(set_correo(value));
 		set_email(value);
 	}
+
+	const handleDateChange = (date) => {
+		setSelectedDate(date);
+	  };
+
+	React.useEffect(() => {
+		let active = true;
+
+		if (!loading) {
+			return undefined;
+		}
+
+		(async () => {
+			const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
+			const countries = await response.json();
+
+			if (active) {
+				setOptions(Object.keys(countries).map((key) => countries[key].item[0]));
+			}
+		})();
+
+		return () => {
+			active = false;
+		};
+	}, [loading]);
+
+
 	return (
-		<div style={{ justifyContent: 'center', alignItems: 'center', }}>
-			<TextField id="usuario_cedula" type="number" value={cedula} onChange={e => set_state_cedula(e.target.value)} className={classes.input} label="Cédula" variant="outlined" />
+		<div style={{ justifyContent: 'stretch', alignItems: 'center', }}>
+				<TextField id="usuario_cedula" type="number" value={cedula} onChange={e => set_state_cedula(e.target.value)} className={classes.input} label="Número de documento" variant="outlined" />
+					<Autocomplete
+						id="async-autocompl"
+						open={open}
+						onOpen={() => {
+							setOpen(true);
+						}}
+						onClose={() => {
+							setOpen(false);
+						}}
+						getOptionSelected={(option, value) => option.name === value.name}
+						getOptionLabel={(option) => option.name}
+						options={options}
+						loading={loading}
+						renderInput={(params) => (
+							<TextField 
+								{...params}
+								className={classes.input}
+								label="Seleccione el documento"
+								variant="outlined"
+								InputProps={{
+									...params.InputProps,
+									endAdornment: (
+										<React.Fragment>
+											{loading ? <CircularProgress color="inherit" size={20} /> : null}
+											{params.InputProps.endAdornment}
+										</React.Fragment>
+									),
+								}}
+							/>
+						)}
+					/>
 			<TextField id="usuario_nombre" value={nombre} onChange={e => set_state_nombre(e.target.value)} className={classes.input} label="Nombre" variant="outlined" />
 			<TextField id="usuario_apellido" value={apellido} onChange={e => set_state_apellido(e.target.value)} className={classes.input} label="Apellido" variant="outlined" />
 			<TextField id="usuario_celular" type="number" value={celular} onChange={e => set_state_celular(e.target.value)} className={classes.input} label="Celular" variant="outlined" />
 			<TextField id="usuario_correo" value={correo} onChange={e => set_state_correo(e.target.value)} className={classes.input} label="Correo" variant="outlined" />
+			<MuiPickersUtilsProvider utils={DateFnsUtils}>
+				<KeyboardDatePicker
+					margin="normal"
+					id="date-picker-dialog"
+					label="Date picker dialog"
+					format="MM/dd/yyyy"
+					value={selectedDate}
+					onChange={handleDateChange}
+					KeyboardButtonProps={{
+						'aria-label': 'change date',
+					}}
+				/>
+			</MuiPickersUtilsProvider>
 		</div>
 	)
 }
@@ -188,7 +270,7 @@ function Informacion_seguridad() {
 		}
 	}
 	return (
-		<div style={{width:'100%'}}>
+		<div style={{ width: '100%' }}>
 			<TextField id="contrasenha" value={contrasenha} onChange={e => set_state_contrasenha(e.target.value)} className={classes.input} label="Contraseña para el inicio de sección" variant="outlined" />
 			<Grid container className={classes.container_root} spacing={2}>
 				<Grid item xs={3}></Grid>
@@ -222,7 +304,7 @@ function Informacion_seguridad() {
 				</Alert>
 			</Snackbar>
 			<Grid container className={classes.container_root} spacing={2}>
-			<Grid item xs={3}></Grid>
+				<Grid item xs={3}></Grid>
 				<Grid item xs={3}>
 					<Button variant="contained" component="label" >Recibo servicios públicos
 					<Input
@@ -467,7 +549,7 @@ export default function Formulario_usuario() {
 				) : (
 						<div>
 							<div className={classes.instructions}>{getStepContent(activeStep)}</div>
-							<div style={{ textAlign:'center', marginTop: '8%' }}>
+							<div style={{ textAlign: 'center', marginTop: '8%' }}>
 								<Button style={{ color: 'gray' }} disabled={activeStep === 0} onClick={handleBack} variant="outlined" >
 									Regresar
 								</Button>

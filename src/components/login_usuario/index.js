@@ -25,12 +25,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import Formulario_empleado from '../formulario_usuario';
+import Formulario_empleado from '../inicio_usuario/formulario_usuario';
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Mande'}
+      {'Copyright © Al sazón de la Paloma '}
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -101,16 +101,14 @@ const Login_usuario = () => {
       set_error_contrasenha(false);
       set_helper_pass('');
       set_helper_cc('');
-      fetch('http://localhost:4000/login_empleado', {
+      let status;
+      fetch('http://localhost:4000/userLogin', {
         method: 'POST',
-        body: JSON.stringify({ cedula, contrasenha }), // data can be `string` or {object}!
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
+        body: JSON.stringify({ RestaurantUserID: parseInt(cedula), RestaurantUserPass: contrasenha }) // data can be `string` or {object}!
+      }).then(res => { status = res.status; return res.json()})
         .then(response => {
-          response.message !== "Ingreso realizado" ? dispatch(error_login(response)) : dispatch(success_login(response));
-          response.message !== "Ingreso realizado" ? set_pass_invalid(true) : set_pass_invalid(false);
+          response.Message !== "Ingreso Realizado!" ? dispatch(error_login(response)) : dispatch(success_login(response, status));
+          response.Message !== "Ingreso Realizado!" ? set_pass_invalid(true) : set_pass_invalid(false);
 
         })
         .catch(error => alert(error));
@@ -118,7 +116,7 @@ const Login_usuario = () => {
   }
   return (
     <Grid container component="main" className={classes.root}>
-      {usuario.status===200 ? <Redirect to="/inicio_empleado" /> : null}
+      {usuario.status===200 ? <Redirect to="/inicio/usuario" /> : null}
       <CssBaseline />
       <Grid item xs={false} sm={4} md={8} className={classes.image}>
       </Grid>
@@ -133,7 +131,7 @@ const Login_usuario = () => {
               required
               fullWidth
               id="cedula"
-              label="Cédula"
+              label="ID"
               name="cedula"
               value={cedula}
               onChange={e => set_cedula(e.target.value)}
@@ -156,16 +154,16 @@ const Login_usuario = () => {
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              label="Recordar datos"
             />
             <Button
               fullWidth
               variant="contained"
               onClick={() => ingresar()}
-              style={{ background: '#65a84e', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
+              style={{ background: '#c62828', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
               className={classes.submit}
             >
-              Ingrese a Mande
+              Ingresar
                <KeyboardTab style={{ fontSize: 35, marginLeft: '10px' }} />
             </Button>
             <Snackbar open={pass_invalid} autoHideDuration={4000}
@@ -178,38 +176,13 @@ const Login_usuario = () => {
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" style={{ color: '#707070' }}>
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" onClick={e => handleClickOpen()} variant="body2" style={{ color: '#707070' }}>
-                  {"dale click aquí para registrarte"}
+                  recuperar contraseña
                 </Link>
               </Grid>
             </Grid>
             <Box mt={5}>
               <Copyright />
             </Box>
-            <Dialog
-              open={open}
-              TransitionComponent={Transition}
-              fullScreen
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-slide-title"
-              aria-describedby="alert-dialog-slide-description"
-            >
-              <DialogTitle id="alert-dialog-slide-title">{"Formulario de registro"}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-slide-description">
-                  <Formulario_empleado />
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleClose} color="primary">
-                  CERRAR FORMULARIO
-                </Button>
-              </DialogActions>
-            </Dialog>
           </form>
         </div>
       </Grid>
