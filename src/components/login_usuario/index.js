@@ -111,7 +111,7 @@ const Login_usuario = () => {
           response.Message !== "Ingreso Realizado!" ? set_pass_invalid(true) : set_pass_invalid(false);
 
         })
-        .catch(error => alert(error));
+        .catch(error => alert("Error con la conexión al servidor"));
     }
   }
   return (
@@ -170,7 +170,7 @@ const Login_usuario = () => {
               anchorOrigin={{ vertical, horizontal }}
             >
               <Alert onClose={() => set_pass_invalid(false)} variant="filled" severity="error">
-                {usuario.message}
+                {"Error en la contraseña o usuario: "+usuario.error}
               </Alert>
             </Snackbar>
             <Grid container>

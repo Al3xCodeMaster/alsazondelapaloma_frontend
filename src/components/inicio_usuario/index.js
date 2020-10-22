@@ -17,12 +17,10 @@ import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import Avatar from '@material-ui/core/Avatar'
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
 import { BrowserRouter, Route, Redirect, Switch, Router } from 'react-router-dom';
-import { createMuiTheme } from '@material-ui/core/styles';
 import Formulario_usuario from './formulario_usuario';
+import Dashboard_usuario from './dashboard';
 import { useSelector} from 'react-redux';
 
 function Copyright() {
@@ -50,9 +48,9 @@ const useStyles = makeStyles((theme) => ({
   toolbarIcon: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-end',
     padding: '0 8px',
-    height: '30%'
+    ...theme.mixins.toolbar,
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -118,12 +116,6 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     height: 240,
   },
-  avatar: {
-    align: 'flex',
-    '& > *': {
-      margin: theme.spacing(5),
-    },
-  }
 }));
 
 export default function Dashboard_empleado() {
@@ -170,15 +162,11 @@ export default function Dashboard_empleado() {
           }}
           open={open}
         >
-          {!open?<div style={{padding: '40%'}}></div>:<div className={classes.toolbarIcon}>
-          <h1 style={{alignSelf: 'auto'}}>{usuario.status==200?usuario.userInfo.Payload.UserName:"No User"}</h1>  
-          <div className={classes.avatar}>
-            <Avatar src={usuario.status==200?"http://localhost:4000/file/"+usuario.userInfo.Payload.UrlPhoto:null } style={{width: '80%', height: '80%', display: 'stretch', marginRight: 'auto', marginLeft: 'auto'}}/>
-          </div>
+          <div className={classes.toolbarIcon}>
             <IconButton onClick={handleDrawerClose}>
               <ChevronLeftIcon />
             </IconButton>
-          </div>}
+          </div>
           <Divider/>
           <List>{mainListItems}</List>
           <Divider />
@@ -188,6 +176,7 @@ export default function Dashboard_empleado() {
           <Container maxWidth="lg" className={classes.container}>
           <Switch>
               <Route path="/admin/crear" component={Formulario_usuario} />
+              <Route path='/' component={Dashboard_usuario}/>
             </Switch>
           </Container>
         </main> 
