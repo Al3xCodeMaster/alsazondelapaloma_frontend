@@ -93,8 +93,8 @@ const Login_usuario = () => {
     if (!Number(cedula) || contrasenha.length <= 6) {
       !Number(cedula) ? set_error_cedula(true) : set_error_cedula(false);
       !Number(cedula) ? set_helper_cc('La cédula debe ser un número') : set_helper_cc('');
-      contrasenha.length <= 6 ? set_error_contrasenha(true) : set_error_contrasenha(false);
-      contrasenha.length <= 6 ? set_helper_pass('La contraseña debe ser mayor a 6 caracteres') : set_helper_pass('');
+      //contrasenha.length <= 6 ? set_error_contrasenha(true) : set_error_contrasenha(false);
+      //contrasenha.length <= 6 ? set_helper_pass('La contraseña debe ser mayor a 6 caracteres') : set_helper_pass('');
 
     } else {
       set_error_cedula(false);

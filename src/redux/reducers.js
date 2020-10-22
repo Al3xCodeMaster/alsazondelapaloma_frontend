@@ -2,8 +2,7 @@ import {
     SUCCESS_LOGIN,
     ERROR_LOGIN,
     SET_COORDINATES,
-    SET_ADDRESS,
-    SET_CEDULA,
+    SET_ID,
     SET_NOMBRE,
     SET_APELLIDO,
     SET_CELULAR,
@@ -11,36 +10,34 @@ import {
     SET_CONTRASENHA,
     SET_SERVICIOS,
     SUBIO_FOTO,
-    SUBIO_CEDULA,
-    SUBIO_RECIBO,
-    SET_NAVBAR
+    SET_NAVBAR,
+    SET_ADDRESS,
+    SET_DATE,
+    SET_TYPE_ID
 }
     from './actions';
 
 const initialState = {
-    usuario: "",
+    usuario: {},
     message: 'Hola redux',
     cargando: false,
     coordenadas: { lat: 3.382225, lng: -76.531584 },
-    direccion: '',
-    subio_fot: false,
-    subio_doc: false,
-    subio_recibo: false,
+    address: '',
+    datePick: new Date(Date.now()),
+    subio_fot: null,
     nav_bar: 'principal',
 };
 
 function redux_reducer(state = initialState, action) {
     switch (action.type) {
         case SUCCESS_LOGIN:
-            return { ...state, usuario: {token: action.payload, status: action.status}};
+            return { ...state, usuario: {userInfo: action.payload, status: action.status}};
         case ERROR_LOGIN:
             return { ...state, usuario: action.payload };
         case SET_COORDINATES:
             return { ...state, coordenadas: action.payload };
-        case SET_ADDRESS:
-            return { ...state, direccion: action.payload };
-        case SET_CEDULA:
-            return { ...state, usuario: { ...state.usuario, cedula: action.payload } };
+        case SET_ID:
+            return { ...state, usuario: { ...state.usuario, id: action.payload } };
         case SET_NOMBRE:
             return { ...state, usuario: { ...state.usuario, nombre: action.payload } };
         case SET_APELLIDO:
@@ -55,12 +52,14 @@ function redux_reducer(state = initialState, action) {
             return { ...state, usuario: { ...state.usuario, celular: action.payload } };
         case SUBIO_FOTO:
             return { ...state, subio_fot: action.payload }
-        case SUBIO_CEDULA:
-            return { ...state, subio_doc: action.payload }
-        case SUBIO_RECIBO:
-            return { ...state, subio_recibo: action.payload }
+        case SET_DATE:
+            return { ...state, datePick: action.payload } 
+        case SET_ADDRESS:
+            return {...state, address: action.payload}
+        case SET_TYPE_ID:
+            return { ...state, usuario: { ...state.usuario, tipoId: action.payload }};
         case SET_NAVBAR:
-            return { ...state, nav_bar: action.payload }
+            return { ...state, nav_bar: action.payload}
         default:
             return state;
     }

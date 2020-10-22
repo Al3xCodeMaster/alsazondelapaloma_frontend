@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import Search_location from '../mapas/search_location';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -10,27 +11,32 @@ import { TextField, Input } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import DateFnsUtils from '@date-io/date-fns';
+import clsx from 'clsx';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import InputLabel from '@material-ui/core/InputLabel';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import FormControl from '@material-ui/core/FormControl';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import {
+	MuiPickersUtilsProvider,
+	KeyboardDatePicker,
+  } from '@material-ui/pickers';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-	set_cedula,
+	set_id,
 	set_nombre,
 	set_apellido,
 	set_celular,
 	set_correo,
 	set_contrasenha,
 	set_servicios,
-	subio_cedula,
-	subio_foto
+	subio_foto,
+	set_type_id,
+	set_date
 } from '../../redux/actions';
-import { CloudUpload, CheckCircleOutline, DeleteOutline } from '@material-ui/icons';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
+import { CloudUpload} from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
 
 function Alert(props) {
@@ -65,21 +71,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-	return ['Información básica', 'Seguridad'];
+	return ['Información básica', 'Dirección', 'Seguridad'];
 }
 function Informacion_basica() {
 	const classes = useStyles();
-	const [cedula, set_cc] = useState('');
+	const [id, set_cc] = useState('');
 	const [nombre, set_name] = useState('');
 	const [apellido, set_last_name] = useState('');
-	const [celular, set_cellphone] = useState('');
-	const [correo, set_email] = useState('');
-	const { usuario } = useSelector(state => ({
-		usuario: state.redux_reducer.usuario,
+	const [options, setOptions] = useState([]);
+	const [open, setOpen] = useState(false);
+	const loading = open && options.length === 0;
+	const {datePick, tipoId} = useSelector(state => ({
+		datePick: state.redux_reducer.datePick,
+		tipoId: state.redux_reducer.tipoId
 	}));
 	const dispatch = useDispatch();
-	const set_state_cedula = (value) => {
-		dispatch(set_cedula(value));
+
+	const set_state_id = (value) => {
+		dispatch(set_id(value));
 		set_cc(value);
 	}
 	const set_state_nombre = (value) => {
@@ -90,40 +99,105 @@ function Informacion_basica() {
 		dispatch(set_apellido(value));
 		set_last_name(value);
 	}
-	const set_state_celular = (value) => {
-		dispatch(set_celular(value));
-		set_cellphone(value);
+	
+	const handleDateChange = (value) => {
+		dispatch(set_date(value));
+	};
+
+	const set_state_type_id = (value) => {
+		dispatch(set_type_id(value));
 	}
-	const set_state_correo = (value) => {
-		dispatch(set_correo(value));
-		set_email(value);
-	}
+
+	React.useEffect(() => {
+		let active = true;
+
+		if (!loading) {
+			return undefined;
+		}
+
+		fetch('http://localhost:4000/getAllDocuments', {
+				method: 'GET'
+			}).then(res => res.json())
+			.then(items => {
+				if(active){
+					setOptions(items.map((x) => x.DocumentTypeID));
+				}
+			})
+			.catch(err => console.log(err));
+		return () => {
+			active = false;
+		};
+	}, [loading]);
+
+	React.useEffect(() => {
+		if (!open) {
+		  setOptions([]);
+		}
+	  }, [open]);
+
 	return (
 		<div style={{ justifyContent: 'center', alignItems: 'center', }}>
-			<TextField id="empleado_cedula" type="number" value={cedula} onChange={e => set_state_cedula(e.target.value)} className={classes.input} label="Cédula" variant="outlined" />
-			<TextField id="empleado_nombre" value={nombre} onChange={e => set_state_nombre(e.target.value)} className={classes.input} label="Nombre" variant="outlined" />
-			<TextField id="empleado_apellido" value={apellido} onChange={e => set_state_apellido(e.target.value)} className={classes.input} label="Apellido" variant="outlined" />
-			<TextField id="empleado_celular" type="number" value={celular} onChange={e => set_state_celular(e.target.value)} className={classes.input} label="Celular" variant="outlined" />
-			<TextField id="empleado_correo" value={correo} onChange={e => set_state_correo(e.target.value)} className={classes.input} label="Correo" variant="outlined" />
+			<TextField id="usuario_id" type="number" value={id} onChange={e => set_state_id(e.target.value)} className={classes.input} label="Número documento" variant="outlined" />
+			<Autocomplete
+						id="async-autocompl"
+						open={open}
+						onOpen={() => {
+							setOpen(true);
+						}}
+						onClose={() => {
+							setOpen(false);
+						}}
+						getOptionSelected={(option, value) => option === value?set_state_type_id(value):false}
+						getOptionLabel={(option) => option}
+						options={options}
+						loading={loading}
+						renderInput={(params) => (
+							<TextField 
+								{...params}
+								className={classes.input}
+								label="Seleccione el documento"
+								variant="outlined"
+								InputProps={{
+									...params.InputProps,
+									endAdornment: (
+										<React.Fragment>
+											{loading ? <CircularProgress color="inherit" size={20} /> : null}
+											{params.InputProps.endAdornment}
+										</React.Fragment>
+									),
+								}}
+							/>
+						)}
+			/>
+			<TextField id="usuario_nombre" value={nombre} onChange={e => set_state_nombre(e.target.value)} className={classes.input} label="Nombre" variant="outlined" />
+			<TextField id="usuario_apellido" value={apellido} onChange={e => set_state_apellido(e.target.value)} className={classes.input} label="Apellido" variant="outlined" />
+			<MuiPickersUtilsProvider utils={DateFnsUtils}>
+				<KeyboardDatePicker
+					margin="normal"
+					id="date-picker-birthday-user"
+					label="Fecha de nacimiento"
+					format="yyyy/MM/dd"
+					value={datePick}
+					onChange={handleDateChange}
+					KeyboardButtonProps={{
+						'aria-label': 'Cambiar fecha',
+					}}
+				/>
+			</MuiPickersUtilsProvider>
 		</div>
 	)
 }
 
 function Informacion_seguridad() {
 	const classes = useStyles();
-	const [contrasenha, set_password] = useState('');
-	const [foto, set_foto] = useState(0);
-	const [documento, set_documento] = useState(0);
+	const [contrasenhaNew, set_contrasenhaNew] = useState('');
+	const [contrasenhaRepeat, set_contrasenhaRepeat] = useState('');
+	const [equalContrasenha, set_equalContrasenha] = useState(true	);
+	const [showPassword, set_showPassword] = useState(false);
+	const [foto, set_foto] = useState(false);
 	const [open, setOpen] = React.useState(false);
 	const [open_success, set_open_success] = React.useState(false);
 	const [message, set_message] = useState('');
-	const [ocupacion, set_ocupacion] = useState('');
-	const [valor_hora, set_valor_hora] = useState('');
-	const [valor_unidad, set_valor_unidad] = useState('');
-	const [descripcion_trabajo, set_descripcion_trabajo] = useState('');
-	const [ocupaciones, set_ocupaciones] = useState([]);
-	const [sugerencias, set_sugerencias] = useState([]);
-	const [cargando, set_cargando] = useState(false);
 	const vertical = 'top';
 	const horizontal = 'right';
 
@@ -137,163 +211,75 @@ function Informacion_seguridad() {
 		setOpen(false);
 		set_open_success(false);
 	};
-	const set_state_contrasenha = (value) => {
+	const set_state_contrasenhaNew = (value) => {
 		dispatch(set_contrasenha(value));
-		set_password(value);
+		set_contrasenhaNew(value);
+		set_equalContrasenha(true);
 	}
+	const set_state_contrasenhaRepeat = (value) => {
+		if(value!=contrasenhaNew){
+			set_equalContrasenha(true);
+		}else{
+			set_equalContrasenha(false);
+		}
+		set_contrasenhaRepeat(value);
+	}
+
+	const handleClickShowPassword = () => {
+		set_showPassword(!showPassword);
+	  };
+	
+	  const handleMouseDownPassword = (event) => {
+		event.preventDefault();
+	  };
+
 	const set_file = value => {
-		set_foto(value);
+		dispatch(subio_foto(value));
+		set_foto(true);
 	}
-	const set_doc = value => {
-		set_documento(value);
-	}
-	const add_ocupacion = () => {
-		let temp = sugerencias;
-		let ocup = ocupaciones;
 
-		if (!Number(valor_hora) && valor_hora != "0") {
-			setOpen(true);
-			set_message('El precio por hora no puede estar vacio y debe ser un número');
-		}
-		else if (!Number(valor_unidad) && valor_unidad != "0") {
-			setOpen(true);
-			set_message('El precio por unidad no puede estar vacio y debe ser un número');
-		}
-		else if (temp.filter(x => x == ocupacion).length === 0) {
-			setOpen(true);
-			set_message('Seleccione una profesión válida');
-		}
-		else if (parseFloat(valor_unidad) < 0) {
-			setOpen(true);
-			set_message('El precio por unidad debe ser mayor a cero');
-		}
-		else if (parseFloat(valor_hora) < 0) {
-			setOpen(true);
-			set_message('El precio por hora debe ser mayor a cero');
-		}
-		else {
-
-			ocup.filter(x => x.ocupacion_id === ocupacion).length === 0 ? ocup.push({ ocupacion_id: ocupacion, servicio_precio_hora: valor_hora, servicio_precio_unidad_labor: valor_unidad, servicio_descripcion: descripcion_trabajo }) : alert('Usted ya selecciono esta profesión');
-			set_ocupaciones(ocup);
-			dispatch(set_servicios(ocup));
-			set_ocupacion('');
-			set_valor_hora('');
-			set_valor_unidad('');
-			set_sugerencias([]);
-			set_descripcion_trabajo('');
-		}
-	}
-	const eliminar_ocupacion = (value) => {
-		let temp = ocupaciones;
-		for (let i = 0; i < temp.length; i++) {
-			if (value === temp[i].ocupacion_id) {
-				temp.splice(i, 1);
-			}
-		}
-		set_ocupaciones(temp);
-		dispatch(set_servicios(temp));
-	}
-	const search_ocupacion = value => {
-		set_cargando(true);
-		set_ocupacion(value);
-		fetch('http://localhost:4000/filtro_ocupacion', {
-			method: 'POST',
-			body: JSON.stringify({
-				id: value
-			}), // data can be `string` or {object}!
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		}).then(res => res.json())
-			.then(response => {
-				if (response.status === 400 || response.status === 200) {
-					let sugg = [];
-					for (let i = 0; i < response.sugerencias.length; i++) {
-						sugg.push(response.sugerencias[i].ocupacion_id);
-					}
-					set_sugerencias(sugg);
-					set_cargando(false);
-				}
-				else {
-					set_sugerencias([]);
-					set_cargando(false);
-				}
-			})
-			.catch(error => {
-				set_sugerencias([]);
-				set_cargando(false);
-			});
-	}
-	const subir_foto_server = () => {
-		const data = new FormData();
-
-		if (usuario.cedula.length === 0 || !Number(usuario.cedula)) {
-			setOpen(true);
-			set_message('Debe rellenar el campo de cédula y debe ser un dato tipo numérico');
-		}
-		else if (foto === 0) {
-			setOpen(true);
-			set_message('Debe seleccionar un archivo');
-		}
-		else {
-			data.append('cedula', usuario.cedula);
-			data.append('foto', foto);
-			fetch('http://localhost:4000/upload_fotos', {
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-				},
-				body: data
-			}).then(res => res.json())
-				.then(response => {
-					set_open_success(true);
-					dispatch(subio_foto(true));
-				})
-				.catch(error => { alert(error); dispatch(subio_foto(false)); });
-		}
-	}
-	const subir_documento_server = () => {
-		const data = new FormData();
-
-		if (usuario.cedula.length === 0 || !Number(usuario.cedula)) {
-			setOpen(true);
-			set_message('Debe rellenar el campo de cédula y debe ser un dato tipo numérico');
-		}
-		else if (documento === 0) {
-			setOpen(true);
-			set_message('Debe seleccionar un archivo');
-		}
-		else {
-			data.append('cedula', usuario.cedula);
-			data.append('documento', documento);
-			fetch('http://localhost:4000/upload_cedula', {
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-				},
-				body: data
-			}).then(res => res.json())
-				.then(response => {
-					set_open_success(true);
-					dispatch(subio_cedula(true));
-				})
-				.catch(error => { alert(error); dispatch(subio_cedula(false)); });
-		}
-	}
 	return (
 		<div style={{ alignContent: 'center' }}>
-			<TextField id="contrasenha" value={contrasenha} onChange={e => set_state_contrasenha(e.target.value)} className={classes.input} label="Contraseña para el inicio de sección" variant="outlined" />
+		<FormControl className={classes.input}>
+          <InputLabel htmlFor="standard-adornment-password">Contraseña</InputLabel>
+          <Input
+            id="standard-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            value={contrasenhaNew}
+			onChange={e => set_state_contrasenhaNew(e.target.value)}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
+		<FormControl className={classes.input}>
+			<InputLabel htmlFor="standard-adornment-password">Repetir contraseña</InputLabel>
+			<Input
+            id="standard-adornment-password"
+            type="password"
+            value={contrasenhaRepeat}
+			onChange={e => set_state_contrasenhaRepeat(e.target.value)}
+			error={equalContrasenha} 
+			/>	
+		</FormControl>
 			<div style={{ marginLeft: '20%' }}>
-				<Button variant="contained" component="label">Seleccionar foto del empleado
+				<Button variant="outlained" component="label">{foto?"Seleccionado":"Nada seleccionado"}
+				</Button>
+				<Button variant="contained" style={{ marginLeft: '3%', color: 'green' }} component="label"> Subir foto del usuario
+				<CloudUpload style={{ fontSize: 30, marginLeft: '10px' }} />
 					<Input
 						type="file"
 						onChange={e => set_file(e.target.files[0])}
 						style={{ display: "none" }}
 					/>
-				</Button>
-				<Button variant="outlined" style={{ marginLeft: '3%', color: 'green' }} onClick={e => subir_foto_server()}>
-					Subir foto de la empleado
-					<CloudUpload style={{ fontSize: 30, marginLeft: '10px' }} />
 				</Button>
 			</div>
 			<Snackbar open={open} autoHideDuration={3000} onClose={handleClose}
@@ -308,86 +294,6 @@ function Informacion_seguridad() {
 					archivo subido al servidor
 				</Alert>
 			</Snackbar>
-			<div style={{ marginLeft: '20%', marginTop: '3%' }}>
-				<Button variant="contained" component="label" >Seleccionar foto de la cédula
-					<Input
-						type="file"
-						onChange={e => set_doc(e.target.files[0])}
-						style={{ display: "none" }}
-					/>
-				</Button>
-				<Button variant="outlined" style={{ marginLeft: '4%', color: 'green' }} onClick={e => subir_documento_server()}>
-					Subir foto de la cédula
-					<CloudUpload style={{ fontSize: 30, marginLeft: '10px' }} />
-				</Button>
-			</div>
-			<Grid container className={classes.container_root} spacing={2}>
-				<Grid item xs={2} md={2}>
-					<Autocomplete
-						options={sugerencias}
-						getOptionLabel={option => option}
-						inputValue={ocupacion}
-						onChange={(e, v) => set_ocupacion(v)}
-						renderInput={params => (
-							<TextField
-								{...params}
-								onChange={({ target }) => search_ocupacion(target.value)}
-								label="Profesión"
-								fullWidth
-							/>
-						)}
-					/>
-				</Grid>
-				<Grid item xs={2} md={2}>
-					<TextField type="number" id="valor_hora" value={valor_hora} onChange={e => set_valor_hora(e.target.value)} label="Precio por hora" />
-				</Grid>
-				<Grid item xs={2} md={2}>
-					<TextField type="number" id="valor_hora" value={valor_unidad} onChange={e => set_valor_unidad(e.target.value)} label="Precio por unidad" />
-				</Grid>
-				<Grid item xs={4} md={4}>
-					<TextField
-						id="standard-textarea"
-						label="Describa sus habilidades"
-						fullWidth
-						multiline
-						value={descripcion_trabajo} onChange={e => set_descripcion_trabajo(e.target.value)}
-					/>
-				</Grid>
-				<Grid item xs={2} md={2}>
-					<Button variant="outlined" style={{ color: 'green' }} onClick={e => add_ocupacion()}>
-						Agregar
-						<CheckCircleOutline style={{ fontSize: 30, marginLeft: '10px', color: 'green' }} />
-					</Button>
-				</Grid>
-			</Grid>
-
-			<TableContainer component={Paper} style={{ width: '97%' }}>
-				<Table stickyHeader={true} aria-label="simple table">
-					<TableHead>
-						<TableRow>
-							<TableCell>Ocupación</TableCell>
-							<TableCell>Precio Por Hora</TableCell>
-							<TableCell>Precio Unidad Labor</TableCell>
-							<TableCell>Descripción</TableCell>
-							<TableCell>Eliminar</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-
-						{
-							ocupaciones.map((element) => (
-								<TableRow key={element.ocupacion_id}>
-									<TableCell>{element.ocupacion_id}</TableCell>
-									<TableCell>{element.servicio_precio_hora}</TableCell>
-									<TableCell>{element.servicio_precio_unidad_labor}</TableCell>
-									<TableCell>{element.servicio_descripcion}</TableCell>
-									<TableCell><IconButton onClick={e => eliminar_ocupacion(element.ocupacion_id)} children={<DeleteOutline style={{ fontSize: 30, marginLeft: '10px', color: 'red' }} />} /></TableCell>
-								</TableRow>
-							))
-						}
-					</TableBody>
-				</Table>
-			</TableContainer>
 		</div>
 	)
 }
@@ -397,6 +303,8 @@ function getStepContent(step) {
 		case 0:
 			return <Informacion_basica />;
 		case 1:
+			return <Search_location />;	
+		case 2:
 			return <Informacion_seguridad />;
 		default:
 			return 'Unknown step';
@@ -414,12 +322,12 @@ export default function Formulario_empleado() {
 	const [activeStep, setActiveStep] = React.useState(0);
 	const [skipped, setSkipped] = React.useState(new Set());
 	const steps = getSteps();
-	const { usuario, direccion, coordenadas,subio_fot,subio_doc } = useSelector(state => ({
+	const { usuario, coordenadas, subio_fot, datePick, tipoId} = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
 		coordenadas: state.redux_reducer.coordenadas,
-		direccion: state.redux_reducer.direccion,
 		subio_fot: state.redux_reducer.subio_fot,
-		subio_doc: state.redux_reducer.subio_doc
+		datePick: state.redux_reducer.datePick,
+		tipoId: state.redux_reducer.tipoId
 	}));
 	const dispatch = useDispatch();
 	const handleClose = () => {
@@ -429,7 +337,7 @@ export default function Formulario_empleado() {
 		set_open_sucess(false);
 	};
 	const comprobar_info = () => {
-		if (!Number(usuario.cedula)) {
+		if (!Number(usuario.id)) {
 			set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
 			setOpen(true);
 		}
@@ -441,23 +349,15 @@ export default function Formulario_empleado() {
 			set_message('el apellido no puede estar vacio');
 			setOpen(true);
 		}
-		else if (!Number(usuario.celular)) {
-			set_message('el celular no puede estar vacio y debe ser un dato tipo numérico');
-			setOpen(true);
-		}
-		else if (!usuario.correo.includes('@')) {
-			set_message('el correo no puede estar vacio y debe ser de la forma example@example.com');
-			setOpen(true);
-		}
 		else {
 			setOpen(false);
 			handleNext()
 		}
 	}
 	const subir_formulario = () => {
-		if (usuario.servicios.length < 1 || !subio_doc|| !subio_fot || direccion.length === 0 || !Number(usuario.cedula) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || !Number(usuario.celular) || !usuario.correo.includes('@') || usuario.contrasenha.length < 7) {
+		if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || usuario.contrasenha.length < 7) {
 
-			if (!Number(usuario.cedula)) {
+			if (!Number(usuario.id)) {
 				set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
 			}
 			if (usuario.nombre.length === 0) {
@@ -475,39 +375,25 @@ export default function Formulario_empleado() {
 			if (usuario.contrasenha.length < 7) {
 				set_message('la contraseña debe ser mayor a 6 caracteres');
 			}
-			if (direccion.length === 0) {
-				set_message('seleccione una dirección válida');
-			}
-			if(!subio_fot){
-				set_message('necesita subir una foto del empleado');
-			}
-			if(!subio_doc){
-				set_message('necesita subir un documento del empleado');
-			}
-			if(usuario.servicios.length < 1){
-				set_message('necesita seleccionar al menos un servicio');
-			}
 			setOpen(true);
 		}
 		else {
 			setOpen(false);
-			fetch('http://localhost:4000/crear_empleado', {
+			var formData = new FormData();
+			formData.append('photo', subio_fot);
+			formData.append('userInfo', JSON.stringify({
+				RestaurantUserID: parseInt(usuario.id),
+				RestaurantUserName: usuario.nombre,
+				RestaurantUserLastname: usuario.apellido,
+				RestaurantUserLatitude: parseFloat(coordenadas.lat),
+				RestaurantUserLongitude: parseFloat(coordenadas.lng),
+				RestaurantUserBirthdate: datePick,
+				RestaurantUserPass: usuario.contrasenha,
+				DocumentTypeID: usuario.tipoId
+			}));
+			fetch('http://localhost:4000/createUser', {
 				method: 'POST',
-				body: JSON.stringify({
-					cedula: usuario.cedula,
-					nombre: usuario.nombre,
-					apellido: usuario.apellido,
-					celular: usuario.celular,
-					correo: usuario.correo,
-					latitud: coordenadas.lat,
-					longitud: coordenadas.lng,
-					direccion,
-					contrasenha: usuario.contrasenha,
-					servicios: JSON.stringify(usuario.servicios)
-				}), // data can be `string` or {object}!
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				body: formData
 			}).then(res => res.json())
 				.then(response => {
 					if (response.status === 400) {
@@ -518,7 +404,7 @@ export default function Formulario_empleado() {
 						set_message_success(response.message);
 						set_open_sucess(true);
 						handleReset();
-						dispatch(set_cedula(''));
+						dispatch(set_id(''));
 						dispatch(set_nombre(''));
 						dispatch(set_apellido(''));
 						dispatch(set_celular(''));
@@ -526,7 +412,6 @@ export default function Formulario_empleado() {
 						dispatch(set_servicios([]));
 						dispatch(set_contrasenha(''));
 						dispatch(subio_foto(false));
-						dispatch(subio_cedula(false));
 					}
 				})
 				.catch(error => {

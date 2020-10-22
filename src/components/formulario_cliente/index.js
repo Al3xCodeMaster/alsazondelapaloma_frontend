@@ -18,14 +18,12 @@ import {
   } from '@material-ui/pickers';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-	set_cedula,
+	set_id,
 	set_nombre,
 	set_apellido,
 	set_celular,
 	set_correo,
-	set_contrasenha,
-	subio_foto,
-	subio_recibo
+	set_contrasenha
 } from '../../redux/actions';
 import { CloudUpload } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
@@ -81,7 +79,7 @@ function Informacion_basica() {
 	}));
 	const dispatch = useDispatch();
 	const set_state_cedula = (value) => {
-		dispatch(set_cedula(value));
+		dispatch(set_id(value));
 		set_cc(value);
 	}
 	const set_state_nombre = (value) => {
@@ -103,7 +101,7 @@ function Informacion_basica() {
 
 	const handleDateChange = (date) => {
 		setSelectedDate(date);
-	  };
+	};
 
 	React.useEffect(() => {
 		let active = true;
@@ -112,15 +110,15 @@ function Informacion_basica() {
 			return undefined;
 		}
 
-		(async () => {
-			const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
-			const countries = await response.json();
-
-			if (active) {
-				setOptions(Object.keys(countries).map((key) => countries[key].item[0]));
-			}
-		})();
-
+		fetch('http://localhost:4000/getAllDocuments', {
+				method: 'GET'
+			}).then(res => res.json())
+			.then(items => {
+				if(active){
+					setOptions(items.map((x) => x.DocumentTypeID));
+				}
+			})
+			.catch(err => console.log(err));
 		return () => {
 			active = false;
 		};
@@ -139,8 +137,8 @@ function Informacion_basica() {
 						onClose={() => {
 							setOpen(false);
 						}}
-						getOptionSelected={(option, value) => option.name === value.name}
-						getOptionLabel={(option) => option.name}
+						getOptionSelected={(option, value) => option === value}
+						getOptionLabel={(option) => option}
 						options={options}
 						loading={loading}
 						renderInput={(params) => (
@@ -168,13 +166,13 @@ function Informacion_basica() {
 			<MuiPickersUtilsProvider utils={DateFnsUtils}>
 				<KeyboardDatePicker
 					margin="normal"
-					id="date-picker-dialog"
-					label="Date picker dialog"
+					id="date-picker-birthday-client"
+					label="Fecha de nacimiento"
 					format="MM/dd/yyyy"
 					value={selectedDate}
 					onChange={handleDateChange}
 					KeyboardButtonProps={{
-						'aria-label': 'change date',
+						'aria-label': 'Cambiar fecha',
 					}}
 				/>
 			</MuiPickersUtilsProvider>
@@ -213,115 +211,10 @@ function Informacion_seguridad() {
 	const set_doc = value => {
 		set_documento(value);
 	}
-	const subir_foto_server = () => {
-		const data = new FormData();
 
-		if (usuario.cedula.length === 0 || !Number(usuario.cedula)) {
-			setOpen(true);
-			set_message('Debe rellenar el campo de cédula y debe ser un dato tipo numérico');
-		}
-		else if (foto === 0) {
-			setOpen(true);
-			set_message('Debe seleccionar un archivo');
-		}
-		else {
-			data.append('cedula', usuario.cedula);
-			data.append('foto', foto);
-			fetch('http://localhost:4000/upload_fotos', {
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-				},
-				body: data
-			}).then(res => res.json())
-				.then(response => {
-					set_open_success(true);
-					dispatch(subio_foto(true));
-				})
-				.catch(error => { alert(error); dispatch(subio_foto(false)); });
-		}
-	}
-	const subir_recibo_server = () => {
-		const data = new FormData();
-
-		if (usuario.cedula.length === 0 || !Number(usuario.cedula)) {
-			setOpen(true);
-			set_message('Debe rellenar el campo de cédula y debe ser un dato tipo numérico');
-		}
-		else if (documento === 0) {
-			setOpen(true);
-			set_message('Debe seleccionar un archivo');
-		}
-		else {
-			data.append('cedula', usuario.cedula);
-			data.append('recibo', documento);
-			fetch('http://localhost:4000/upload_recibos', {
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-				},
-				body: data
-			}).then(res => res.json())
-				.then(response => {
-					set_open_success(true);
-					dispatch(subio_recibo(true));
-				})
-				.catch(error => { alert(error); dispatch(subio_recibo(false)); });
-		}
-	}
 	return (
 		<div style={{ width: '100%' }}>
 			<TextField id="contrasenha" value={contrasenha} onChange={e => set_state_contrasenha(e.target.value)} className={classes.input} label="Contraseña para el inicio de sección" variant="outlined" />
-			<Grid container className={classes.container_root} spacing={2}>
-				<Grid item xs={3}></Grid>
-				<Grid item xs={3}>
-					<Button variant="contained" component="label">Seleccionar foto usuario
-					<Input
-							type="file"
-							onChange={e => set_file(e.target.files[0])}
-							style={{ display: "none" }}
-						/>
-					</Button>
-				</Grid>
-				<Grid item xs={3}>
-					<Button variant="outlined" style={{ color: 'green' }} onClick={e => subir_foto_server()}>
-						Subir foto del usuario
-					<CloudUpload style={{ fontSize: 30, marginLeft: '10px' }} />
-					</Button>
-				</Grid>
-				<Grid item xs={3}></Grid>
-			</Grid>
-			<Snackbar open={open} autoHideDuration={3000} onClose={handleClose}
-				anchorOrigin={{ vertical, horizontal }}>
-				<Alert onClose={handleClose} severity="error">
-					{message}
-				</Alert>
-			</Snackbar>
-			<Snackbar open={open_success} autoHideDuration={3000} onClose={handleClose}
-				anchorOrigin={{ vertical, horizontal }}>
-				<Alert onClose={handleClose} severity="success">
-					archivo subido al servidor
-				</Alert>
-			</Snackbar>
-			<Grid container className={classes.container_root} spacing={2}>
-				<Grid item xs={3}></Grid>
-				<Grid item xs={3}>
-					<Button variant="contained" component="label" >Recibo servicios públicos
-					<Input
-							type="file"
-							onChange={e => set_doc(e.target.files[0])}
-							style={{ display: "none" }}
-						/>
-					</Button>
-				</Grid>
-				<Grid item xs={3}>
-					<Button variant="outlined" style={{ color: 'green' }} onClick={e => subir_recibo_server()}>
-						Subir foto del recibo
-					<CloudUpload style={{ fontSize: 30, marginLeft: '10px' }} />
-					</Button>
-				</Grid>
-				<Grid item xs={3}></Grid>
-			</Grid>
 		</div>
 	)
 }
@@ -354,8 +247,6 @@ export default function Formulario_usuario() {
 		usuario: state.redux_reducer.usuario,
 		coordenadas: state.redux_reducer.coordenadas,
 		direccion: state.redux_reducer.direccion,
-		subio_fot: state.redux_reducer.subio_fot,
-		subio_recibo: state.redux_reducer.subio_recibo
 	}));
 	const dispatch = useDispatch();
 	const handleClose = () => {
@@ -391,7 +282,7 @@ export default function Formulario_usuario() {
 		}
 	}
 	const subir_formulario = () => {
-		if (!subio_recibo || !subio_fot || direccion.length === 0 || !Number(usuario.cedula) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || !Number(usuario.celular) || !usuario.correo.includes('@') || usuario.contrasenha.length < 7) {
+		if (direccion.length === 0 || !Number(usuario.cedula) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || !Number(usuario.celular) || !usuario.correo.includes('@') || usuario.contrasenha.length < 7) {
 
 			if (!Number(usuario.cedula)) {
 				set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
@@ -413,12 +304,6 @@ export default function Formulario_usuario() {
 			}
 			if (direccion.length === 0) {
 				set_message('seleccione una dirección válida');
-			}
-			if (!subio_fot) {
-				set_message('necesita subir una foto del usuario');
-			}
-			if (!subio_recibo) {
-				set_message('necesita subir un documento del usuario');
 			}
 			setOpen(true);
 		}
@@ -450,14 +335,12 @@ export default function Formulario_usuario() {
 						set_message_success(response.message);
 						set_open_sucess(true);
 						handleReset();
-						dispatch(set_cedula(''));
+						dispatch(set_id(''));
 						dispatch(set_nombre(''));
 						dispatch(set_apellido(''));
 						dispatch(set_celular(''));
 						dispatch(set_correo(''));
 						dispatch(set_contrasenha(''));
-						dispatch(subio_foto(false));
-						dispatch(subio_recibo(false));
 					}
 				})
 				.catch(error => {

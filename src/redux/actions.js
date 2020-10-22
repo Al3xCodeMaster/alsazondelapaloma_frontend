@@ -1,8 +1,8 @@
 export const ERROR_LOGIN = 'ERROR_LOGIN';
 export const SUCCESS_LOGIN = 'SUCCESS_LOGIN';
 export const SET_COORDINATES = 'SET_COORDINATES';
-export const SET_ADDRESS = 'SET_ADDRESS';
-export const SET_CEDULA = 'SET_CEDULA';
+export const SET_DATE = 'SET_DATE';
+export const SET_ID = 'SET_ID';
 export const SET_NOMBRE = 'SET_NOMBRE';
 export const SET_APELLIDO = 'SET_APELLIDO';
 export const SET_CELULAR = 'SET_CELULAR';
@@ -10,9 +10,9 @@ export const SET_CORREO = 'SET_CORREO';
 export const SET_CONTRASENHA = 'SET_CONTRASENHA';
 export const SET_SERVICIOS = 'SET_SERVICIOS';
 export const SUBIO_FOTO = 'SUBIO_FOTO';
-export const SUBIO_CEDULA = 'SUBIO_CEDULA';
-export const SUBIO_RECIBO = 'SUBIO_RECIBO';
 export const SET_NAVBAR = 'SET_NAVBAR';
+export const SET_ADDRESS = 'SET_ADDRESS';
+export const SET_TYPE_ID = 'SET_TYPE_ID';
 
 //******************LOGIN*******************
 export const success_login = (payload,status) => {
@@ -34,15 +34,15 @@ export const set_coordinates = payload => {
         payload
     }
 }
-export const set_Address = payload => {
+export const set_date = payload => {
     return {
-        type: SET_ADDRESS,
+        type: SET_DATE,
         payload
     }
 }
-export const set_cedula = payload => {
+export const set_id = payload => {
     return {
-        type: SET_CEDULA,
+        type: SET_ID,
         payload
     }
 }
@@ -88,15 +88,15 @@ export const subio_foto = payload => {
         payload
     }
 }
-export const subio_cedula = payload => {
+export const set_Address = payload => {
     return {
-        type: SUBIO_CEDULA,
+        type: SET_ADDRESS,
         payload
     }
 }
-export const subio_recibo = payload => {
+export const set_type_id = payload => {
     return {
-        type: SUBIO_RECIBO,
+        type: SET_TYPE_ID,
         payload
     }
 }

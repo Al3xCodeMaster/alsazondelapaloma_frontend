@@ -23,7 +23,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import { BrowserRouter, Route, Redirect, Switch, Router } from 'react-router-dom';
 import { createMuiTheme } from '@material-ui/core/styles';
 import Formulario_usuario from './formulario_usuario';
-
+import { useSelector} from 'react-redux';
 
 function Copyright() {
   return (
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
   toolbarIcon: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-around',
     padding: '0 8px',
     height: '30%'
   },
@@ -121,7 +121,7 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     align: 'flex',
     '& > *': {
-      margin: theme.spacing(1),
+      margin: theme.spacing(5),
     },
   }
 }));
@@ -129,12 +129,17 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard_empleado() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const { usuario } = useSelector(state => ({
+		usuario: state.redux_reducer.usuario,
+	}));
   const handleDrawerOpen = () => {
     setOpen(true);
   };
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
@@ -166,9 +171,9 @@ export default function Dashboard_empleado() {
           open={open}
         >
           {!open?<div style={{padding: '40%'}}></div>:<div className={classes.toolbarIcon}>
+          <h1 style={{alignSelf: 'auto'}}>{usuario.status==200?usuario.userInfo.Payload.UserName:"No User"}</h1>  
           <div className={classes.avatar}>
-            <Avatar alt="Foto" src="https://cdn.discordapp.com/emojis/736952836893704192.png" style={{width: '50%', height: '50%', display: 'block', marginRight: 'auto', marginLeft: 'auto'}}/>
-          <h1>Ikegox</h1>
+            <Avatar src={usuario.status==200?"http://localhost:4000/file/"+usuario.userInfo.Payload.UrlPhoto:null } style={{width: '80%', height: '80%', display: 'stretch', marginRight: 'auto', marginLeft: 'auto'}}/>
           </div>
             <IconButton onClick={handleDrawerClose}>
               <ChevronLeftIcon />
