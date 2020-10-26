@@ -107,11 +107,10 @@ const Login_usuario = () => {
         body: JSON.stringify({ RestaurantUserID: parseInt(cedula), RestaurantUserPass: contrasenha }) // data can be `string` or {object}!
       }).then(res => { status = res.status; return res.json()})
         .then(response => {
-          response.Message !== "Ingreso Realizado!" ? dispatch(error_login(response)) : dispatch(success_login(response, status));
           response.Message !== "Ingreso Realizado!" ? set_pass_invalid(true) : set_pass_invalid(false);
-
+          response.Message !== "Ingreso Realizado!" ? dispatch(error_login(response)) : dispatch(success_login(response, status));
         })
-        .catch(error => alert("Error con la conexión al servidor"));
+        .catch(error => alert("Error con la conexión al servidor "+error));
     }
   }
   return (
@@ -152,10 +151,6 @@ const Login_usuario = () => {
               onChange={e => set_contrasenha(e.target.value)}
               autoComplete="current-password"
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Recordar datos"
-            />
             <Button
               fullWidth
               variant="contained"
@@ -176,7 +171,7 @@ const Login_usuario = () => {
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2" style={{ color: '#707070' }}>
-                  recuperar contraseña
+                  Recuperar contraseña
                 </Link>
               </Grid>
             </Grid>

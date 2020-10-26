@@ -6,6 +6,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -24,7 +25,13 @@ export const mainListItems = (
       <ListItemIcon>
       <PersonAddIcon/>
       </ListItemIcon>
-      <ListItemText primary="Crear Usuario" />
+      <ListItemText primary="Usuario" />
+    </ListItem>
+    <ListItem button component={Link} to='/admin/perfiles'>
+      <ListItemIcon>
+      <GroupAddIcon fontSize='medium'/>
+      </ListItemIcon>
+      <ListItemText primary="Perfiles" />
     </ListItem>
   </div>
 );
