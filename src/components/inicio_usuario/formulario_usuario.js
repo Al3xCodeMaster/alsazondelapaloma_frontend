@@ -81,9 +81,8 @@ function Informacion_basica() {
 	const [options, setOptions] = useState([]);
 	const [open, setOpen] = useState(false);
 	const loading = open && options.length === 0;
-	const {datePick, tipoId} = useSelector(state => ({
+	const {datePick} = useSelector(state => ({
 		datePick: state.redux_reducer.datePick,
-		tipoId: state.redux_reducer.tipoId
 	}));
 	const dispatch = useDispatch();
 

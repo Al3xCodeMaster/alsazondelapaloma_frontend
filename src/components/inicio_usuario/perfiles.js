@@ -14,7 +14,7 @@ import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
-import { CheckCircleOutline, DeleteOutline } from '@material-ui/icons';
+import { CheckCircleOutline, DeleteOutline} from '@material-ui/icons';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -34,6 +34,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import SearchIcon from '@material-ui/icons/Search';
+import CircularProgress from '@material-ui/core/CircularProgress';  
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -86,6 +87,43 @@ export default function Perfiles() {
     const [valueId, set_valueId] = useState(0);
     const componRef = React.useRef();
     const [id_doc, set_id_doc] = useState('');
+    const [open, setOpen] = useState(false);
+    const [options, setOptions] = useState([]);
+	const loading = open && options.length === 0;
+    const [id_type, set_id_type] = useState('');
+    const [user_cargado, set_user_cargado] = useState([]);
+
+    const set_state_type_id = (value) => {
+		set_id_type(value);
+	}
+
+    React.useEffect(() => {
+		let active = true;
+
+		if (!loading) {
+			return undefined;
+		}
+
+		fetch('http://localhost:4000/getAllDocuments', {
+				method: 'GET'
+			}).then(res => res.json())
+			.then(items => {
+				if(active){
+					setOptions(items.map((x) => x.DocumentTypeID));
+				}
+			})
+			.catch(err => console.log(err));
+		return () => {
+			active = false;
+		};
+	}, [loading]);
+
+	React.useEffect(() => {
+		if (!open) {
+		  setOptions([]);
+		}
+	  }, [open]);
+
 
     const handleClick = (event,valueId) => {
         set_valueId(valueId);
@@ -251,7 +289,23 @@ export default function Perfiles() {
     }  
 
     const buscar_id = () => {
-
+        fetch('http://localhost:4000/getUser', {
+            method: 'GET',
+            body: JSON.stringify(
+                {
+                    RestaurantUserID: parseInt(id_doc),
+                    DocumentTypeID: id_type
+                }
+            )
+        }).then(res => res.json())
+            .then(response => {
+                if(response.length > 0){
+                    set_user_cargado([response]);
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
     }
 
     return (
@@ -271,8 +325,8 @@ export default function Perfiles() {
                         <TextField
                             id="standard-textarea"
                             label="Nombre del perfil"
-                            fullWidth
                             disabled={cargando}
+                            fullWidth
                             value={nombre_profile} onChange={e => set_nombre_profile(e.target.value)}
                         />
                 </Grid>
@@ -393,7 +447,40 @@ export default function Perfiles() {
                                   }}
                             />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={3}>
+                    <Autocomplete
+                            id="async-autocompl"
+                            open={open}
+                            onOpen={() => {
+                                setOpen(true);
+                            }}
+                            onClose={() => {
+                                setOpen(false);
+                            }}
+                            getOptionSelected={(option, value) => option === value?set_state_type_id(value):false}
+                            getOptionLabel={(option) => option}
+                            options={options}
+                            loading={loading}
+                            renderInput={(params) => (
+                                <TextField 
+                                    {...params}
+                                    className={classes.input}
+                                    label="Seleccione el documento"
+                                    variant="outlined"
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <React.Fragment>
+                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </React.Fragment>
+                                        ),
+                                    }}
+                                />
+                            )}
+                    />
+                </Grid>
+                    <Grid item xs={2}>
                         <Button style={{marginLeft: '1%' }} onClick={buscar_id}>
                             Buscar
                             <SearchIcon style={{ fontSize: 30, marginLeft: '10px'}} />
@@ -405,15 +492,24 @@ export default function Perfiles() {
                     <Table stickyHeader={true} aria-label="simple table">
                         <TableHead>
                             <TableRow>
+                                <TableCell>Num. Documento</TableCell>
                                 <TableCell>Nombre </TableCell>
                                 <TableCell>Apellido </TableCell>
                                 <TableCell> Estado </TableCell>
+                                <TableCell>Fecha de creación</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-
                             {
-                            
+                                nombre_profile_temp.map((element) => (
+                                    <TableRow key={element.RestaurantUserID}>
+                                        <TableCell>{element.RestaurantUserID}</TableCell>
+                                        <TableCell>{element.RestaurantUserName}</TableCell>
+                                        <TableCell>{element.RestaurantUserLastname}</TableCell>
+                                        <TableCell>{element.RestaurantUserStatus?"Activo":"No activo"}</TableCell>
+                                        <TableCell>{element.RestaurantUserCreationDate? new Date(element.RestaurantUserCreationDate).toLocaleDateString():null}</TableCell>
+                                    </TableRow>
+                                ))
                             }
                         </TableBody>
                     </Table>

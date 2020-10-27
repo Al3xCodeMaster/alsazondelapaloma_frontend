@@ -22,7 +22,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link'
-import { TextField, Input, Tooltip} from '@material-ui/core';
+import { TextField, Input, Tooltip, List, ListItem, ListItemText} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import UpdateUserAdmin from './formulario_update';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
@@ -240,8 +240,18 @@ export default function Dashboard() {
                 </Grid>
                 {/* Recent Orders */}
                 <Grid item xs={9}>
+                <h2>Perfiles:</h2>
                 <Paper className={classes.paper}>
-                    <h1>Perfiles</h1>
+                  <List dense>
+                  {usuario.status==200?usuario.userInfo.Payload.Profiles!=null?usuario.userInfo.Payload.Profiles.map( (element) => (
+                    <ListItem>
+                    <ListItemText
+                      primary={element.ProfileName}
+                      secondary={element.ProfileCreationDate? new Date(element.ProfileCreationDate).toLocaleDateString():null}
+                    />
+                  </ListItem>
+                  )):<ListItem><h3>No tiene asignados perfiles</h3></ListItem>:null}
+                  </List>
                 </Paper>
                 </Grid>
             </Grid>
