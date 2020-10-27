@@ -173,6 +173,7 @@ function Informacion_basica() {
 			<TextField id="usuario_apellido" value={apellido} onChange={e => set_state_apellido(e.target.value)} className={classes.input} label="Apellido" variant="outlined" />
 			<MuiPickersUtilsProvider utils={DateFnsUtils}>
 				<KeyboardDatePicker
+					fullWidth
 					margin="normal"
 					id="date-picker-birthday-user"
 					label="Fecha de nacimiento"

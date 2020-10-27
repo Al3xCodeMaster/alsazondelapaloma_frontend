@@ -23,12 +23,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Link from '@material-ui/core/Link'
 import { TextField, Input, Tooltip} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import UpdateUser from './formulario_update';
+import UpdateUserAdmin from './formulario_update';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+	set_id,
 	set_nombre,
 	set_apellido,
+	set_type_id,
 	set_date
 } from '../../redux/actions';
 
@@ -132,6 +134,8 @@ export default function Dashboard() {
         dispatch(set_nombre(usuario.status==200?usuario.userInfo.Payload.UserName:""));
         dispatch(set_apellido(usuario.status==200?usuario.userInfo.Payload.LastName:""));
         dispatch(set_date(usuario.status==200?new Date(usuario.userInfo.Payload.Birthdate):datePick));
+        dispatch(set_id(usuario.status==200?usuario.userInfo.Payload.Id:""));
+        dispatch(set_type_id(usuario.status==200?usuario.userInfo.Payload.DocType:""));
         setopenPop(true);
     }
 
@@ -139,6 +143,8 @@ export default function Dashboard() {
       dispatch(set_nombre(""));
       dispatch(set_apellido(""));
       dispatch(set_date(datePick));
+      dispatch(set_id(""));
+      dispatch(set_type_id(""));
       setopenPop(false);
     };
 
@@ -154,7 +160,7 @@ export default function Dashboard() {
             <div className={classes.appBarSpacer} />
             <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
-                <Grid item xs={12} md={8} lg={6}>
+                <Grid item xs={6}>
                 <Paper className={fixedHeightPaper}>
                 <Title>{usuario.status==200?usuario.userInfo.Payload.UserName+" "+usuario.userInfo.Payload.LastName:"No user"}</Title>    
                 <Typography color="textPrimary" className={classes.depositContext}>
@@ -174,7 +180,7 @@ export default function Dashboard() {
                 </Paper>
                 </Grid>
                 {/* Recent Deposits */}
-                <Grid item xs={12} md={7} lg={3}>
+                <Grid item xs={6}>
                   <Badge
                         overlap="circle"
                         badgeContent={<Tooltip placement="right-start" title="Subir/Cambiar foto"><IconButton aria-label="Cambiar foto" component="label"><CameraAltIcon/><Input
@@ -243,7 +249,7 @@ export default function Dashboard() {
             <Dialog open={openPop} onClose={handleClosePop} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Modificar mis datos de usuario</DialogTitle>
               <DialogContent>
-                <UpdateUser></UpdateUser>
+                <UpdateUserAdmin/>
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClosePop} color="primary">

@@ -37,6 +37,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const useStyles = makeStyles((theme) => ({
     root: {
+        marginTop: '5%',
         flexGrow: 1,
     },
     card_root: {
@@ -200,9 +201,13 @@ export default function Perfiles() {
                     if(response.error){
                         set_error(true);
                         set_error_message('Error: '+response.error);
+                        return
                     }
                     set_success(true);
                     set_success_message('Perfil cambiado con éxito');
+                    if(response.length > 0){
+                        set_fetch_profiles(response);
+                    }
             })
             .catch(err => {
                 set_error(true);
@@ -224,7 +229,7 @@ export default function Perfiles() {
             </AppBar>
             <TabPanel value={value} index={0}>
             <Grid container className={classes.root} spacing={5}>
-                <Grid item xs>
+                <Grid item xs={6}>
                         <TextField
                             id="standard-textarea"
                             label="Nombre del perfil"
@@ -234,7 +239,7 @@ export default function Perfiles() {
                             value={nombre_profile} onChange={e => set_nombre_profile(e.target.value)}
                         />
                 </Grid>
-                <Grid item xs>
+                <Grid item xs={2}>
                     <FormControlLabel
                         value={activado}
                         control={<Switch disabled={cargando} checked={gilad} onChange={e => set_state_gilad()} />}
@@ -242,7 +247,7 @@ export default function Perfiles() {
                         labelPlacement="top"
                     />
                 </Grid>
-                <Grid item xs>
+                <Grid item xs={4}>
                     <Button disabled={cargando} style={{ color: 'green', marginLeft: '1%' }} onClick={e => add_profile()}>
                         Agregar
 						<CheckCircleOutline style={{ fontSize: 30, marginLeft: '10px', color: 'green' }} />

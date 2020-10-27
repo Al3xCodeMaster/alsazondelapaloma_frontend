@@ -25,10 +25,8 @@ import {
   } from '@material-ui/pickers';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-	set_id,
 	set_nombre,
 	set_apellido,
-	set_type_id,
 	set_date
 } from '../../redux/actions';
 
@@ -160,7 +158,7 @@ export default function Formulario_update_usuario() {
 		}
 	}
 	const subir_formulario = () => {
-		if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || usuario.contrasenha.length < 7) {
+		if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0) {
 
 			if (usuario.nombre.length === 0) {
 				set_message('el nombre no puede estar vacio');
@@ -171,31 +169,32 @@ export default function Formulario_update_usuario() {
 			setOpen(true);
 		}
 		else {
+            let status;
 			setOpen(false);
-			fetch('http://localhost:4000/createUser', {
+			fetch('http://localhost:4000/updateUserAdmin', {
 				method: 'POST',
 				body: JSON.stringify({
-					RestaurantUserID: usuario.userInfo.Payload.RestaurantUserID,
+					RestaurantUserID: parseInt(usuario.id),
 					RestaurantUserName: usuario.nombre,
 					RestaurantUserLastname: usuario.apellido,
 					RestaurantUserLatitude: parseFloat(coordenadas.lat),
 					RestaurantUserLongitude: parseFloat(coordenadas.lng),
 					RestaurantUserBirthdate: datePick,
-					RestaurantUserPass: usuario.contrasenha,
 					DocumentTypeID: usuario.tipoId
 				}) // data can be `string` or {object}!
-			}).then(res => res.json())
+			}).then(res => {status = res.status ; return res.json()})
 				.then(response => {
-					if (response.status === 400) {
-						set_message(response.message);
+					if (status === 400) {
+						set_message("No se realizo la operación: "+response.error);
 						setOpen(true);
 					}
 					else {
-						set_message_success(response.message);
+						set_message_success(response.Message);
 						set_open_sucess(true);
 						handleReset();
-						dispatch(set_nombre(''));
-						dispatch(set_apellido(''));
+						dispatch(set_nombre(""));
+                        dispatch(set_apellido(""));
+                        dispatch(set_date(datePick));
 					}
 				})
 				.catch(error => {
