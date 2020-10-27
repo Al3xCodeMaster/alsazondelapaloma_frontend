@@ -30,6 +30,10 @@ import Tab from '@material-ui/core/Tab';
 import PropTypes from 'prop-types';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import SearchIcon from '@material-ui/icons/Search';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -79,8 +83,12 @@ export default function Perfiles() {
     const vertical = 'top';
     const horizontal = 'right';
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [valueId, set_valueId] = useState(0);
+    const componRef = React.useRef();
+    const [id_doc, set_id_doc] = useState('');
 
-    const handleClick = (event) => {
+    const handleClick = (event,valueId) => {
+        set_valueId(valueId);
         setAnchorEl(event.currentTarget);
     };
 
@@ -139,7 +147,9 @@ export default function Perfiles() {
                     if(response.error){
                         set_error(true);
                         set_error_message('Error: '+response.error);
+                        return
                     }
+                    set_fetch_profiles(response);
                     set_success(true);
                     set_success_message('Perfil cambiado con éxito');
             })
@@ -149,6 +159,30 @@ export default function Perfiles() {
             });
     }
     
+    const reactivar_perfil = (valueId, valueName) => {
+        fetch('http://localhost:4000/updateProfile', {
+            method: 'POST',
+            body: JSON.stringify({
+                ProfileID: parseInt(valueId),
+                ProfileName: valueName,
+                ProfileStatus: true
+            })
+        }).then(res => res.json())
+            .then(response => {
+                    if(response.error){
+                        set_error(true);
+                        set_error_message('Error: '+response.error);
+                        return
+                    }
+                    set_fetch_profiles(response);
+                    set_success(true);
+                    set_success_message('Perfil cambiado con éxito');
+            })
+            .catch(err => {
+                set_error(true);
+                set_error_message('Error en la conexión con el servidor '+err);
+            });
+    }
     
     const guardar_perfil = () => {
         
@@ -189,7 +223,8 @@ export default function Perfiles() {
         value: PropTypes.any.isRequired,
       };
     
-    const cambiar_nom_perfil = (valueId) => {
+    const cambiar_nom_perfil = () => {
+
         fetch('http://localhost:4000/updateProfile', {
             method: 'POST',
             body: JSON.stringify({
@@ -215,6 +250,9 @@ export default function Perfiles() {
             });
     }  
 
+    const buscar_id = () => {
+
+    }
 
     return (
         <Fragment>
@@ -234,7 +272,6 @@ export default function Perfiles() {
                             id="standard-textarea"
                             label="Nombre del perfil"
                             fullWidth
-                            multiline
                             disabled={cargando}
                             value={nombre_profile} onChange={e => set_nombre_profile(e.target.value)}
                         />
@@ -254,7 +291,7 @@ export default function Perfiles() {
                     </Button>
                 </Grid>
             </Grid>
-            <h3 style={{ textAlign: 'center', color: 'gray' }}>Lista de perfiles a guardar</h3>
+            <h3 style={{ textAlign: 'center', color: 'gray' }}> Perfil a guardar</h3>
             <TableContainer component={Paper} style={{ width: '100%' }}>
                 <Table stickyHeader={true} aria-label="simple table">
                     <TableHead>
@@ -304,10 +341,11 @@ export default function Perfiles() {
                                     <TableCell>{element.ProfileStatus?"Activo":"No activo"}</TableCell>
                                     <TableCell>{element.ProfileCreationDate? new Date(element.ProfileCreationDate).toLocaleDateString():null}</TableCell>
                                     <TableCell>
-                            <IconButton onClick={handleClick} children={<EditIcon style={{ fontSize: 25, marginLeft: '8px', color: 'green'}}/>}/>
+                            <IconButton onClick={(e) => handleClick(e,element.ProfileID)} children={<EditIcon style={{ fontSize: 25, marginLeft: '8px', color: 'green'}}/>}/>
                                         <Popover
                                                         id={id}
                                                         open={openP}
+                                                        ref={componRef}
                                                         anchorEl={anchorEl}
                                                         onClose={handleClose}
                                                         anchorOrigin={{
@@ -326,10 +364,10 @@ export default function Perfiles() {
                                                                 fullWidth
                                                                 value={nombre_profile_to_change} onChange={e => set_nombre_profile_to_change(e.target.value)}
                                                         />
-                                                        <IconButton onClick={e => cambiar_nom_perfil(element.ProfileID)} children={<CheckIcon style={{ fontSize: 'inherit', marginLeft: '2px', color: 'green'}}/>}/>
+                                                        <IconButton onClick={cambiar_nom_perfil} children={<CheckIcon style={{ fontSize: 'inherit', marginLeft: '2px', color: 'green'}}/>}/>
                                         </Popover>
                                     </TableCell>
-                                    <TableCell><IconButton onClick={e => borrar_perfil(element.ProfileID,element.ProfileName)} children={<DeleteOutline style={{ fontSize: 25, marginLeft: '8px', color: 'red' }}/>} /></TableCell>
+                                                    <TableCell>{element.ProfileStatus?<IconButton onClick={e => borrar_perfil(element.ProfileID,element.ProfileName)} children={<DeleteOutline style={{ fontSize: 25, marginLeft: '8px', color: 'red' }}/>} />:                                                                    <IconButton onClick={e => reactivar_perfil(element.ProfileID,element.ProfileName)} children={<AddCircleIcon style={{ fontSize: 25, marginLeft: '8px', color: 'green' }}/>} />}</TableCell>
                                 </TableRow>
                             ))
                         }
@@ -337,8 +375,65 @@ export default function Perfiles() {
                 </Table>
             </TableContainer>
             </TabPanel>
-            <TabPanel value={value} index={1}>
-            <h1>Equisde</h1>
+                <TabPanel value={value} index={1}>
+                <Grid container className={classes.root} spacing={5}>
+                    <Grid item xs={6}>
+                            <TextField
+                                id="standard-txt"
+                                label="Nombre del perfil"
+                                fullWidth
+                                type='number'
+                                value={id_doc} onChange={e => set_id_doc(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <AccountCircle />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                            />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button style={{marginLeft: '1%' }} onClick={buscar_id}>
+                            Buscar
+                            <SearchIcon style={{ fontSize: 30, marginLeft: '10px'}} />
+                        </Button>
+                    </Grid>
+                </Grid>
+                <h3 style={{ textAlign: 'center', color: 'gray' }}></h3>
+                <TableContainer component={Paper} style={{ width: '100%' }}>
+                    <Table stickyHeader={true} aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Nombre </TableCell>
+                                <TableCell>Apellido </TableCell>
+                                <TableCell> Estado </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+
+                            {
+                            
+                            }
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <br></br>
+                <h3 style={{ textAlign: 'center', color: 'gray' }}>Perfiles Asignados</h3>
+                <TableContainer component={Paper} style={{ width: '97%' }}>
+                    <Table stickyHeader={true} aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Id</TableCell>
+                                <TableCell>Nombre</TableCell>
+                                <TableCell>Estado</TableCell>
+                                <TableCell>Fecha de creación</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </TabPanel>
             <Snackbar open={error} autoHideDuration={2000}
                 anchorOrigin={{ vertical, horizontal }}

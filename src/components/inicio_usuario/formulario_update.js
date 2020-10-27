@@ -27,7 +27,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
 	set_nombre,
 	set_apellido,
-	set_date
+	set_date,
+	success_login
 } from '../../redux/actions';
 
 function Alert(props) {
@@ -190,6 +191,7 @@ export default function Formulario_update_usuario() {
 					}
 					else {
 						set_message_success(response.Message);
+						dispatch(success_login({Payload: {...usuario.userInfo.Payload, UserName: usuario.nombre, LastName: usuario.apellido, Birthdate: datePick}, Message: "Ingreso Realizado!"},200))
 						set_open_sucess(true);
 						handleReset();
 						dispatch(set_nombre(""));

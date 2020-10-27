@@ -7,7 +7,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
@@ -31,8 +32,11 @@ import {
 	set_nombre,
 	set_apellido,
 	set_type_id,
-	set_date
+  set_date,
+  success_login
 } from '../../redux/actions';
+
+
 
 const useStyles = makeStyles((theme) => ({
 
@@ -69,10 +73,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+function Alert(props) {
+	return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
   
 export default function Dashboard() {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const [openMess, setopenMess] = React.useState(false);
+    const [open_success, set_open_sucess] = React.useState(false);
+    const [message, set_message] = React.useState('');
+    const [message_success, set_message_success] = React.useState('');
     const { usuario, datePick} = useSelector(state => ({
     usuario: state.redux_reducer.usuario,
     datePick: state.redux_reducer.datePick
@@ -87,7 +98,17 @@ export default function Dashboard() {
     setOpen(true);
   };
 
+  const vertical = 'top';
+	const horizontal = 'right';
 
+  const handleCloseSucess = () => {
+		set_open_sucess(false);
+	};
+
+  const handleCloseSnack = () => {
+    setopenMess(false);
+  };
+  
   const handleClose = () => {
     setOpen(false);
     set_contrasenhaNew('');
@@ -150,7 +171,31 @@ export default function Dashboard() {
 
     const changeProfilePic = (file) => {
       if(window.confirm("¿Desea subir la foto? con nombre de archivo:\n\n\t"+file.name)){
-        console.log("Si");
+          var formData = new FormData();
+          formData.append('photo', file);
+          formData.append('userInfo', JSON.stringify({
+            RestaurantUserID: parseInt(usuario.userInfo.Payload.Id),
+            DocumentTypeID: usuario.userInfo.Payload.DocType
+          }));
+          fetch('http://localhost:4000/updatePhoto', {
+            method: 'POST',
+            body: formData
+          }).then(res => res.json())
+            .then(response => {
+              if (response.status === 400) {
+                set_message(response.error);
+                setOpen(true);
+              }
+              else {
+                set_message_success(response.Message);
+                set_open_sucess(true);
+                dispatch(success_login({Payload: {...usuario.userInfo.Payload, UrlPhoto: response.UrlPhoto}, Message: "Ingreso Realizado!"},200))
+              }
+            })
+            .catch(error => {
+              set_message(error);
+              setOpen(true);
+            });
       }
     }
     
@@ -256,7 +301,19 @@ export default function Dashboard() {
                   Cerrar
                 </Button>
               </DialogActions>
-            </Dialog>    
+            </Dialog>
+            <Snackbar open={openMess} autoHideDuration={3000} onClose={handleCloseSnack}
+				anchorOrigin={{ vertical, horizontal }}>
+				<Alert onClose={handleCloseSnack} severity="error">
+					{message}
+				</Alert>
+			</Snackbar>
+			<Snackbar open={open_success} autoHideDuration={3000} onClose={handleCloseSnack}
+				anchorOrigin={{ vertical, horizontal }}>
+				<Alert onClose={handleCloseSucess} severity="success">
+					{message_success}
+				</Alert>
+			</Snackbar>    
         </main>
     );
 };
