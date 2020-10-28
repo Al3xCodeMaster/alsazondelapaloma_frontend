@@ -34,7 +34,9 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import SearchIcon from '@material-ui/icons/Search';
-import CircularProgress from '@material-ui/core/CircularProgress';  
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';  
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -92,6 +94,8 @@ export default function Perfiles() {
 	const loading = open && options.length === 0;
     const [id_type, set_id_type] = useState('');
     const [user_cargado, set_user_cargado] = useState([]);
+    const [profiles_from_user, set_prof_from_user] = useState(null);
+    const [user_temp, set_user_temp] = useState({})
 
     const set_state_type_id = (value) => {
 		set_id_type(value);
@@ -289,22 +293,42 @@ export default function Perfiles() {
     }  
 
     const buscar_id = () => {
-        fetch('http://localhost:4000/getUser', {
+        fetch('http://localhost:4000/getUser/'+id_type+"/"+id_doc, {
             method: 'GET',
-            body: JSON.stringify(
-                {
-                    RestaurantUserID: parseInt(id_doc),
-                    DocumentTypeID: id_type
-                }
-            )
         }).then(res => res.json())
             .then(response => {
-                if(response.length > 0){
                     set_user_cargado([response]);
-                }
+                    set_user_temp(response);
+                    set_prof_from_user(response.Perfiles);
             })
             .catch(error => {
                 alert(error);
+            });
+    }
+
+    const asignar_perfil = (valueId) => {
+        fetch('http://localhost:4000/assignProfileToUser', {
+            method: 'POST',
+            body: JSON.stringify({
+                ProfileID: parseInt(valueId),
+                RestaurantUserID: user_temp.RestaurantUserID,
+                DocumentTypeID: user_temp.DocumentTypeID
+            })
+        }).then(res => res.json())
+            .then(response => {
+                    if(response.error){
+                        set_error(true);
+                        set_error_message('Error: '+response.error);
+                        return
+                    }
+                    buscar_id();
+                    set_success(true);
+                    set_success_message('Perfil asignado con éxito');
+                    
+            })
+            .catch(err => {
+                set_error(true);
+                set_error_message('Error en la conexión con el servidor '+err);
             });
     }
 
@@ -355,7 +379,6 @@ export default function Perfiles() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-
                         {
                             nombre_profile_temp.map((element) => (
                                 <TableRow key={element.ProfileName}>
@@ -482,7 +505,6 @@ export default function Perfiles() {
                 </Grid>
                     <Grid item xs={2}>
                         <Button style={{marginLeft: '1%' }} onClick={buscar_id}>
-                            Buscar
                             <SearchIcon style={{ fontSize: 30, marginLeft: '10px'}} />
                         </Button>
                     </Grid>
@@ -501,7 +523,7 @@ export default function Perfiles() {
                         </TableHead>
                         <TableBody>
                             {
-                                nombre_profile_temp.map((element) => (
+                                user_cargado.map((element) => (
                                     <TableRow key={element.RestaurantUserID}>
                                         <TableCell>{element.RestaurantUserID}</TableCell>
                                         <TableCell>{element.RestaurantUserName}</TableCell>
@@ -519,14 +541,26 @@ export default function Perfiles() {
                 <TableContainer component={Paper} style={{ width: '97%' }}>
                     <Table stickyHeader={true} aria-label="simple table">
                         <TableHead>
-                            <TableRow>
+                                <TableRow>
                                 <TableCell>Id</TableCell>
                                 <TableCell>Nombre</TableCell>
                                 <TableCell>Estado</TableCell>
                                 <TableCell>Fecha de creación</TableCell>
+                                <TableCell>Asignado/Asignar</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
+                            {
+                                user_cargado.length > 0 ?fetch_profiles.map((element) => (
+                                    <TableRow key={element.ProfileID}>
+                                        <TableCell>{element.ProfileID}</TableCell>
+                                        <TableCell>{element.ProfileName}</TableCell>
+                                        <TableCell>{element.ProfileStatus?"Activo":"No activo"}</TableCell>
+                                        <TableCell>{element.ProfileCreationDate? new Date(element.ProfileCreationDate).toLocaleDateString():null}</TableCell>
+                                        <TableCell>{profiles_from_user?profiles_from_user.includes(element)?"Si":<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />:<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />}</TableCell>
+                                        </TableRow>
+                                    )):null
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>
