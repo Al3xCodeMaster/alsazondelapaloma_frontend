@@ -66,6 +66,10 @@ const useStyles = makeStyles((theme) => ({
         height: '500px',
         overflowY: 'scroll'
     },
+    indicator: {
+        backgroundColor: '#E7E3DE',
+        color: "red"
+      },
 }));
 
 
@@ -94,7 +98,7 @@ export default function Perfiles() {
 	const loading = open && options.length === 0;
     const [id_type, set_id_type] = useState('');
     const [user_cargado, set_user_cargado] = useState([]);
-    const [profiles_from_user, set_prof_from_user] = useState(null);
+    const [profiles_from_user, set_prof_from_user] = useState([]);
     const [user_temp, set_user_temp] = useState({})
 
     const set_state_type_id = (value) => {
@@ -299,10 +303,53 @@ export default function Perfiles() {
             .then(response => {
                     set_user_cargado([response]);
                     set_user_temp(response);
-                    set_prof_from_user(response.Perfiles);
+                    getProfilesFromUser(id_type,id_doc);
             })
             .catch(error => {
                 alert(error);
+            });
+    }
+
+    const getProfilesFromUser = (id_type, id_doc) => {
+        fetch('http://localhost:4000/getAllUserProfiles/'+id_type+"/"+id_doc, {
+          method: 'GET'
+      }).then(res => res.status==204?[]:res.json())
+          .then(response => {
+              if(response.length > 0){
+                set_prof_from_user(response.map((element) => {
+                    return element.ProfileID
+                }));
+              }
+          })
+          .catch(error => {
+              alert(error);
+          }) 
+    }
+    
+    const quitar_perfil = (valueId) => {
+        fetch('http://localhost:4000/updateProfileUser', {
+            method: 'POST',
+            body: JSON.stringify({
+                ProfileID: parseInt(valueId),
+                RestaurantUserID: user_temp.RestaurantUserID,
+                DocumentTypeID: user_temp.DocumentTypeID,
+                UserProfileStatus: false
+            })
+        }).then(res => res.json())
+            .then(response => {
+                    if(response.error){
+                        set_error(true);
+                        set_error_message('Error: '+response.error);
+                        return
+                    }
+                    buscar_id();
+                    set_success(true);
+                    set_success_message('Perfil borrado con éxito');
+                    
+            })
+            .catch(err => {
+                set_error(true);
+                set_error_message('Error en la conexión con el servidor '+err);
             });
     }
 
@@ -312,7 +359,8 @@ export default function Perfiles() {
             body: JSON.stringify({
                 ProfileID: parseInt(valueId),
                 RestaurantUserID: user_temp.RestaurantUserID,
-                DocumentTypeID: user_temp.DocumentTypeID
+                DocumentTypeID: user_temp.DocumentTypeID,
+                UserProfileStatus: true
             })
         }).then(res => res.json())
             .then(response => {
@@ -338,7 +386,7 @@ export default function Perfiles() {
                 Pantalla Perfiles de usuario
             </h2>
             <AppBar position="static">
-            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example" centered>
+            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example" centered className={classes.indicator}>
             <Tab label="Crear Perfil" {...a11yProps(0)} />
             <Tab label="Asignar Perfil" {...a11yProps(1)} />
             </Tabs>
@@ -557,7 +605,7 @@ export default function Perfiles() {
                                         <TableCell>{element.ProfileName}</TableCell>
                                         <TableCell>{element.ProfileStatus?"Activo":"No activo"}</TableCell>
                                         <TableCell>{element.ProfileCreationDate? new Date(element.ProfileCreationDate).toLocaleDateString():null}</TableCell>
-                                        <TableCell>{profiles_from_user?profiles_from_user.includes(element)?"Si":<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />:<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />}</TableCell>
+                                <TableCell>{profiles_from_user.length>0?profiles_from_user.includes(element.ProfileID)?<IconButton onClick={e => quitar_perfil(element.ProfileID)} children={<CheckBoxIcon style={{ fontSize: 25, marginLeft: '5px'}}/>}/>:<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />:<IconButton onClick={e => asignar_perfil(element.ProfileID)} children={<CheckBoxOutlineBlankIcon style={{ fontSize: 25, marginLeft: '5px'}}/>} />}</TableCell>
                                         </TableRow>
                                     )):null
                             }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Visibility from '@material-ui/icons/Visibility';
@@ -93,6 +93,8 @@ export default function Dashboard() {
   const [contrasenhaOld, set_contrasenhaOld] = useState('');
   const [showPassword, set_showPassword] = useState(false);
   const [openPop, setopenPop] = useState(false);
+  const [profiles, setProfiles] = useState([]);
+
   const handleClickOpen = (event) => {
     event.preventDefault();
     setOpen(true);
@@ -201,6 +203,22 @@ export default function Dashboard() {
             });
       }
     }
+
+    useEffect(() => {
+      if(usuario.status==200){
+        fetch('http://localhost:4000/getAllUserProfiles/'+usuario.userInfo.Payload.DocType+"/"+usuario.userInfo.Payload.Id, {
+          method: 'GET'
+      }).then(res => res.status==204?[]:res.json())
+          .then(response => {
+              if(response.length > 0){
+                setProfiles(response);
+              }
+          })
+          .catch(error => {
+              alert(error);
+          })  
+      }
+    }, []);
     
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
     return (
@@ -246,7 +264,7 @@ export default function Dashboard() {
                 <h2>Perfiles:</h2>
                 <Paper className={classes.paper}>
                   <List dense>
-                  {usuario.status==200?usuario.userInfo.Payload.Profiles!=null?usuario.userInfo.Payload.Profiles.map( (element) => (
+                  {usuario.status==200?profiles.length>0?profiles.map( (element) => (
                     <ListItem>
                     <ListItemText
                       primary={element.ProfileName}
