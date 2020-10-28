@@ -7,6 +7,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import AddAPhoto from '@material-ui/icons/AddAPhoto';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -32,6 +33,12 @@ export const mainListItems = (
       <GroupAddIcon fontSize='medium'/>
       </ListItemIcon>
       <ListItemText primary="Perfiles" />
+    </ListItem>
+    <ListItem button component={Link} to='/admin/crear_producto'>
+      <ListItemIcon>
+      <AddAPhoto fontSize='medium'/>
+      </ListItemIcon>
+      <ListItemText primary="Producto" />
     </ListItem>
   </div>
 );

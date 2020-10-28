@@ -22,6 +22,7 @@ import { BrowserRouter, Route, Redirect, Switch, Router } from 'react-router-dom
 import Formulario_usuario from './formulario_usuario';
 import Dashboard_usuario from './dashboard';
 import Profiles from './perfiles';
+import Products from './products';
 import { useSelector} from 'react-redux';
 
 function Copyright() {
@@ -178,6 +179,7 @@ export default function Dashboard_empleado() {
           <Switch>
               <Route path="/admin/crear" component={Formulario_usuario} />
               <Route path="/admin/perfiles" component={Profiles} />
+              <Route path="/admin/crear_producto" component={Products} />
               <Route path='/' component={Dashboard_usuario}/>
             </Switch>
           </Container>
