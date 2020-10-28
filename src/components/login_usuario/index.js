@@ -26,6 +26,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import Formulario_empleado from '../inicio_usuario/formulario_usuario';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 function Copyright() {
   return (
@@ -76,7 +78,11 @@ const Login_usuario = () => {
   const [helper_cedula, set_helper_cc] = useState('');
   const [helper_contrasenha, set_helper_pass] = useState('');
   const [open, setOpen] = React.useState(false);
+  const [openAut, setOpenAut] = React.useState(false);
   const [error_contrasenha, set_error_contrasenha] = useState(false);
+  const [options, setOptions] = useState([]);
+  const loading = openAut && options.length === 0;
+  const [type_id, set_type_id] = useState('');
   const vertical = 'center';
   const horizontal = 'right';
   const classes = useStyles();
@@ -89,14 +95,35 @@ const Login_usuario = () => {
     setOpen(false);
   };
 
-  const ingresar = () => {
-    if (!Number(cedula) || contrasenha.length <= 6) {
-      !Number(cedula) ? set_error_cedula(true) : set_error_cedula(false);
-      !Number(cedula) ? set_helper_cc('La cédula debe ser un número') : set_helper_cc('');
-      //contrasenha.length <= 6 ? set_error_contrasenha(true) : set_error_contrasenha(false);
-      //contrasenha.length <= 6 ? set_helper_pass('La contraseña debe ser mayor a 6 caracteres') : set_helper_pass('');
+  React.useEffect(() => {
+		let active = true;
 
-    } else {
+		if (!loading) {
+			return undefined;
+		}
+
+		fetch('http://localhost:4000/getAllDocuments', {
+				method: 'GET'
+			}).then(res => res.json())
+			.then(items => {
+				if(active){
+					setOptions(items.map((x) => x.DocumentTypeID));
+				}
+			})
+			.catch(err => console.log(err));
+		return () => {
+			active = false;
+		};
+	}, [loading]);
+
+	React.useEffect(() => {
+		if (!open) {
+		  setOptions([]);
+		}
+	  }, [open]);
+
+  const ingresar = () => {
+
       set_error_cedula(false);
       set_error_contrasenha(false);
       set_helper_pass('');
@@ -104,14 +131,17 @@ const Login_usuario = () => {
       let status;
       fetch('http://localhost:4000/userLogin', {
         method: 'POST',
-        body: JSON.stringify({ RestaurantUserID: parseInt(cedula), RestaurantUserPass: contrasenha }) // data can be `string` or {object}!
+        body: JSON.stringify({ RestaurantUserID: parseInt(cedula), DocumentTypeID: type_id, RestaurantUserPass: contrasenha }) // data can be `string` or {object}!
       }).then(res => { status = res.status; return res.json()})
         .then(response => {
-          response.Message !== "Ingreso Realizado!" ? set_pass_invalid(true) : set_pass_invalid(false);
-          response.Message !== "Ingreso Realizado!" ? dispatch(error_login(response)) : dispatch(success_login(response, status));
+          if(response.error){
+            set_pass_invalid(true);
+            dispatch(error_login(response.error));
+          }else{
+            dispatch(success_login(response, status));
+          }
         })
         .catch(error => alert("Error con la conexión al servidor "+error));
-    }
   }
   return (
     <Grid container component="main" className={classes.root}>
@@ -136,6 +166,37 @@ const Login_usuario = () => {
               onChange={e => set_cedula(e.target.value)}
               autoFocus
             />
+            <Autocomplete
+                            id="async-autocompl"
+                            open={openAut}
+                            onOpen={() => {
+                              setOpenAut(true);
+                            }}
+                            onClose={() => {
+                              setOpenAut(false);
+                            }}
+                            getOptionSelected={(option, value) => option === value?set_type_id(value):false}
+                            getOptionLabel={(option) => option}
+                            options={options}
+                            loading={loading}
+                            renderInput={(params) => (
+                                <TextField 
+                                    {...params}
+                                    className={classes.input}
+                                    label="Seleccione el documento"
+                                    variant="outlined"
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <React.Fragment>
+                                                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </React.Fragment>
+                                        ),
+                                    }}
+                                />
+                            )}
+                    />
             <TextField
               variant="outlined"
               margin="normal"
@@ -165,7 +226,7 @@ const Login_usuario = () => {
               anchorOrigin={{ vertical, horizontal }}
             >
               <Alert onClose={() => set_pass_invalid(false)} variant="filled" severity="error">
-                {"Error en la contraseña o usuario: "+usuario.error}
+                {"Error en la contraseña o usuario: "}
               </Alert>
             </Snackbar>
             <Grid container>
