@@ -30,13 +30,13 @@ export const mainListItems = (
     </ListItem>
     <ListItem button component={Link} to='/admin/perfiles'>
       <ListItemIcon>
-      <GroupAddIcon fontSize='medium'/>
+      <GroupAddIcon/>
       </ListItemIcon>
       <ListItemText primary="Perfiles" />
     </ListItem>
     <ListItem button component={Link} to='/admin/crear_producto'>
       <ListItemIcon>
-      <AddAPhoto fontSize='medium'/>
+      <AddAPhoto/>
       </ListItemIcon>
       <ListItemText primary="Producto" />
     </ListItem>

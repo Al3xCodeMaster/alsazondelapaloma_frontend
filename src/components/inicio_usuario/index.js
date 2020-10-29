@@ -24,6 +24,21 @@ import Dashboard_usuario from './dashboard';
 import Profiles from './perfiles';
 import Products from './products';
 import { useSelector} from 'react-redux';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
+const theme = createMuiTheme({
+    palette: {
+      primary: {
+        // Purple and green play nicely together.
+        main: '#FF0000',
+      },
+      secondary: {
+        // This is green.A700 as hex.
+        main: '#000000',
+      },
+    },
+  });
 
 function Copyright() {
   return (
@@ -137,6 +152,7 @@ export default function Dashboard_empleado() {
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
+    <ThemeProvider theme={theme}>
     <BrowserRouter>
       <div className={classes.root}>
         <CssBaseline />
@@ -186,5 +202,6 @@ export default function Dashboard_empleado() {
         </main> 
       </div>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }

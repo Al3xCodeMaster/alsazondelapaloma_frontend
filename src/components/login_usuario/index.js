@@ -5,13 +5,10 @@ import { withRouter, Redirect } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 //import logo from '../../images/logo.png';
@@ -19,18 +16,27 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Check } from '@material-ui/icons';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
-import Formulario_empleado from '../inicio_usuario/formulario_usuario';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import logo from '../../images/logo.png';
 import line from '../../images/line.png';
 import video from '../../images/video.mp4';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
+const theme = createMuiTheme({
+    palette: {
+      primary: {
+        // Purple and green play nicely together.
+        main: '#FF0000',
+      },
+      secondary: {
+        // This is green.A700 as hex.
+        main: '#000000',
+      },
+    },
+  });
 
 function Copyright() {
   return (
@@ -147,12 +153,13 @@ const Login_usuario = () => {
         .catch(error => alert("Error con la conexión al servidor "+error));
   }
   return (
-    <Grid container component="main" className={classes.root}>
+    <ThemeProvider theme={theme}>
+    <Grid container component="main" className={classes.root} style={{backgroundColor:'white'}}>
       {usuario.status===200 ? <Redirect to="/inicio/usuario" /> : null}
       <CssBaseline />
       <Grid item xs={false} sm={4} md={8} className={classes.image} style={{textAlign:"center"}}>
       <img src={line} width="400" height="60"alt="Line" />
-      <video src={video} width="100%" height="80%" autoplay="true" muted/>
+      <video src={video} width="100%" height="70%" autoPlay={true} muted/>
       <img src={line} width="400" height="60" alt="Line" />
       </Grid>
       <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
@@ -230,7 +237,7 @@ const Login_usuario = () => {
                <Check style={{ fontSize: 35, marginLeft: '10px' }} />
             </Button>
             <Snackbar open={pass_invalid} autoHideDuration={4000}
-              anchorOrigin={{ vertical, horizontal }}
+              anchorOrigin={{ vertical:'bottom', horizontal:'center' }}
             >
               <Alert onClose={() => set_pass_invalid(false)} variant="filled" severity="error">
                 {"Error en la contraseña o usuario: "}
@@ -250,6 +257,7 @@ const Login_usuario = () => {
         </div>
       </Grid>
     </Grid>
+    </ThemeProvider>
   );
 }
 export default Login_usuario;

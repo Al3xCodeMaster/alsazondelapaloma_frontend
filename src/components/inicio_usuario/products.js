@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
@@ -12,10 +12,8 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import InputLabel from "@material-ui/core/InputLabel";
-import OutlinedInput from "@material-ui/core/OutlinedInput";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Input from "@material-ui/core/Input";
-import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import PhotoCamera from "@material-ui/icons/PhotoCamera";
@@ -25,13 +23,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import AddBoxIcon from "@material-ui/icons/AddBox";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -89,18 +87,21 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(8),
   },
   card: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
   },
   cardMedia: {
-    paddingTop: '56.25%', // 16:9
+    paddingTop: "56.25%", // 16:9
   },
   cardContent: {
     flexGrow: 1,
-  }
+  },
+  indicator: {
+    backgroundColor: "white",
+    color: "black",
+  },
 }));
-
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -119,7 +120,7 @@ export default function Products() {
   const [error, set_error] = React.useState(false);
   const [success, set_success] = React.useState(false);
   const [message, set_message] = React.useState("");
-  const [currentProd, setcurrentProd] = React.useState("")
+  const [currentProd, setcurrentProd] = React.useState("");
   const [openDialog, setopenDialog] = React.useState(false);
 
   const { usuario } = useSelector((state) => ({
@@ -129,18 +130,19 @@ export default function Products() {
   const [products, setProds] = React.useState([]);
 
   const getAllProducts = () => {
-    fetch('http://localhost:4000/getAllProducts', {
-        method: 'GET'
-    }).then(res => res.json())
-        .then(response => {
-            if(response.length > 0){
-                setProds(response);
-            }
-        })
-        .catch(error => {
-            alert(error);
+    fetch("http://localhost:4000/getAllProducts", {
+      method: "GET",
     })
-  }
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.length > 0) {
+          setProds(response);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  };
 
   useEffect(getAllProducts, []);
 
@@ -176,77 +178,78 @@ export default function Products() {
       set_error_pic(true);
       set_message("Seleccione una foto válida");
     } else {
-        createProduct()
+      createProduct();
     }
   };
   const createProduct = () => {
-      var formData = new FormData();
-      formData.append("photo", productPic);
-      formData.append(
-        "productInfo",
-        JSON.stringify({
-            "ProductID": productID,
-            "ProductDescription": productDesc,
-            "ProductPrice": parseFloat(productPrice)
-        })
-      );
-      fetch("http://localhost:4000/createProduct", {
-        method: "POST",
-        body: formData,
+    var formData = new FormData();
+    formData.append("photo", productPic);
+    formData.append(
+      "productInfo",
+      JSON.stringify({
+        ProductID: productID,
+        ProductDescription: productDesc,
+        ProductPrice: parseFloat(productPrice),
       })
-        .then((res) => res.json())
-        .then((response) => {
-          if (response.status === 400) {
-            set_message(response.message);
-            set_error(true);
-          } else {
-            set_message("Se creó el producto con éxito!");
-            set_success(true);
-            set_productID("");
-            set_productDesc("");
-            set_productPrice(0);
-            set_productPic("")
-            set_error(false);
-            set_error_ID(false);
-            set_error_desc(false);
-            set_error_price(false);
-            set_productPic(false);
-          }
-        })
-        .catch((error) => {
-          set_message(error);
+    );
+    fetch("http://localhost:4000/createProduct", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.status === 400) {
+          set_message(response.message);
           set_error(true);
-        });
+        } else {
+          set_message("Se creó el producto con éxito!");
+          set_success(true);
+          set_productID("");
+          set_productDesc("");
+          set_productPrice(0);
+          set_productPic("");
+          set_error(false);
+          set_error_ID(false);
+          set_error_desc(false);
+          set_error_price(false);
+          set_productPic(false);
+        }
+      })
+      .catch((error) => {
+        set_message(error);
+        set_error(true);
+      });
   };
 
-  const actDesProd = (id_value,status) => {
-    fetch('http://localhost:4000/updateProduct', {
-            method: 'POST',
-            body: JSON.stringify({
-                ProductID: id_value,
-                ProductStatus: !status
-            })
-        }).then(res => res.json())
-            .then(response => {
-                    if(response.error){
-                        set_error(true);
-                        set_message('Error: '+response.error);
-                        return
-                    }
-                    getAllProducts();
-            })
-            .catch(err => {
-                set_error(true);
-                set_message('Error en la conexión con el servidor '+err);
-            });
-  }
+  const actDesProd = (id_value, status) => {
+    fetch("http://localhost:4000/updateProduct", {
+      method: "POST",
+      body: JSON.stringify({
+        ProductID: id_value,
+        ProductStatus: !status,
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.error) {
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        getAllProducts();
+      })
+      .catch((err) => {
+        set_error(true);
+        set_message("Error en la conexión con el servidor " + err);
+      });
+  };
 
   const set_Close = () => {
-            set_productID("");
-            set_productDesc("");
-            set_productPrice(0);
-            setopenDialog(false);
-  }
+    set_productID("");
+    set_productDesc("");
+    set_productPrice(0);
+    setopenDialog(false);
+  };
 
   const performOperation = () => {
     if (productDesc == "") {
@@ -257,37 +260,38 @@ export default function Products() {
       set_error(true);
       set_error_price(true);
       set_message("El precio debe ser mayor a cero");
-    } else{
-      fetch('http://localhost:4000/updateProduct', {
-              method: 'POST',
-              body: JSON.stringify({
-                  ProductID: currentProd,
-                  ProductDescription: productDesc,
-                  ProductPrice: parseFloat(productPrice)
-              })
-          }).then(res => res.json())
-              .then(response => {
-                      if(response.error){
-                          setopenDialog(false);
-                          set_error(true);
-                          set_message('Error: '+response.error);
-                          return
-                      }
-                      set_productID("");
-                      set_productDesc("");
-                      set_productPrice(0);
-                      setopenDialog(false);
-                      set_message("Se creó el producto con éxito!");
-                      set_success(true);
-                      getAllProducts();
-              })
-              .catch(err => {
-                  setopenDialog(false);
-                  set_error(true);
-                  set_message('Error en la conexión con el servidor '+err);
-      });
+    } else {
+      fetch("http://localhost:4000/updateProduct", {
+        method: "POST",
+        body: JSON.stringify({
+          ProductID: currentProd,
+          ProductDescription: productDesc,
+          ProductPrice: parseFloat(productPrice),
+        }),
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          if (response.error) {
+            setopenDialog(false);
+            set_error(true);
+            set_message("Error: " + response.error);
+            return;
+          }
+          set_productID("");
+          set_productDesc("");
+          set_productPrice(0);
+          setopenDialog(false);
+          set_message("Se creó el producto con éxito!");
+          set_success(true);
+          getAllProducts();
+        })
+        .catch((err) => {
+          setopenDialog(false);
+          set_error(true);
+          set_message("Error en la conexión con el servidor " + err);
+        });
     }
-  }
+  };
 
   const editPerf = (valueID) => {
     set_productID("");
@@ -295,11 +299,11 @@ export default function Products() {
     set_productPrice(0);
     setcurrentProd(valueID);
     setopenDialog(true);
-  }
+  };
 
   return (
     <div className={classes.root}>
-      <AppBar position="static" color="default">
+      <AppBar position="static">
         <Tabs
           value={value}
           onChange={handleChange}
@@ -307,6 +311,7 @@ export default function Products() {
           textColor="primary"
           variant="fullWidth"
           aria-label="full width tabs example"
+          className={classes.indicator}
         >
           <Tab label="Crear Producto" {...a11yProps(0)} />
           <Tab label="Listar Productos" {...a11yProps(1)} />
@@ -318,116 +323,139 @@ export default function Products() {
         onChangeIndex={handleChangeIndex}
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <form>
-            <div>
-              <Grid container className={classes.rootContainer} spacing={4}>
-                <Grid item xs={3}>
-                  <TextField
-                    fullWidth
-                    error={error_ID}
-                    value={productID}
-                    onChange={(e) => set_productID(e.target.value)}
-                    id="product_id"
-                    label="ID del Producto"
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField
-                    fullWidth
-                    id="product_desc"
-                    label="Descripción"
-                    error={error_desc}
-                    multiline
-                    value={productDesc}
-                    onChange={(e) => set_productDesc(e.target.value)}
-                    rowsMax={4}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <InputLabel htmlFor="product_price">Precio</InputLabel>
-                  <Input
-                    fullWidth
-                    error={error_price}
-                    value={productPrice}
-                    onChange={(e) => set_productPrice(e.target.value)}
-                    id="product_price"
-                    type="number"
-                    startAdornment={
-                      <InputAdornment position="start">$</InputAdornment>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <input
-                    accept="image/*"
-                    id="raised-button-file"
-                    style={{ display: "none" }}
-                    onChange={(e) => set_productPic(e.target.files[0])}
-                    type="file"
-                  />
-                  <label htmlFor="raised-button-file">
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      startIcon={<PhotoCamera />}
-                      component="span"
-                    >
-                      Subir Foto
-                    </Button>
-                  </label>
-                </Grid>
-                <Grid item xs={12} style={{ textAlign: "center" }}>
-                  <Button
-                    onClick={checkFields}
-                    variant="contained"
-                    endIcon={<Done />}
-                    style={{ color: "white", background: "green" }}
-                  >
-                    Registrar Producto
-                  </Button>
-                </Grid>
-              </Grid>
-            </div>
-          </form>
+          <Grid container className={classes.rootContainer} spacing={4}>
+            <Grid item xs={3}>
+              <TextField
+                fullWidth
+                error={error_ID}
+                value={productID}
+                onChange={(e) => set_productID(e.target.value)}
+                id="product_id"
+                label="ID del Producto"
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                fullWidth
+                id="product_desc"
+                label="Descripción"
+                error={error_desc}
+                multiline
+                value={productDesc}
+                onChange={(e) => set_productDesc(e.target.value)}
+                rowsMax={4}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <InputLabel htmlFor="product_price">Precio</InputLabel>
+              <Input
+                fullWidth
+                error={error_price}
+                value={productPrice}
+                onChange={(e) => set_productPrice(e.target.value)}
+                id="product_price"
+                type="number"
+                startAdornment={
+                  <InputAdornment position="start">$</InputAdornment>
+                }
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <input
+                accept="image/*"
+                id="raised-button-file"
+                style={{ display: "none" }}
+                onChange={(e) => set_productPic(e.target.files[0])}
+                type="file"
+              />
+              <label htmlFor="raised-button-file">
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<PhotoCamera />}
+                  component="span"
+                >
+                  Subir Foto
+                </Button>
+              </label>
+            </Grid>
+            <Grid item xs={12} style={{ textAlign: "center" }}>
+              <Button
+                onClick={checkFields}
+                variant="contained"
+                endIcon={<Done />}
+                style={{ color: "white", background: "green" }}
+              >
+                Registrar Producto
+              </Button>
+            </Grid>
+          </Grid>
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           <Container className={classes.cardGrid} maxWidth="md">
             {/* End hero unit */}
             <Grid container spacing={4}>
-              {products.length>0?products.map((card) => (
-                <Grid item key={card.ProductID} xs={12} sm={6} md={4} style={card.ProductStatus?{opacity: 1}:{opacity:0.5}}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image={"http://localhost:4000/getPictureProducts/"+card.ProductPicture}
-                      title={card.ProductID}
-                    />
-                    <CardContent className={classes.cardContent}>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {card.ProductID}
-                      </Typography>
-                      <Typography>
-                        {card.ProductDescription}
-                      </Typography>
-                      <Typography component="p" variant="h5">
-                        {"$"+card.ProductPrice}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                    {card.ProductStatus?<IconButton aria-label="eliminar-producto" onClick={(e) => actDesProd(card.ProductID, card.ProductStatus)}>
-                      <DeleteIcon />
-                    </IconButton>:
-                    <IconButton aria-label="agregar-producto" onClick={(e) => actDesProd(card.ProductID, card.ProductStatus)}>
-                    <AddBoxIcon />
-                    </IconButton>
-                    }
-                    <IconButton aria-label="editar-producto" onClick={(e) => editPerf(card.ProductID)}>
-                      <EditIcon />
-                    </IconButton>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              )):null}
+              {products.length > 0
+                ? products.map((card) => (
+                    <Grid
+                      item
+                      key={card.ProductID}
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      style={
+                        card.ProductStatus ? { opacity: 1 } : { opacity: 0.5 }
+                      }
+                    >
+                      <Card className={classes.card}>
+                        <CardMedia
+                          className={classes.cardMedia}
+                          image={
+                            "http://localhost:4000/getPictureProducts/" +
+                            card.ProductPicture
+                          }
+                          title={card.ProductID}
+                        />
+                        <CardContent className={classes.cardContent}>
+                          <Typography gutterBottom variant="h5" component="h2">
+                            {card.ProductID}
+                          </Typography>
+                          <Typography>{card.ProductDescription}</Typography>
+                          <Typography component="p" variant="h5">
+                            {"$" + card.ProductPrice}
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          {card.ProductStatus ? (
+                            <IconButton
+                              aria-label="eliminar-producto"
+                              onClick={(e) =>
+                                actDesProd(card.ProductID, card.ProductStatus)
+                              }
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              aria-label="agregar-producto"
+                              onClick={(e) =>
+                                actDesProd(card.ProductID, card.ProductStatus)
+                              }
+                            >
+                              <AddBoxIcon />
+                            </IconButton>
+                          )}
+                          <IconButton
+                            aria-label="editar-producto"
+                            onClick={(e) => editPerf(card.ProductID)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))
+                : null}
             </Grid>
           </Container>
         </TabPanel>
@@ -435,112 +463,112 @@ export default function Products() {
           Item Three
         </TabPanel>
         <Dialog
-            open={error}
-            onClose={() => set_error(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title" style={{ color: "red" }}>
-              {"Información:"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => set_error(false)}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Aceptar
-              </Button>
-            </DialogActions>
-          </Dialog>
+          open={error}
+          onClose={() => set_error(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" style={{ color: "red" }}>
+            {"Información:"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => set_error(false)}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Aceptar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-          <Dialog
-            open={success}
-            onClose={() => set_success(false)}
-            aria-labelledby="alert-dialog-title-t"
-            aria-describedby="alert-dialog-description-t"
-          >
-            <DialogTitle id="alert-dialog-title-t" style={{ color: "green" }}>
-              {"Información:"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-t">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => set_success(false)}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Aceptar
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Dialog
-            open={openDialog}
-            onClose={() => set_Close()}
-            aria-labelledby="alert-dialog-title-t"
-            aria-describedby="alert-dialog-description-t"
-          >
-            <DialogTitle id="alert-dialog-title-k" style={{ color: "green" }}>
-              {"Editar producto: "+currentProd}
-            </DialogTitle>
-            <DialogContent>
-              <TextField
-                    fullWidth
-                    id="product_desc-ch"
-                    label="Nueva descripción"
-                    error={error_desc}
-                    multiline
-                    value={productDesc}
-                    onChange={(e) => set_productDesc(e.target.value)}
-                    rowsMax={4}
-              />
-              <InputLabel style={{marginTop:'8%'}} htmlFor="product_price_k">Precio</InputLabel>
-                <Input
-                  fullWidth
-                  error={error_price}
-                  value={productPrice}
-                  onChange={(e) => set_productPrice(e.target.value)}
-                  id="product_price_k"
-                  type="number"
-                  startAdornment={
-                    <InputAdornment position="start">$</InputAdornment>
-                  }
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={(e) => set_Close()}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Cerrar
-              </Button>
-              <Button
-                onClick={(e) => performOperation()}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Cambiar
-              </Button>
-            </DialogActions>
-          </Dialog>            
+        <Dialog
+          open={success}
+          onClose={() => set_success(false)}
+          aria-labelledby="alert-dialog-title-t"
+          aria-describedby="alert-dialog-description-t"
+        >
+          <DialogTitle id="alert-dialog-title-t" style={{ color: "green" }}>
+            {"Información:"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-t">{message}</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => set_success(false)}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Aceptar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDialog}
+          onClose={() => set_Close()}
+          aria-labelledby="alert-dialog-title-t"
+          aria-describedby="alert-dialog-description-t"
+        >
+          <DialogTitle id="alert-dialog-title-k" style={{ color: "green" }}>
+            {"Editar producto: " + currentProd}
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              id="product_desc-ch"
+              label="Nueva descripción"
+              error={error_desc}
+              multiline
+              value={productDesc}
+              onChange={(e) => set_productDesc(e.target.value)}
+              rowsMax={4}
+            />
+            <InputLabel style={{ marginTop: "8%" }} htmlFor="product_price_k">
+              Precio
+            </InputLabel>
+            <Input
+              fullWidth
+              error={error_price}
+              value={productPrice}
+              onChange={(e) => set_productPrice(e.target.value)}
+              id="product_price_k"
+              type="number"
+              startAdornment={
+                <InputAdornment position="start">$</InputAdornment>
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={(e) => set_Close()}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Cerrar
+            </Button>
+            <Button
+              onClick={(e) => performOperation()}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Cambiar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </SwipeableViews>
     </div>
   );
