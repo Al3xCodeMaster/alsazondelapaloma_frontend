@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 //import logo from '../../images/logo.png';
 //import presentacion2 from '../../images/presentacion2.mp4';
-import { KeyboardTab } from '@material-ui/icons';
+import { Check } from '@material-ui/icons';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import Dialog from '@material-ui/core/Dialog';
@@ -28,6 +28,9 @@ import Slide from '@material-ui/core/Slide';
 import Formulario_empleado from '../inicio_usuario/formulario_usuario';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import logo from '../../images/logo.png';
+import line from '../../images/line.png';
+import video from '../../images/video.mp4';
 
 function Copyright() {
   return (
@@ -147,11 +150,15 @@ const Login_usuario = () => {
     <Grid container component="main" className={classes.root}>
       {usuario.status===200 ? <Redirect to="/inicio/usuario" /> : null}
       <CssBaseline />
-      <Grid item xs={false} sm={4} md={8} className={classes.image}>
+      <Grid item xs={false} sm={4} md={8} className={classes.image} style={{textAlign:"center"}}>
+      <img src={line} width="400" height="60"alt="Line" />
+      <video src={video} width="100%" height="80%" autoplay="true" muted/>
+      <img src={line} width="400" height="60" alt="Line" />
       </Grid>
       <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
-        <div className={classes.paper}>
+        <div className={classes.paper} style={{textAlign:"center"}}>
           <form className={classes.form} noValidate>
+            <img src={logo} height="250" width="250" alt="Logo" />
             <TextField
               error={error_cedula}
               helperText={helper_cedula}
@@ -216,11 +223,11 @@ const Login_usuario = () => {
               fullWidth
               variant="contained"
               onClick={() => ingresar()}
-              style={{ background: '#c62828', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
+              style={{ background: '#E61717', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
               className={classes.submit}
             >
               Ingresar
-               <KeyboardTab style={{ fontSize: 35, marginLeft: '10px' }} />
+               <Check style={{ fontSize: 35, marginLeft: '10px' }} />
             </Button>
             <Snackbar open={pass_invalid} autoHideDuration={4000}
               anchorOrigin={{ vertical, horizontal }}
