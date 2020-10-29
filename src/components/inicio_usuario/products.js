@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
@@ -25,6 +25,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -70,7 +77,32 @@ const useStyles = makeStyles((theme) => ({
   input: {
     display: "none",
   },
+  heroContent: {
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(8, 0, 6),
+  },
+  heroButtons: {
+    marginTop: theme.spacing(4),
+  },
+  cardGrid: {
+    paddingTop: theme.spacing(8),
+    paddingBottom: theme.spacing(8),
+  },
+  card: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  cardMedia: {
+    paddingTop: '56.25%', // 16:9
+  },
+  cardContent: {
+    flexGrow: 1,
+  }
 }));
+
+
+const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export default function Products() {
   const classes = useStyles();
@@ -91,6 +123,20 @@ export default function Products() {
     usuario: state.redux_reducer.usuario,
   }));
   const dispatch = useDispatch();
+  const [products, setProds] = React.useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:4000/GetAllProducts', {
+        method: 'GET'
+    }).then(res => res.json())
+        .then(response => {
+            if(response.length > 0){
+                setProds(response);
+            }
+        })
+        .catch(error => {
+            alert(error);
+  })}, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -178,7 +224,7 @@ export default function Products() {
           aria-label="full width tabs example"
         >
           <Tab label="Crear Producto" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
+          <Tab label="Listar Productos" {...a11yProps(1)} />
           <Tab label="Item Three" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
@@ -314,7 +360,38 @@ export default function Products() {
           </form>
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
-          Item Two
+          <Container className={classes.cardGrid} maxWidth="md">
+            {/* End hero unit */}
+            <Grid container spacing={4}>
+              {products.length>0?products.map((card) => (
+                <Grid item key={card.ProductID} xs={12} sm={6} md={4}>
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={"http://localhost:4000/GetPictureProducts/"+card.ProductPicture}
+                      title={card.ProductID}
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {card.ProductID}
+                      </Typography>
+                      <Typography>
+                        {card.ProductDescription}
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                    <IconButton aria-label="eliminar-producto">
+                      <DeleteIcon />
+                    </IconButton>
+                    <IconButton aria-label="editar-producto">
+                      <EditIcon />
+                    </IconButton>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              )):null}
+            </Grid>
+          </Container>
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
           Item Three
