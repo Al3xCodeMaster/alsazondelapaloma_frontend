@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
@@ -25,6 +25,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -70,7 +77,32 @@ const useStyles = makeStyles((theme) => ({
   input: {
     display: "none",
   },
+  heroContent: {
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(8, 0, 6),
+  },
+  heroButtons: {
+    marginTop: theme.spacing(4),
+  },
+  cardGrid: {
+    paddingTop: theme.spacing(8),
+    paddingBottom: theme.spacing(8),
+  },
+  card: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  cardMedia: {
+    paddingTop: '56.25%', // 16:9
+  },
+  cardContent: {
+    flexGrow: 1,
+  }
 }));
+
+
+const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export default function Products() {
   const classes = useStyles();
@@ -87,10 +119,30 @@ export default function Products() {
   const [error, set_error] = React.useState(false);
   const [success, set_success] = React.useState(false);
   const [message, set_message] = React.useState("");
+  const [currentProd, setcurrentProd] = React.useState("")
+  const [openDialog, setopenDialog] = React.useState(false);
+
   const { usuario } = useSelector((state) => ({
     usuario: state.redux_reducer.usuario,
   }));
   const dispatch = useDispatch();
+  const [products, setProds] = React.useState([]);
+
+  const getAllProducts = () => {
+    fetch('http://localhost:4000/getAllProducts', {
+        method: 'GET'
+    }).then(res => res.json())
+        .then(response => {
+            if(response.length > 0){
+                setProds(response);
+            }
+        })
+        .catch(error => {
+            alert(error);
+    })
+  }
+
+  useEffect(getAllProducts, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -99,6 +151,7 @@ export default function Products() {
   const handleChangeIndex = (index) => {
     setValue(index);
   };
+
   const checkFields = () => {
     set_error_ID(false);
     set_error_desc(false);
@@ -125,7 +178,6 @@ export default function Products() {
     } else {
         createProduct()
     }
-    console.log(message);
   };
   const createProduct = () => {
       var formData = new FormData();
@@ -166,6 +218,85 @@ export default function Products() {
           set_error(true);
         });
   };
+
+  const actDesProd = (id_value,status) => {
+    fetch('http://localhost:4000/updateProduct', {
+            method: 'POST',
+            body: JSON.stringify({
+                ProductID: id_value,
+                ProductStatus: !status
+            })
+        }).then(res => res.json())
+            .then(response => {
+                    if(response.error){
+                        set_error(true);
+                        set_message('Error: '+response.error);
+                        return
+                    }
+                    getAllProducts();
+            })
+            .catch(err => {
+                set_error(true);
+                set_message('Error en la conexión con el servidor '+err);
+            });
+  }
+
+  const set_Close = () => {
+            set_productID("");
+            set_productDesc("");
+            set_productPrice(0);
+            setopenDialog(false);
+  }
+
+  const performOperation = () => {
+    if (productDesc == "") {
+      set_error(true);
+      set_error_desc(true);
+      set_message("La descripción no puede estar vacia");
+    } else if (productPrice <= 0) {
+      set_error(true);
+      set_error_price(true);
+      set_message("El precio debe ser mayor a cero");
+    } else{
+      fetch('http://localhost:4000/updateProduct', {
+              method: 'POST',
+              body: JSON.stringify({
+                  ProductID: currentProd,
+                  ProductDescription: productDesc,
+                  ProductPrice: parseFloat(productPrice)
+              })
+          }).then(res => res.json())
+              .then(response => {
+                      if(response.error){
+                          setopenDialog(false);
+                          set_error(true);
+                          set_message('Error: '+response.error);
+                          return
+                      }
+                      set_productID("");
+                      set_productDesc("");
+                      set_productPrice(0);
+                      setopenDialog(false);
+                      set_message("Se creó el producto con éxito!");
+                      set_success(true);
+                      getAllProducts();
+              })
+              .catch(err => {
+                  setopenDialog(false);
+                  set_error(true);
+                  set_message('Error en la conexión con el servidor '+err);
+      });
+    }
+  }
+
+  const editPerf = (valueID) => {
+    set_productID("");
+    set_productDesc("");
+    set_productPrice(0);
+    setcurrentProd(valueID);
+    setopenDialog(true);
+  }
+
   return (
     <div className={classes.root}>
       <AppBar position="static" color="default">
@@ -178,8 +309,7 @@ export default function Products() {
           aria-label="full width tabs example"
         >
           <Tab label="Crear Producto" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
+          <Tab label="Listar Productos" {...a11yProps(1)} />
         </Tabs>
       </AppBar>
       <SwipeableViews
@@ -188,59 +318,6 @@ export default function Products() {
         onChangeIndex={handleChangeIndex}
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <Dialog
-            open={error}
-            onClose={() => set_error(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title" style={{ color: "red" }}>
-              {"Información:"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => set_error(false)}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Aceptar
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog
-            open={success}
-            onClose={() => set_success(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title" style={{ color: "green" }}>
-              {"Información:"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => set_success(false)}
-                color="primary"
-                variant="outlined"
-                color="primary"
-                autoFocus
-              >
-                Aceptar
-              </Button>
-            </DialogActions>
-          </Dialog>
           <form>
             <div>
               <Grid container className={classes.rootContainer} spacing={4}>
@@ -314,11 +391,156 @@ export default function Products() {
           </form>
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
-          Item Two
+          <Container className={classes.cardGrid} maxWidth="md">
+            {/* End hero unit */}
+            <Grid container spacing={4}>
+              {products.length>0?products.map((card) => (
+                <Grid item key={card.ProductID} xs={12} sm={6} md={4} style={card.ProductStatus?{opacity: 1}:{opacity:0.5}}>
+                  <Card className={classes.card}>
+                    <CardMedia
+                      className={classes.cardMedia}
+                      image={"http://localhost:4000/getPictureProducts/"+card.ProductPicture}
+                      title={card.ProductID}
+                    />
+                    <CardContent className={classes.cardContent}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {card.ProductID}
+                      </Typography>
+                      <Typography>
+                        {card.ProductDescription}
+                      </Typography>
+                      <Typography component="p" variant="h5">
+                        {"$"+card.ProductPrice}
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                    {card.ProductStatus?<IconButton aria-label="eliminar-producto" onClick={(e) => actDesProd(card.ProductID, card.ProductStatus)}>
+                      <DeleteIcon />
+                    </IconButton>:
+                    <IconButton aria-label="agregar-producto" onClick={(e) => actDesProd(card.ProductID, card.ProductStatus)}>
+                    <AddBoxIcon />
+                    </IconButton>
+                    }
+                    <IconButton aria-label="editar-producto" onClick={(e) => editPerf(card.ProductID)}>
+                      <EditIcon />
+                    </IconButton>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              )):null}
+            </Grid>
+          </Container>
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
           Item Three
         </TabPanel>
+        <Dialog
+            open={error}
+            onClose={() => set_error(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title" style={{ color: "red" }}>
+              {"Información:"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {message}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => set_error(false)}
+                color="primary"
+                variant="outlined"
+                color="primary"
+                autoFocus
+              >
+                Aceptar
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            open={success}
+            onClose={() => set_success(false)}
+            aria-labelledby="alert-dialog-title-t"
+            aria-describedby="alert-dialog-description-t"
+          >
+            <DialogTitle id="alert-dialog-title-t" style={{ color: "green" }}>
+              {"Información:"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-t">
+                {message}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => set_success(false)}
+                color="primary"
+                variant="outlined"
+                color="primary"
+                autoFocus
+              >
+                Aceptar
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog
+            open={openDialog}
+            onClose={() => set_Close()}
+            aria-labelledby="alert-dialog-title-t"
+            aria-describedby="alert-dialog-description-t"
+          >
+            <DialogTitle id="alert-dialog-title-k" style={{ color: "green" }}>
+              {"Editar producto: "+currentProd}
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                    fullWidth
+                    id="product_desc-ch"
+                    label="Nueva descripción"
+                    error={error_desc}
+                    multiline
+                    value={productDesc}
+                    onChange={(e) => set_productDesc(e.target.value)}
+                    rowsMax={4}
+              />
+              <InputLabel style={{marginTop:'8%'}} htmlFor="product_price_k">Precio</InputLabel>
+                <Input
+                  fullWidth
+                  error={error_price}
+                  value={productPrice}
+                  onChange={(e) => set_productPrice(e.target.value)}
+                  id="product_price_k"
+                  type="number"
+                  startAdornment={
+                    <InputAdornment position="start">$</InputAdornment>
+                  }
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={(e) => set_Close()}
+                color="primary"
+                variant="outlined"
+                color="primary"
+                autoFocus
+              >
+                Cerrar
+              </Button>
+              <Button
+                onClick={(e) => performOperation()}
+                color="primary"
+                variant="outlined"
+                color="primary"
+                autoFocus
+              >
+                Cambiar
+              </Button>
+            </DialogActions>
+          </Dialog>            
       </SwipeableViews>
     </div>
   );
