@@ -1,218 +1,320 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { withRouter, Redirect } from 'react-router-dom';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
-import Paper from '@material-ui/core/Paper';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { Fragment, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { withRouter, Redirect } from "react-router-dom";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import TextField from "@material-ui/core/TextField";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import Link from "@material-ui/core/Link";
+import Paper from "@material-ui/core/Paper";
+import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
 //import logo from '../../images/logo.png';
 //import presentacion from '../../images/presentacion.mp4';
-import { KeyboardTab } from '@material-ui/icons';
-import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Slide from '@material-ui/core/Slide';
-import Formulario_cliente from '../formulario_cliente';
-import { success_login, error_login } from '../../redux/actions';
+import { success_login, error_login } from "../../redux/actions";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import RestaurantMenuIcon from "@material-ui/icons/RestaurantMenu";
+import cover from "../../images/cover.png";
+import chef1 from "../../images/chef1.jpg";
+import chef2 from "../../images/chef2.jpg";
+import chef3 from "../../images/chef3.jpg";
+import video from "../../images/coverVideo.mp4";
+import logo from "../../images/logo.png";
+import restaurante from "../../images/restaurante.jpg";
+import Fab from "@material-ui/core/Fab";
+import WebfontLoader from "@dr-kobros/react-webfont-loader";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Al sazón de la paloma '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
+//CARD
+import clsx from "clsx";
+import Card from "@material-ui/core/Card";
+import CardHeader from "@material-ui/core/CardHeader";
+import CardMedia from "@material-ui/core/CardMedia";
+import CardContent from "@material-ui/core/CardContent";
+import CardActions from "@material-ui/core/CardActions";
+import Collapse from "@material-ui/core/Collapse";
+import Avatar from "@material-ui/core/Avatar";
+import { red } from "@material-ui/core/colors";
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import ShareIcon from "@material-ui/icons/Share";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import BottomNavigation from "@material-ui/core/BottomNavigation";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import InstagramIcon from "@material-ui/icons/Instagram";
+import PhoneIcon from "@material-ui/icons/Phone";
+import EmailIcon from "@material-ui/icons/Email";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+// webfontloader configuration object. *REQUIRED*.
+const config = {
+  google: {
+    families: ["Source Sans Pro:300,600"],
+  },
+};
+const callback = (status) => {
+  // I could hook the webfont status to for example Redux here.
+};
 
 const useStyles = makeStyles((theme) => ({
+  rootCard: {
+    maxWidth: 345,
+  },
+  media: {
+    height: 0,
+    paddingTop: "56.25%", // 16:9
+  },
   root: {
-    height: '100vh',
+    flexGrow: 1,
   },
-  paper: {
-    margin: theme.spacing(8, 4),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+  menuButton: {
+    marginRight: theme.spacing(2),
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+  title: {
+    flexGrow: 1,
   },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
+  extendedIcon: {
+    marginRight: theme.spacing(1),
   },
 }));
 
 const Login_cliente = () => {
-  const { message, usuario, usuario_login } = useSelector(state => ({
+  const { message, usuario, usuario_login } = useSelector((state) => ({
     message: state.redux_reducer.message,
-    usuario: state.redux_reducer.usuario
+    usuario: state.redux_reducer.usuario,
   }));
-  const dispatch = useDispatch()
-  const [cedula, set_cedula] = useState('');
-  const [contrasenha, set_contrasenha] = useState('');
-  const [error_cedula, set_error_cedula] = useState(false);
-  const [pass_invalid, set_pass_invalid] = useState(false);
-  const [helper_cedula, set_helper_cc] = useState('');
-  const [helper_contrasenha, set_helper_pass] = useState('');
-  const [open, setOpen] = useState(false);
-  const [error_contrasenha, set_error_contrasenha] = useState(false);
-  const vertical = 'center';
-  const horizontal = 'right';
+  const dispatch = useDispatch();
   const classes = useStyles();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const ingresar = () => {
-    if (!Number(cedula) || contrasenha.length <= 6) {
-      !Number(cedula) ? set_error_cedula(true) : set_error_cedula(false);
-      !Number(cedula) ? set_helper_cc('La cédula debe ser un número') : set_helper_cc('');
-      contrasenha.length <= 6 ? set_error_contrasenha(true) : set_error_contrasenha(false);
-      contrasenha.length <= 6 ? set_helper_pass('La contraseña debe ser mayor a 6 caracteres') : set_helper_pass('');
-
-    } else {
-      set_error_cedula(false);
-      set_error_contrasenha(false);
-      set_helper_pass('');
-      set_helper_cc('');
-      fetch('http://localhost:4000/login_usuario', {
-        method: 'POST',
-        body: JSON.stringify({ id: cedula, contrasenha }), // data can be `string` or {object}!
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
-        .then(response => {
-          response.status !== 200 ? dispatch(error_login(response)) : dispatch(success_login(response));
-          response.status !== 200 ? set_pass_invalid(true) : set_pass_invalid(false);
-
-        })
-        .catch(error => alert(error));
-    }
-  }
   return (
-    <Grid container component="main" className={classes.root}>
-      {usuario.status===200 ? <h1>SESIÓN INICIADA</h1> : null}
-      <CssBaseline />
-      <Grid item xs={false} sm={4} md={8} className={classes.image}>
-      </Grid>
-      <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
-        <div className={classes.paper}>
-          
-          <form className={classes.form} noValidate>
-            <TextField
-              error={error_cedula}
-              helperText={helper_cedula}
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="cedula"
-              label="ID"
-              name="cedula"
-              value={cedula}
-              onChange={e => set_cedula(e.target.value)}
-              autoFocus
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              error={error_contrasenha}
-              helperText={helper_contrasenha}
-              fullWidth
-              name="password"
-              label="Contraseña"
-              type="password"
-              id="password"
-              color='primary'
-              value={contrasenha}
-              onChange={e => set_contrasenha(e.target.value)}
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Recordar datos"
-            />
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => ingresar()}
-              style={{ background: '#c62828', MozBorderRadius: 40, color: 'white', fontSize: 20, font: 'bold' }}
-              className={classes.submit}
+    <WebfontLoader config={config} onStatus={callback}>
+      <Box>
+        <AppBar
+          position="sticky"
+          style={{
+            top: 0,
+            left: 0,
+            margin: 0,
+            background: "black",
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="menu"
             >
-              Ingresar
-               <KeyboardTab style={{ fontSize: 35, marginLeft: '10px' }} />
-            </Button>
-            <Snackbar open={pass_invalid} autoHideDuration={4000}
-              anchorOrigin={{ vertical, horizontal }}
+              <RestaurantMenuIcon />
+            </IconButton>
+            <Typography variant="h6" className={classes.title}>
+              Al Sazón de la Paloma
+            </Typography>
+            <Button color="inherit"><ShoppingCartIcon/></Button>
+            <Button color="inherit">Menú</Button>
+            <Button color="inherit">Login</Button>
+          </Toolbar>
+        </AppBar>
+        <Grid container className={classes.root} style={{ marginBottom: "2%" }}>
+          <Grid item xs={12}>
+            <img src={cover} height="110%" width="100%" alt="cover" />
+          </Grid>
+          <Grid item xs={12} style={{ textAlign: "center" }}>
+            <div
+              style={{
+                textAlign: "justify",
+                textJustify: "inter-word",
+                marginLeft: "5%",
+                marginRight: "5%",
+                marginTop: "6%",
+              }}
             >
-              <Alert onClose={() => set_pass_invalid(false)} variant="filled" severity="error">
-                {usuario.message}
-              </Alert>
-            </Snackbar>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2" style={{ color: '#707070' }}>
-                  recuperar contraseña
-                </Link>
+              Contamos con personal altamente calificado con varios años de
+              experiencia en el sector gastronómico, especialmente el sazón
+              peruano. Somos reconocidos por nuestros deliciosos platos picantes
+              tradicionales del suroccidente de nuestro país y por nuestra
+              especialidad de postres a base de cacao.
+            </div>
+          </Grid>
+          <Grid item xs={12}>
+            <div
+              style={{
+                marginLeft: "5%",
+                marginRight: "5%",
+                marginTop: "1%",
+              }}
+            >
+              <Grid container style={{ marginBottom: "2%" }} spacing={2}>
+                <Grid item xs={4}>
+                  <Card className={classes.rootCard}>
+                    <CardHeader
+                      title="Alfonso Peralta"
+                      subheader="El mago Inca"
+                    />
+                    <CardMedia
+                      className={classes.media}
+                      image={chef1}
+                      title="Ganador del mejor plato Traditional Food-2019"
+                    />
+                    <CardContent>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        component="p"
+                      >
+                        Alfonso es catalogado actualmente como uno de los
+                        mejores chefs de Perú, su gran habilidad con las
+                        especias y la comida de mar le ha dado el título del
+                        mago Inca. Una vez hayas probado uno de sus exquisitos
+                        platos, vas a querer repetir.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={4}>
+                  <Card className={classes.rootCard}>
+                    <CardHeader
+                      title="Marcela Curui"
+                      subheader="Corazón de Cacao"
+                    />
+                    <CardMedia
+                      className={classes.media}
+                      image={chef2}
+                      title="Mejor postre de chocolate Peruano - 208"
+                    />
+                    <CardContent>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        component="p"
+                      >
+                        Marcela Curui es una gran chef cuyos platos se
+                        caracteriza por el gra uso del cacao para realizar
+                        diferentes receta. Ha logrado un gran renombre no solo
+                        en Perú sino también en todo latinoamerica.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={4}>
+                  <Card className={classes.rootCard}>
+                    <CardHeader
+                      title="Miguel Rodriguez"
+                      subheader="El tiki palomón"
+                    />
+                    <CardMedia
+                      className={classes.media}
+                      image={chef3}
+                      title="Mejor Guiso de Paloma 2020"
+                    />
+                    <CardContent>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        component="p"
+                      >
+                        Miguel es un experto en cuanto guisos y sopas se trata,
+                        no hay nadie que no se pueda resistir a sus deliciosas
+                        recetas. Ha sido reconocido por importantes revistas por
+                        su gran habilidad en la cocina.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Link href="#" onClick={e => handleClickOpen()} variant="body2" style={{ color: '#707070' }}>
-                  {"click para registrarte"}
-                </Link>
+            </div>
+          </Grid>
+          <Grid item xs={12} style={{ backgroundColor: "black" }}>
+            <div>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <img
+                    src={restaurante}
+                    height="100%"
+                    width="100%"
+                    alt="cover"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <p
+                    style={{
+                      textAlign: "justify",
+                      textJustify: "inter-word",
+                      color: "white",
+                    }}
+                  >
+                    <i>
+                      Tenemos alrededor del país diferentes sedes las cuales
+                      cumplen con todas las políticas de salubridad y el diseño
+                      de interior está pensado para la comodidad de nuestros
+                      clientes. Todas nuestras sedes se caracterizan por estar
+                      ubicadas en lugares con gran fluidez de tráfico interesa
+                      que los clientes puedan llegar con facilidad a nuestras
+                      instalaciones. Además de brindar un gran servicio
+                      personalizado a cada uno de nuestros clientes.
+                    </i>
+                  </p>
+                  <p
+                    style={{
+                      textAlign: "justify",
+                      textJustify: "inter-word",
+                      color: "white",
+                    }}
+                  >
+                    <i>
+                      Actualmente contamos dos tipos de servicios los cuales son
+                      comer en el lugar y para llevar domicilio ambos procesos
+                      deben llevarse a cabo por nuestra página web.
+                    </i>
+                  </p>
+                </Grid>
               </Grid>
-            </Grid>
-            <Box mt={5}>
-              <Copyright />
-            </Box>
-            <Dialog
-              open={open}
-              TransitionComponent={Transition}
-              fullScreen
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-slide-title"
-              aria-describedby="alert-dialog-slide-description"
+            </div>
+          </Grid>
+          <Grid item xs={12}>
+            <div
+              style={{
+                textAlign: "center",
+              }}
             >
-              <DialogTitle id="alert-dialog-slide-title">{"Formulario de registro"}</DialogTitle>
-              <DialogContent>
-              <Formulario_cliente/>
-              </DialogContent>
-              <DialogActions>
-              <Button onClick={handleClose} color="primary">
-                  CERRAR FORMULARIO
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </form>
-        </div>
-      </Grid>
-    </Grid>
+              <video src={video} width="100%" height="70%" autoPlay={true} muted loop/>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <p>Contacto</p>
+                  <a href="" style={{ color: "black" }}>
+                    <PhoneIcon /> 323515466
+                  </a>
+                  <br/>
+                  <a href="" style={{ color: "black" }}>
+                    <EmailIcon /> alsazonpaloma@gmail.comm
+                  </a>
+                  <br/>
+                  <br/>
+                  <a href="" style={{ color: "black" }}>
+                    <FacebookIcon />
+                  </a>
+                  <a href="" style={{ color: "black" }}>
+                    <InstagramIcon />
+                  </a>
+                  <a href="" style={{ color: "black" }}>
+                    <TwitterIcon />
+                  </a>
+                </Grid>
+                <Grid item xs={6}>
+                <p>Certificación</p>
+                <p>ISO 9000/5</p>
+                <p>lubricity certificate 3.52</p>
+                </Grid>
+              </Grid>
+            </div>
+          </Grid>
+        </Grid>
+      </Box>
+    </WebfontLoader>
   );
-}
+};
 export default Login_cliente;
