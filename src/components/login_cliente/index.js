@@ -245,9 +245,9 @@ const Login_cliente = () => {
                       textAlign: "justify",
                       textJustify: "inter-word",
                       color: "white",
+                      marginRight:'2%'
                     }}
                   >
-                    <i>
                       Tenemos alrededor del país diferentes sedes las cuales
                       cumplen con todas las políticas de salubridad y el diseño
                       de interior está pensado para la comodidad de nuestros
@@ -256,20 +256,18 @@ const Login_cliente = () => {
                       que los clientes puedan llegar con facilidad a nuestras
                       instalaciones. Además de brindar un gran servicio
                       personalizado a cada uno de nuestros clientes.
-                    </i>
                   </p>
                   <p
                     style={{
                       textAlign: "justify",
                       textJustify: "inter-word",
                       color: "white",
+                      marginRight:'2%'
                     }}
                   >
-                    <i>
                       Actualmente contamos dos tipos de servicios los cuales son
                       comer en el lugar y para llevar domicilio ambos procesos
                       deben llevarse a cabo por nuestra página web.
-                    </i>
                   </p>
                 </Grid>
               </Grid>
