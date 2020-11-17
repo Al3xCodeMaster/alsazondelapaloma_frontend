@@ -25,6 +25,7 @@ import video from '../../images/video.mp4';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
+
 const theme = createMuiTheme({
     palette: {
       primary: {
