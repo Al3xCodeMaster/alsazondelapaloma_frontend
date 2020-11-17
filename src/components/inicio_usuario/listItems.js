@@ -22,11 +22,11 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Mi información" />
     </ListItem>
-    <ListItem button component={Link} to='/admin/crear'>
+    <ListItem button component={Link} to='/admin/usuarios'>
       <ListItemIcon>
       <PersonAddIcon/>
       </ListItemIcon>
-      <ListItemText primary="Usuario" />
+      <ListItemText primary="Usuarios" />
     </ListItem>
     <ListItem button component={Link} to='/admin/perfiles'>
       <ListItemIcon>
@@ -34,7 +34,7 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Perfiles" />
     </ListItem>
-    <ListItem button component={Link} to='/admin/crear_producto'>
+    <ListItem button component={Link} to='/admin/productos'>
       <ListItemIcon>
       <AddAPhoto/>
       </ListItemIcon>

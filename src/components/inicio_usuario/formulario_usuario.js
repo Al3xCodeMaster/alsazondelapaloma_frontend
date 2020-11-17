@@ -146,7 +146,10 @@ function Informacion_basica() {
 						onClose={() => {
 							setOpen(false);
 						}}
-						getOptionSelected={(option, value) => option === value?set_state_type_id(value):false}
+						getOptionSelected={(option, value) => option === value}
+						onChange={(event, newValue) => {
+							set_type_id(newValue);
+						}}
 						getOptionLabel={(option) => option}
 						options={options}
 						loading={loading}

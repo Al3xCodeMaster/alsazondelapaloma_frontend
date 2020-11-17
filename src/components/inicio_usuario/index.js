@@ -19,8 +19,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems, secondaryListItems } from './listItems';
 import { BrowserRouter, Route, Redirect, Switch, Router } from 'react-router-dom';
-import Formulario_usuario from './formulario_usuario';
-import Dashboard_usuario from './dashboard';
+import Usuarios from './usuarios';
+import DashboardUser from './dashboard';
 import Profiles from './perfiles';
 import Products from './products';
 import { useSelector} from 'react-redux';
@@ -193,10 +193,10 @@ export default function Dashboard_empleado() {
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
           <Switch>
-              <Route path="/admin/crear" component={Formulario_usuario} />
+              <Route path="/admin/usuarios" component={Usuarios} />
               <Route path="/admin/perfiles" component={Profiles} />
-              <Route path="/admin/crear_producto" component={Products} />
-              <Route path='/' component={Dashboard_usuario}/>
+              <Route path="/admin/productos" component={Products} />
+              <Route path="/" component={DashboardUser} />
             </Switch>
           </Container>
         </main> 

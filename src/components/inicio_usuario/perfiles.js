@@ -522,11 +522,10 @@ export default function Perfiles() {
                     {element.ProfileStatus ? "Activo" : "No activo"}
                   </TableCell>
                   <TableCell>
-                    {element.ProfileCreationDate
-                      ? new Date(
+                    {new Date(
                           element.ProfileCreationDate
                         ).toLocaleDateString()
-                      : null}
+                    }
                   </TableCell>
                   <TableCell>
                     <IconButton
@@ -708,11 +707,11 @@ export default function Perfiles() {
                     {element.RestaurantUserStatus ? "Activo" : "No activo"}
                   </TableCell>
                   <TableCell>
-                    {element.RestaurantUserCreationDate
-                      ? new Date(
+                    {
+                      new Date(
                           element.RestaurantUserCreationDate
                         ).toLocaleDateString()
-                      : null}
+                    }
                   </TableCell>
                 </TableRow>
               ))}
@@ -744,11 +743,9 @@ export default function Perfiles() {
                         {element.ProfileStatus ? "Activo" : "No activo"}
                       </TableCell>
                       <TableCell>
-                        {element.ProfileCreationDate
-                          ? new Date(
+                          {new Date(
                               element.ProfileCreationDate
-                            ).toLocaleDateString()
-                          : null}
+                            ).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         {profiles_from_user.length > 0 ? (

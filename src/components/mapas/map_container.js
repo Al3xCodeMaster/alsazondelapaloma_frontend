@@ -4,7 +4,7 @@ import Geocode from "react-geocode";
 import { connect } from 'react-redux';
 import { set_coordinates, set_Address} from '../../redux/actions';
 import { withRouter, Redirect } from 'react-router-dom';
-Geocode.setApiKey("AIzaSyBnLryr9xwcxZRyJCdaqLwSf0JoRkoBxFU");
+Geocode.setApiKey("AIzaSyDcpnTaFMV5WjJULkv5HTKX5kHw7FeL8A4");
 // set response language. Defaults to english.
 Geocode.setLanguage("en");
  
@@ -99,7 +99,7 @@ class Mapa extends Component {
 }
 
 const MapContainer = GoogleApiWrapper({
-  apiKey: ("AIzaSyBnLryr9xwcxZRyJCdaqLwSf0JoRkoBxFU")
+  apiKey: ("AIzaSyDcpnTaFMV5WjJULkv5HTKX5kHw7FeL8A4")
 })(Mapa);
 
 const mapStateToProps = (state) => {

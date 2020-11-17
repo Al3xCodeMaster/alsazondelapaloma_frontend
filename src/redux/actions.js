@@ -13,6 +13,7 @@ export const SUBIO_FOTO = 'SUBIO_FOTO';
 export const SET_NAVBAR = 'SET_NAVBAR';
 export const SET_ADDRESS = 'SET_ADDRESS';
 export const SET_TYPE_ID = 'SET_TYPE_ID';
+export const SET_SEX = 'SET_SEX';
 
 //******************LOGIN*******************
 export const success_login = (payload,status) => {
@@ -97,6 +98,12 @@ export const set_Address = payload => {
 export const set_type_id = payload => {
     return {
         type: SET_TYPE_ID,
+        payload
+    }
+}
+export const set_sex = payload => {
+    return {
+        type: SET_SEX,
         payload
     }
 }

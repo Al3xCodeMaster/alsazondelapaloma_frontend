@@ -264,8 +264,8 @@ export default function Dashboard() {
                 <h2>Perfiles:</h2>
                 <Paper className={classes.paper}>
                   <List dense>
-                  {usuario.status==200?profiles.length>0?profiles.map( (element) => (
-                    <ListItem>
+                  {usuario.status==200?profiles.length>0?profiles.map( (element, index) => (
+                    <ListItem key={index}>
                     <ListItemText
                       primary={element.ProfileName}
                       secondary={element.ProfileCreationDate? new Date(element.ProfileCreationDate).toLocaleDateString():null}

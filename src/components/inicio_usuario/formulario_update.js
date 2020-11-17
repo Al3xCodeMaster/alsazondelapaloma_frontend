@@ -131,7 +131,7 @@ function getStepContent(step) {
     case 1:
       return <Search_location />;
     default:
-      return "Unknown step";
+      return <h1>Unknown</h1>;
   }
 }
 
@@ -186,7 +186,7 @@ export default function Formulario_update_usuario() {
     } else {
       let status;
       setOpen(false);
-      fetch("http://localhost:4000/updateUserAdmin", {
+      fetch("http://localhost:4000/updateUser", {
         method: "POST",
         body: JSON.stringify({
           RestaurantUserID: parseInt(usuario.id),
@@ -207,7 +207,7 @@ export default function Formulario_update_usuario() {
             set_message("No se realizo la operación: " + response.error);
             setOpen(true);
           } else {
-            set_message_success(response.Message);
+            set_message_success("Hecho");
             dispatch(
               success_login(
                 {
@@ -230,8 +230,7 @@ export default function Formulario_update_usuario() {
           }
         })
         .catch((error) => {
-          set_message(error);
-          setOpen(true);
+          alert(error);
         });
     }
   };
@@ -326,7 +325,7 @@ export default function Formulario_update_usuario() {
         ) : (
           <div>
             <div className={classes.instructions}>
-              {getStepContent(activeStep)}
+              {getStepContent(activeStep) || <h1>Unknown</h1>}
             </div>
             <div style={{ textAlign: "center", marginTop: "8%" }}>
               <Button

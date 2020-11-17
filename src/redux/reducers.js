@@ -13,7 +13,8 @@ import {
     SET_NAVBAR,
     SET_ADDRESS,
     SET_DATE,
-    SET_TYPE_ID
+    SET_TYPE_ID,
+    SET_SEX
 }
     from './actions';
 
@@ -58,6 +59,8 @@ function redux_reducer(state = initialState, action) {
             return {...state, address: action.payload}
         case SET_TYPE_ID:
             return { ...state, usuario: { ...state.usuario, tipoId: action.payload }};
+        case SET_SEX:
+            return {...state, usuario: {...state.usuario, sex: action.payload}}    
         case SET_NAVBAR:
             return { ...state, nav_bar: action.payload}
         default:

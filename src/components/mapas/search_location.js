@@ -70,13 +70,11 @@ export default function Search_location() {
                                         <Typography className={classes.title} color="textSecondary" gutterBottom>
                                             Información Dirección
                                         </Typography>
-                                        <Typography className={classes.pos} color="textSecondary">
                                             <p>Latitude: {coordenadas.lat}</p>
                                             <p>Longitude: {coordenadas.lng}</p>
                                             <p>Dirección: {direccion}</p>
                                             <p>Una vez haya terminado de ingresar su dirección en la casilla de abajo presione enter para buscarla.</p>
                                             <p>En caso de que no encuentre su dirección en el buscador puede arrastrar el marcador a la posición que desea</p>
-                                        </Typography>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -85,13 +83,13 @@ export default function Search_location() {
                             <div>
                                 {loading ? <div>...loading</div> : null}
 
-                                {suggestions.map(suggestion => {
+                                {suggestions.map( (suggestion, index) => {
                                     const style = {
                                         backgroundColor: suggestion.active ? "#41b6e6" : "#fff"
                                     };
 
                                     return (
-                                        <div {...getSuggestionItemProps(suggestion, { style })}>
+                                        <div key={index} {...getSuggestionItemProps(suggestion, { style })}>
                                             {suggestion.description}
                                         </div>
                                     );

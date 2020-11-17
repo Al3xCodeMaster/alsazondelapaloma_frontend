@@ -189,10 +189,13 @@ const Login_usuario = () => {
                             onClose={() => {
                               setOpenAut(false);
                             }}
-                            getOptionSelected={(option, value) => option === value?set_type_id(value):false}
+                            getOptionSelected={(option, value) => option === value}
                             getOptionLabel={(option) => option}
                             options={options}
                             loading={loading}
+                            onChange={(event, newValue) => {
+                              set_type_id(newValue);
+                            }}
                             renderInput={(params) => (
                                 <TextField 
                                     {...params}

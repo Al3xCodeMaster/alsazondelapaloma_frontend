@@ -12,6 +12,12 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DateFnsUtils from '@date-io/date-fns';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import InputLabel from '@material-ui/core/InputLabel';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import FormControl from '@material-ui/core/FormControl';
+import { IconButton } from '@material-ui/core';
 import {
 	MuiPickersUtilsProvider,
 	KeyboardDatePicker,
@@ -23,7 +29,10 @@ import {
 	set_apellido,
 	set_celular,
 	set_correo,
-	set_contrasenha
+	set_contrasenha,
+	set_date,
+	set_type_id,
+	set_sex
 } from '../../redux/actions';
 import { CloudUpload } from '@material-ui/icons';
 import Grid from '@material-ui/core/Grid';
@@ -70,10 +79,11 @@ function Informacion_basica() {
 	const [apellido, set_last_name] = useState('');
 	const [celular, set_cellphone] = useState('');
 	const [correo, set_email] = useState('');
-	const [open, setOpen] = useState(false);
 	const [options, setOptions] = useState([]);
-	const loading = open && options.length === 0;
 	const [selectedDate, setSelectedDate] = useState(new Date(Date.now()));
+	const [openAut, setOpenAut] = React.useState(false);
+	const loading = openAut && options.length === 0;
+	const [sex, setSex] = useState(null);
 	const { usuario } = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
 	}));
@@ -99,8 +109,19 @@ function Informacion_basica() {
 		set_email(value);
 	}
 
+	const set_state_sex = (value) => {
+		setSex(value);
+		dispatch(set_sex(value.value));
+	}
+
+	const set_state_type_id = (value) => {
+		dispatch(set_type_id(value));
+		return true;
+	}
+
 	const handleDateChange = (date) => {
 		setSelectedDate(date);
+		dispatch(set_date(date));
 	};
 
 	React.useEffect(() => {
@@ -124,20 +145,28 @@ function Informacion_basica() {
 		};
 	}, [loading]);
 
+	React.useEffect(() => {
+		if (!openAut) {
+		  setOptions([]);
+		}
+	  }, [openAut]);
 
 	return (
 		<div style={{ justifyContent: 'stretch', alignItems: 'center', }}>
 				<TextField id="usuario_cedula" type="number" value={cedula} onChange={e => set_state_cedula(e.target.value)} className={classes.input} label="Número de documento" variant="outlined" />
 					<Autocomplete
-						id="async-autocompl"
-						open={open}
+						id="async-autocomplClient"
+						open={openAut}
 						onOpen={() => {
-							setOpen(true);
+							setOpenAut(true);
 						}}
 						onClose={() => {
-							setOpen(false);
+							setOpenAut(false);
 						}}
 						getOptionSelected={(option, value) => option === value}
+						onChange={(event, newValue) => {
+							set_type_id(newValue);
+						}}
 						getOptionLabel={(option) => option}
 						options={options}
 						loading={loading}
@@ -161,6 +190,16 @@ function Informacion_basica() {
 					/>
 			<TextField id="usuario_nombre" value={nombre} onChange={e => set_state_nombre(e.target.value)} className={classes.input} label="Nombre" variant="outlined" />
 			<TextField id="usuario_apellido" value={apellido} onChange={e => set_state_apellido(e.target.value)} className={classes.input} label="Apellido" variant="outlined" />
+			<Autocomplete
+				id="controlled-combo"
+				options={sexOptions}
+				getOptionLabel={(option) => option.title}
+				value={sex}
+				onChange={(event, newValue) => {
+					set_state_sex(newValue);
+				}}
+				renderInput={(params) => <TextField {...params} label="Seleccione su sexo" variant="outlined" className={classes.input}/>}
+			/>
 			<TextField id="usuario_celular" type="number" value={celular} onChange={e => set_state_celular(e.target.value)} className={classes.input} label="Celular" variant="outlined" />
 			<TextField id="usuario_correo" value={correo} onChange={e => set_state_correo(e.target.value)} className={classes.input} label="Correo" variant="outlined" />
 			<MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -183,13 +222,7 @@ function Informacion_basica() {
 function Informacion_seguridad() {
 	const classes = useStyles();
 	const [contrasenha, set_password] = useState('');
-	const [foto, set_foto] = useState(0);
-	const [documento, set_documento] = useState(0);
-	const [open, setOpen] = React.useState(false);
-	const [open_success, set_open_success] = React.useState(false);
-	const [message, set_message] = useState('');
-	const vertical = 'top';
-	const horizontal = 'right';
+	const [showPassword, set_showPassword] = useState(false);
 
 
 	const { usuario } = useSelector(state => ({
@@ -197,24 +230,41 @@ function Informacion_seguridad() {
 	}));
 	const dispatch = useDispatch();
 
-	const handleClose = () => {
-		setOpen(false);
-		set_open_success(false);
-	};
 	const set_state_contrasenha = (value) => {
 		dispatch(set_contrasenha(value));
 		set_password(value);
 	}
-	const set_file = value => {
-		set_foto(value);
-	}
-	const set_doc = value => {
-		set_documento(value);
-	}
+
+	const handleClickShowPassword = () => {
+		set_showPassword(!showPassword);
+	  };
+	
+	  const handleMouseDownPassword = (event) => {
+		event.preventDefault();
+	  };
 
 	return (
 		<div style={{ width: '100%' }}>
-			<TextField id="contrasenha" value={contrasenha} onChange={e => set_state_contrasenha(e.target.value)} className={classes.input} label="Contraseña para el inicio de sección" variant="outlined" />
+			<FormControl className={classes.input}>
+          <InputLabel htmlFor="standard-adornment-password">Contraseña</InputLabel>
+          <Input
+            id="standard-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            value={contrasenha}
+			onChange={e => set_state_contrasenha(e.target.value)}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                >
+                  {showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
 		</div>
 	)
 }
@@ -243,10 +293,10 @@ export default function Formulario_usuario() {
 	const [activeStep, setActiveStep] = React.useState(0);
 	const [skipped, setSkipped] = React.useState(new Set());
 	const steps = getSteps();
-	const { usuario, direccion, coordenadas, subio_fot, subio_doc } = useSelector(state => ({
+	const { usuario, coordenadas, datePick} = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
 		coordenadas: state.redux_reducer.coordenadas,
-		direccion: state.redux_reducer.direccion,
+		datePick: state.redux_reducer.datePick
 	}));
 	const dispatch = useDispatch();
 	const handleClose = () => {
@@ -256,7 +306,7 @@ export default function Formulario_usuario() {
 		set_open_sucess(false);
 	};
 	const comprobar_info = () => {
-		if (!Number(usuario.cedula)) {
+		if (!Number(usuario.id)) {
 			set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
 			setOpen(true);
 		}
@@ -282,9 +332,9 @@ export default function Formulario_usuario() {
 		}
 	}
 	const subir_formulario = () => {
-		if (direccion.length === 0 || !Number(usuario.cedula) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || !Number(usuario.celular) || !usuario.correo.includes('@') || usuario.contrasenha.length < 7) {
+		if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || !Number(usuario.celular) || !usuario.correo.includes('@') || usuario.contrasenha.length < 7) {
 
-			if (!Number(usuario.cedula)) {
+			if (!Number(usuario.id)) {
 				set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
 			}
 			if (usuario.nombre.length === 0) {
@@ -302,37 +352,33 @@ export default function Formulario_usuario() {
 			if (usuario.contrasenha.length < 7) {
 				set_message('la contraseña debe ser mayor a 6 caracteres');
 			}
-			if (direccion.length === 0) {
-				set_message('seleccione una dirección válida');
-			}
 			setOpen(true);
 		}
 		else {
 			setOpen(false);
-			fetch('http://localhost:4000/crear_usuario', {
+			fetch('http://localhost:4000/createClient', {
 				method: 'POST',
 				body: JSON.stringify({
-					id: usuario.cedula,
-					nombre: usuario.nombre,
-					apellido: usuario.apellido,
-					celular: usuario.celular,
-					correo: usuario.correo,
-					latitud: coordenadas.lat,
-					longitud: coordenadas.lng,
-					direccion,
-					contrasenha: usuario.contrasenha
-				}), // data can be `string` or {object}!
-				headers: {
-					'Content-Type': 'application/json'
-				}
+					ClientID: parseInt(usuario.id),
+					ClientName: usuario.nombre,
+					ClientLastName: usuario.apellido,
+					ClientPhone: usuario.celular,
+					ClientBirthDate: datePick,
+					ClientEmail: usuario.correo,
+					ClientLatitude: coordenadas.lat,
+					ClientLongitude: coordenadas.lng,
+					ClientPass: usuario.contrasenha,
+					DocumentTypeID: usuario.tipoId,
+					ClientSex: usuario.sex
+				}) // data can be `string` or {object}!
 			}).then(res => res.json())
 				.then(response => {
-					if (response.status === 400) {
-						set_message(response.message);
+					if (response.error) {
+						set_message(response.error);
 						setOpen(true);
 					}
 					else {
-						set_message_success(response.message);
+						set_message_success(response.Message);
 						set_open_sucess(true);
 						handleReset();
 						dispatch(set_id(''));
@@ -344,8 +390,7 @@ export default function Formulario_usuario() {
 					}
 				})
 				.catch(error => {
-					set_message(error);
-					setOpen(true);
+					alert(error);
 				});
 		}
 	}
@@ -456,3 +501,5 @@ export default function Formulario_usuario() {
 		</div>
 	);
 }
+
+const sexOptions = [{title: "Masculino", value: true},{title: "Feminino", value: false}];
