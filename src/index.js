@@ -17,6 +17,7 @@ const Root = (
         <Route path="/login/usuario" component={Login_usuario}/>
         <Route path="/login/cliente" component={Login_cliente}/>
         <Route path="/inicio/usuario" component={Dashboard_usuario}/>
+        <Redirect from="/" to="/login/cliente"/>
     </Switch>
     </BrowserRouter>
     </Provider>

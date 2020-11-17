@@ -165,7 +165,7 @@ function Informacion_basica() {
 						}}
 						getOptionSelected={(option, value) => option === value}
 						onChange={(event, newValue) => {
-							set_type_id(newValue);
+							set_state_type_id(newValue);
 						}}
 						getOptionLabel={(option) => option}
 						options={options}
@@ -204,6 +204,7 @@ function Informacion_basica() {
 			<TextField id="usuario_correo" value={correo} onChange={e => set_state_correo(e.target.value)} className={classes.input} label="Correo" variant="outlined" />
 			<MuiPickersUtilsProvider utils={DateFnsUtils}>
 				<KeyboardDatePicker
+					className={classes.input}
 					margin="normal"
 					id="date-picker-birthday-client"
 					label="Fecha de nacimiento"

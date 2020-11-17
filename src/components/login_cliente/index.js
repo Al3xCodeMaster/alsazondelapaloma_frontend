@@ -14,7 +14,6 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 //import logo from '../../images/logo.png';
 //import presentacion from '../../images/presentacion.mp4';
-import { success_login, error_login } from "../../redux/actions";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -27,8 +26,7 @@ import video from "../../images/coverVideo.mp4";
 import logo from "../../images/logo.png";
 import restaurante from "../../images/restaurante.jpg";
 import Fab from "@material-ui/core/Fab";
-import WebfontLoader from "@dr-kobros/react-webfont-loader";
-
+import SignIn from './login';
 //CARD
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
@@ -50,15 +48,15 @@ import PhoneIcon from "@material-ui/icons/Phone";
 import EmailIcon from "@material-ui/icons/Email";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import {Dialog, DialogTitle, DialogActions, DialogContent} from "@material-ui/core";
 // webfontloader configuration object. *REQUIRED*.
 const config = {
   google: {
     families: ["Source Sans Pro:300,600"],
   },
 };
-const callback = (status) => {
-  // I could hook the webfont status to for example Redux here.
-};
+
+
 
 const useStyles = makeStyles((theme) => ({
   rootCard: {
@@ -83,15 +81,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Login_cliente = () => {
-  const { message, usuario, usuario_login } = useSelector((state) => ({
-    message: state.redux_reducer.message,
-    usuario: state.redux_reducer.usuario,
+  const {nav_bar, client} = useSelector((state) => ({
+    nav_bar: state.redux_reducer.nav_bar,
+    client: state.redux_reducer.client,
   }));
   const dispatch = useDispatch();
   const classes = useStyles();
+  const [openD, setOpenD] = React.useState(false);
+  const handleClose = () => {
+    setOpenD(false);
+  };
+
 
   return (
-    <WebfontLoader config={config} onStatus={callback}>
       <Box>
         <AppBar
           position="sticky"
@@ -112,11 +114,11 @@ const Login_cliente = () => {
               <RestaurantMenuIcon />
             </IconButton>
             <Typography variant="h6" className={classes.title}>
-              Al Sazón de la Paloma
+              {"Al Sazón de la Paloma"+(client.status==200?" - ¡Bienvenido, "+client.clientInfo.Payload.ClientName+" "+client.clientInfo.Payload.ClientLastName+"!":"")}
             </Typography>
             <Button color="inherit"><ShoppingCartIcon/></Button>
-            <Button color="inherit">Menú</Button>
-            <Button color="inherit">Login</Button>
+            <Button color="inherit">Carta</Button>
+            {nav_bar==='principal'?<Button color="inherit" onClick={e => setOpenD(true)}>Login</Button>:<Button color="inherit">Salir</Button>}
           </Toolbar>
         </AppBar>
         <Grid container className={classes.root} style={{ marginBottom: "2%" }}>
@@ -311,8 +313,12 @@ const Login_cliente = () => {
             </div>
           </Grid>
         </Grid>
+        <Dialog open={openD} onClose={handleClose} aria-labelledby="form-dialog-title">
+              <DialogContent>
+                <SignIn/>
+              </DialogContent>
+        </Dialog>
       </Box>
-    </WebfontLoader>
   );
 };
 export default Login_cliente;

@@ -14,12 +14,15 @@ import {
     SET_ADDRESS,
     SET_DATE,
     SET_TYPE_ID,
-    SET_SEX
+    SET_SEX,
+    SUCESS_LOGIN_CLIENT,
+    ERROR_LOGIN_CLIENT
 }
     from './actions';
 
 const initialState = {
     usuario: {},
+    client: {},
     message: 'Hola redux',
     cargando: false,
     coordenadas: { lat: 3.382225, lng: -76.531584 },
@@ -35,6 +38,10 @@ function redux_reducer(state = initialState, action) {
             return { ...state, usuario: {userInfo: action.payload, status: action.status}};
         case ERROR_LOGIN:
             return { ...state, usuario: action.payload };
+        case SUCESS_LOGIN_CLIENT:
+            return {...state, client: {clientInfo: action.payload, status: action.status}};
+        case ERROR_LOGIN_CLIENT:
+            return {...state, client: action.payload};        
         case SET_COORDINATES:
             return { ...state, coordenadas: action.payload };
         case SET_ID:

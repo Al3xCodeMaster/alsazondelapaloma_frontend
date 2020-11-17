@@ -1,5 +1,6 @@
 import React, { useState, Fragment, useEffect } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
+import { withStyles } from '@material-ui/core/styles';
 import { makeStyles } from "@material-ui/core/styles";
 import Snackbar from "@material-ui/core/Snackbar";
 import Alert from "@material-ui/lab/Alert";
@@ -26,7 +27,87 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import clsx from 'clsx';
 import {lighten} from '@material-ui/core/styles';
-import { Select, TextField, MenuItem, Grid } from "@material-ui/core";
+import { Select, TextField, MenuItem, Grid, Button, Avatar} from "@material-ui/core";
+import {Dialog, DialogTitle, DialogActions, DialogContent, FormControlLabel, Switch} from "@material-ui/core";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import { purple } from '@material-ui/core/colors';
+import Search_location from '../mapas/search_location';
+import {
+  set_coordinates  
+} from '../../redux/actions';
+import { set } from "date-fns";
+
+const PurpleSwitch = withStyles({
+  switchBase: {
+    color: purple[300],
+    '&$checked': {
+      color: purple[500],
+    },
+    '&$checked + $track': {
+      backgroundColor: purple[500],
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
+
+const IOSSwitch = withStyles((theme) => ({
+  root: {
+    width: 42,
+    height: 26,
+    padding: 0,
+    margin: theme.spacing(1),
+  },
+  switchBase: {
+    padding: 1,
+    '&$checked': {
+      transform: 'translateX(16px)',
+      color: theme.palette.common.white,
+      '& + $track': {
+        backgroundColor: '#52d869',
+        opacity: 1,
+        border: 'none',
+      },
+    },
+    '&$focusVisible $thumb': {
+      color: '#52d869',
+      border: '6px solid #fff',
+    },
+  },
+  thumb: {
+    width: 24,
+    height: 24,
+  },
+  track: {
+    borderRadius: 26 / 2,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[50],
+    opacity: 1,
+    transition: theme.transitions.create(['background-color', 'border']),
+  },
+  checked: {},
+  focusVisible: {},
+}))(({ classes, ...props }) => {
+  return (
+    <Switch
+      focusVisibleClassName={classes.focusVisible}
+      disableRipple
+      classes={{
+        root: classes.root,
+        switchBase: classes.switchBase,
+        thumb: classes.thumb,
+        track: classes.track,
+        checked: classes.checked,
+      }}
+      {...props}
+    />
+  );
+});
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -73,6 +154,17 @@ const useStyles = makeStyles((theme) => ({
         position: 'absolute',
         top: 20,
         width: 1,
+      },
+      textField: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        width: '25ch',
+      },
+      avatar: {
+        large: {
+          width: '100%',
+          height: '80%',
+        }
       }
   }));
 
@@ -319,7 +411,6 @@ function TabPanel(props) {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('RestaurantUserID');
-    const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [rows, setRows] = React.useState([]);
@@ -329,9 +420,37 @@ function TabPanel(props) {
     const [success_message, set_success_message] = useState("");
     const [search, setSearch] = React.useState("");
     const [filterCrit, setFilter] = React.useState("RestaurantUserID");
-
+    const [openD, setOpenD] = React.useState(false);
     const vertical = "top";
     const horizontal = "right";
+    const [id, setId] = React.useState(0);
+    const [typeId, setType] = React.useState("");
+    const [name, setName] = React.useState("");
+    const [lastName, setLastName] = React.useState("");
+    const [status, setStatus] = React.useState(false);
+    const [datePick, setDate] = React.useState(null);
+    const [picture, setPicture] = React.useState("");
+    const dispatch = useDispatch();
+    const {coordenadas} = useSelector(state => ({
+      coordenadas: state.redux_reducer.coordenadas,
+    }));
+
+    const refresh = () => {
+      fetch("http://localhost:4000/listUsers/50/0", {
+        method: "GET",
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          if (response.error) {
+            setRows([]);
+          }else{
+            setRows(response);
+          }
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
 
     useEffect(() => {
       fetch("http://localhost:4000/listUsers/50/0", {
@@ -340,9 +459,10 @@ function TabPanel(props) {
         .then((res) => res.json())
         .then((response) => {
           if (response.error) {
-            set_error_message(response.error);
+            setRows([]);
+          }else{
+            setRows(response);
           }
-          setRows(response);
         })
         .catch((error) => {
           alert(error);
@@ -356,7 +476,15 @@ function TabPanel(props) {
     };
   
     const handleClick = (event, userSelected) => {
-      
+        setId(userSelected.RestaurantUserID);
+        setType(userSelected.DocumentTypeID);
+        setName(userSelected.RestaurantUserName);
+        setLastName(userSelected.RestaurantUserLastname);
+        setStatus(userSelected.RestaurantUserStatus);
+        setDate(new Date(userSelected.RestaurantUserBirthdate));
+        setPicture(userSelected.RestaurantUserPicture);
+        dispatch(set_coordinates({ lat: userSelected.RestaurantUserLatitude, lng: userSelected.RestaurantUserLongitude}));
+        setOpenD(true);
     };
   
     const handleChangePage = (event, newPage) => {
@@ -368,7 +496,48 @@ function TabPanel(props) {
       setPage(0);
     };
   
-  
+    const handleClose = () => {
+      setOpenD(false);
+    };
+
+    const updateUser = () => {
+      fetch("http://localhost:4000/updateUser", {
+        method: "POST",
+        body: JSON.stringify({
+          RestaurantUserID: id,
+          RestaurantUserName: name,
+          RestaurantUserLastname: lastName,
+          RestaurantUserLatitude: parseFloat(coordenadas.lat),
+          RestaurantUserLongitude: parseFloat(coordenadas.lng),
+          RestaurantUserBirthdate: datePick,
+          RestaurantUserStatus: status,
+          DocumentTypeID: typeId,
+        }), // data can be `string` or {object}!
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((response) => {
+          if(response.error){
+            set_error_message("Error: "+response.error);
+            set_error(true);
+          }else{
+            set_success_message("Hecho");
+            set_success(true);
+            refresh();
+            setOpenD(false);
+          }
+        })
+        .catch(err => {
+          alert(err);
+        })
+    }
+
+    const handleDateChange = (value) => {
+       setDate(value);
+    };
+
+
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   
     return (
@@ -445,6 +614,75 @@ function TabPanel(props) {
             onChangeRowsPerPage={handleChangeRowsPerPage}
           />
         </Paper>
+        <Dialog
+          open={openD}
+          onClose={handleClose}
+          scroll='body'
+          aria-labelledby="scroll-dialog-title"
+          aria-describedby="scroll-dialog-description"
+        >
+        <DialogTitle id="scroll-dialog-title">Modificar usuario</DialogTitle>
+        <DialogContent>
+        <div>
+          <div style={{display: 'flex ', alignItems: 'center'}}>
+            <Avatar src={picture.length>0?"http://localhost:4000/file/"+picture:null} className={classes.avatar}/>   
+          </div>
+        <FormControlLabel
+          control={<PurpleSwitch checked={status} onChange={(e) => setStatus(!status)} name="checkedStatus" />}
+          label="Activar/Desactivar usuario"
+        />
+        <TextField
+          id="filled-full-width-name"
+          label="Nombre"
+          style={{ margin: 8 }}
+          fullWidth
+          margin="normal"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="filled"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <TextField
+          id="filled-full-width-lastname"
+          label="Apellido"
+          style={{ margin: 8 }}
+          fullWidth
+          margin="normal"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="filled"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+			        fullWidth
+              margin="normal"
+              id="date-picker-birthday-user-admin"
+              label="Fecha de nacimiento"
+              format="yyyy/MM/dd"
+              value={datePick}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                "aria-label": "Cambiar fecha",
+              }}
+            />
+          </MuiPickersUtilsProvider>
+          <Search_location/>
+        </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={updateUser} color="primary">
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
         <Snackbar
                 open={error}
                 autoHideDuration={2000}
