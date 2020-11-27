@@ -480,6 +480,30 @@ export default function Products() {
       });
   }
 
+  const removeProdToCat = (prodId, catID) => {
+    fetch("http://localhost:4000/removeProductFromCategory", {
+      method: "POST",
+      body: JSON.stringify({
+        ProductID: prodId,
+        CategoryID: catID
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        getCatPerProd(prodId);
+        set_success(true);
+        set_message("Categoria borrada con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  }
+
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -875,7 +899,7 @@ export default function Products() {
             />
             <div className={classes.chips}>
               {options.length>0?options.map((element, index) => {
-                return (catPerProd.some((cat => cat.CategoryID === element.CategoryID))?<Chip label={""+element.CategoryID} color="primary" variant="outlined"/>:
+                return (catPerProd.some((cat => cat.CategoryID === element.CategoryID))?<Chip onDelete={e => removeProdToCat(currentProd, element.CategoryID)} label={""+element.CategoryID} color="primary" variant="outlined"/>:
                 <Chip
                 label={""+element.CategoryID}
                 onClick={e => addProdToCat(currentProd ,element.CategoryID)}
