@@ -26,7 +26,7 @@ import video from "../../images/coverVideo.mp4";
 import logo from "../../images/logo.png";
 import restaurante from "../../images/restaurante.jpg";
 import Fab from "@material-ui/core/Fab";
-import SignIn from './login';
+import SignIn from "./login";
 //CARD
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
@@ -47,8 +47,15 @@ import InstagramIcon from "@material-ui/icons/Instagram";
 import PhoneIcon from "@material-ui/icons/Phone";
 import EmailIcon from "@material-ui/icons/Email";
 import TwitterIcon from "@material-ui/icons/Twitter";
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import {Dialog, DialogTitle, DialogActions, DialogContent} from "@material-ui/core";
+import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+import {
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  DialogContent,
+} from "@material-ui/core";
 // webfontloader configuration object. *REQUIRED*.
 const config = {
   google: {
@@ -56,7 +63,18 @@ const config = {
   },
 };
 
-
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      // Purple and green play nicely together.
+      main: "#FF0000",
+    },
+    secondary: {
+      // This is green.A700 as hex.
+      main: "#000000",
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   rootCard: {
@@ -81,7 +99,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Login_cliente = () => {
-  const {nav_bar, client} = useSelector((state) => ({
+  const { nav_bar, client } = useSelector((state) => ({
     nav_bar: state.redux_reducer.nav_bar,
     client: state.redux_reducer.client,
   }));
@@ -92,8 +110,8 @@ const Login_cliente = () => {
     setOpenD(false);
   };
 
-
   return (
+    <ThemeProvider theme={theme}>
       <Box>
         <AppBar
           position="sticky"
@@ -114,11 +132,26 @@ const Login_cliente = () => {
               <RestaurantMenuIcon />
             </IconButton>
             <Typography variant="h6" className={classes.title}>
-              {"Al Sazón de la Paloma"+(client.status==200?" - ¡Bienvenido, "+client.clientInfo.Payload.ClientName+" "+client.clientInfo.Payload.ClientLastName+"!":"")}
+              {"Al Sazón de la Paloma" +
+                (client.status == 200
+                  ? " - ¡Bienvenido, " +
+                    client.clientInfo.Payload.ClientName +
+                    " " +
+                    client.clientInfo.Payload.ClientLastName +
+                    "!"
+                  : "")}
             </Typography>
-            <Button color="inherit"><ShoppingCartIcon/></Button>
+            <Button color="inherit">
+              <ShoppingCartIcon />
+            </Button>
             <Button color="inherit">Carta</Button>
-            {nav_bar==='principal'?<Button color="inherit" onClick={e => setOpenD(true)}>Login</Button>:<Button color="inherit">Salir</Button>}
+            {nav_bar === "principal" ? (
+              <Button color="inherit" onClick={(e) => setOpenD(true)}>
+                Login
+              </Button>
+            ) : (
+              <Button color="inherit">Salir</Button>
+            )}
           </Toolbar>
         </AppBar>
         <Grid container className={classes.root} style={{ marginBottom: "2%" }}>
@@ -247,29 +280,29 @@ const Login_cliente = () => {
                       textAlign: "justify",
                       textJustify: "inter-word",
                       color: "white",
-                      marginRight:'2%'
+                      marginRight: "2%",
                     }}
                   >
-                      Tenemos alrededor del país diferentes sedes las cuales
-                      cumplen con todas las políticas de salubridad y el diseño
-                      de interior está pensado para la comodidad de nuestros
-                      clientes. Todas nuestras sedes se caracterizan por estar
-                      ubicadas en lugares con gran fluidez de tráfico interesa
-                      que los clientes puedan llegar con facilidad a nuestras
-                      instalaciones. Además de brindar un gran servicio
-                      personalizado a cada uno de nuestros clientes.
+                    Tenemos alrededor del país diferentes sedes las cuales
+                    cumplen con todas las políticas de salubridad y el diseño de
+                    interior está pensado para la comodidad de nuestros
+                    clientes. Todas nuestras sedes se caracterizan por estar
+                    ubicadas en lugares con gran fluidez de tráfico interesa que
+                    los clientes puedan llegar con facilidad a nuestras
+                    instalaciones. Además de brindar un gran servicio
+                    personalizado a cada uno de nuestros clientes.
                   </p>
                   <p
                     style={{
                       textAlign: "justify",
                       textJustify: "inter-word",
                       color: "white",
-                      marginRight:'2%'
+                      marginRight: "2%",
                     }}
                   >
-                      Actualmente contamos dos tipos de servicios los cuales son
-                      comer en el lugar y para llevar domicilio ambos procesos
-                      deben llevarse a cabo por nuestra página web.
+                    Actualmente contamos dos tipos de servicios los cuales son
+                    comer en el lugar y para llevar domicilio ambos procesos
+                    deben llevarse a cabo por nuestra página web.
                   </p>
                 </Grid>
               </Grid>
@@ -281,19 +314,26 @@ const Login_cliente = () => {
                 textAlign: "center",
               }}
             >
-              <video src={video} width="100%" height="70%" autoPlay={true} muted loop/>
+              <video
+                src={video}
+                width="100%"
+                height="70%"
+                autoPlay={true}
+                muted
+                loop
+              />
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <p>Contacto</p>
                   <a href="" style={{ color: "black" }}>
                     <PhoneIcon /> 323515466
                   </a>
-                  <br/>
+                  <br />
                   <a href="" style={{ color: "black" }}>
                     <EmailIcon /> alsazonpaloma@gmail.comm
                   </a>
-                  <br/>
-                  <br/>
+                  <br />
+                  <br />
                   <a href="" style={{ color: "black" }}>
                     <FacebookIcon />
                   </a>
@@ -305,20 +345,25 @@ const Login_cliente = () => {
                   </a>
                 </Grid>
                 <Grid item xs={6}>
-                <p>Certificación</p>
-                <p>ISO 9000/5</p>
-                <p>lubricity certificate 3.52</p>
+                  <p>Certificación</p>
+                  <p>ISO 9000/5</p>
+                  <p>lubricity certificate 3.52</p>
                 </Grid>
               </Grid>
             </div>
           </Grid>
         </Grid>
-        <Dialog open={openD} onClose={handleClose} aria-labelledby="form-dialog-title">
-              <DialogContent>
-                <SignIn/>
-              </DialogContent>
+        <Dialog
+          open={openD}
+          onClose={handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogContent>
+            <SignIn />
+          </DialogContent>
         </Dialog>
       </Box>
+    </ThemeProvider>
   );
 };
 export default Login_cliente;

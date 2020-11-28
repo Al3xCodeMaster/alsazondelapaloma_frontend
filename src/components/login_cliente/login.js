@@ -223,7 +223,6 @@ export default function SignIn() {
         <Dialog
               open={openSign}
               TransitionComponent={Transition}
-              fullScreen
               onClose={handleClose}
               aria-labelledby="alert-dialog-slide-title-client"
               aria-describedby="alert-dialog-slide-description-client"
