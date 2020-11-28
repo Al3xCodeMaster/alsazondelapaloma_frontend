@@ -30,6 +30,19 @@ import CardMedia from "@material-ui/core/CardMedia";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import AddBoxIcon from "@material-ui/icons/AddBox";
+import { CheckCircleOutline, DeleteOutline } from "@material-ui/icons";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import Chip from '@material-ui/core/Chip';
+import DoneIcon from '@material-ui/icons/Done';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -101,6 +114,14 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "white",
     color: "black",
   },
+  chips: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    '& > *': {
+      margin: theme.spacing(1),
+    },
+  },
 }));
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -122,6 +143,14 @@ export default function Products() {
   const [message, set_message] = React.useState("");
   const [currentProd, setcurrentProd] = React.useState("");
   const [openDialog, setopenDialog] = React.useState(false);
+  const [fetch_categories, set_fetch_categories] = useState([]);
+  const [nombre_category, set_nombre_category] = useState("");
+  const [nombre_category_temp, set_nombre_category_temp] = useState([]);
+  const [cargando, set_cargando] = useState(false);
+  const [gilad, set_gilad] = useState(true);
+  const [activado, set_activado] = useState("Activo");
+  const [options, setOptions] = useState([]);
+  const [catPerProd, setCatPerProd] = useState([]);
 
   const { usuario } = useSelector((state) => ({
     usuario: state.redux_reducer.usuario,
@@ -272,23 +301,21 @@ export default function Products() {
         .then((res) => res.json())
         .then((response) => {
           if (response.error) {
-            setopenDialog(false);
             set_error(true);
             set_message("Error: " + response.error);
+            setopenDialog(false);
             return;
           }
           set_productID("");
           set_productDesc("");
           set_productPrice(0);
-          setopenDialog(false);
           set_message("Se creó el producto con éxito!");
           set_success(true);
+          setopenDialog(false);
           getAllProducts();
         })
         .catch((err) => {
-          setopenDialog(false);
-          set_error(true);
-          set_message("Error en la conexión con el servidor " + err);
+          alert("Se produjo un error en el servidor "+err);
         });
     }
   };
@@ -298,8 +325,184 @@ export default function Products() {
     set_productDesc("");
     set_productPrice(0);
     setcurrentProd(valueID);
+    getCatPerProd(valueID);
     setopenDialog(true);
   };
+
+  const set_state_gilad = () => {
+    set_gilad(!gilad);
+    set_activado(!gilad ? "Activo" : "No activo");
+  };
+
+  const add_category = () => {
+    let temp_categories = nombre_category_temp;
+    if(temp_categories.filter((x) => x.CategoryID === nombre_category).length === 0){
+      temp_categories.push({
+        CategoryID: nombre_category,
+        CategoryStatus: gilad,
+      });
+      set_nombre_category_temp(temp_categories);
+      set_nombre_category("");
+      set_gilad(true);
+      set_cargando(true);
+    }else{
+      set_error(true);
+      set_message("Ya esta pendiente este producto para crear");
+    }
+  };
+
+  const eliminar_category_temp = (value) => {
+    let temp = nombre_category_temp;
+    console.log(value);
+    for (let i = 0; i < temp.length; i++) {
+      if (value === temp[i].CategoryID) {
+        temp.splice(i, 1);
+      }
+    }
+    set_nombre_category_temp(temp);
+    set_cargando(false);
+  };
+
+  const guardar_categoria = () => {
+    fetch("http://localhost:4000/createCategory", {
+      method: "POST",
+      body: JSON.stringify(nombre_category_temp[0]),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+            set_error(true);
+            set_message("Error: " + response.error);
+            return;
+        }
+        set_success(true);
+        set_message("Categoria agregada con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+
+  const update_category = (id, status) => {
+    fetch("http://localhost:4000/modifyCategory", {
+      method: "POST",
+      body: JSON.stringify({
+        CategoryID: id,
+        CategoryStatus: status
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        set_success(true);
+        set_message("Categoria agregada con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+
+  useEffect(() => {
+    fetch("http://localhost:4000/getAllCategories", {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.length > 0) {
+          set_fetch_categories(response);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/getAllActiveCategories", {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.length > 0) {
+          setOptions(response);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }, []);
+  
+  const getCatPerProd = (id) => {
+    fetch("http://localhost:4000/getAllProductCategories/"+id, {
+      method: "GET"
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        if(response.length>0){
+          setCatPerProd(response);
+        }
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+
+  const addProdToCat = (prodId, catID) => {
+    fetch("http://localhost:4000/addProductToCategory", {
+      method: "POST",
+      body: JSON.stringify({
+        ProductID: prodId,
+        CategoryID: catID
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        getCatPerProd(prodId);
+        set_success(true);
+        set_message("Categoria agregada con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  }
+
+  const removeProdToCat = (prodId, catID) => {
+    fetch("http://localhost:4000/removeProductFromCategory", {
+      method: "POST",
+      body: JSON.stringify({
+        ProductID: prodId,
+        CategoryID: catID
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        getCatPerProd(prodId);
+        set_success(true);
+        set_message("Categoria borrada con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  }
 
   return (
     <div className={classes.root}>
@@ -315,6 +518,7 @@ export default function Products() {
         >
           <Tab label="Crear Producto" {...a11yProps(0)} />
           <Tab label="Listar Productos" {...a11yProps(1)} />
+          <Tab label="Crear Categoria" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <SwipeableViews
@@ -460,7 +664,153 @@ export default function Products() {
           </Container>
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
-          Item Three
+        <Grid container className={classes.root} spacing={5}>
+          <Grid item xs={6}>
+            <TextField
+              id="categories"
+              label="Nombre de la categoria"
+              disabled={cargando}
+              fullWidth
+              value={nombre_category}
+              onChange={(e) => set_nombre_category(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <FormControlLabel
+              value={activado}
+              control={
+                <Switch
+                  disabled={cargando}
+                  checked={gilad}
+                  onChange={(e) => set_state_gilad()}
+                />
+              }
+              label={activado}
+              labelPlacement="top"
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Button
+              disabled={cargando}
+              style={{ color: "green", marginLeft: "1%" }}
+              onClick={(e) => add_category()}
+            >
+              Agregar
+              <CheckCircleOutline
+                style={{ fontSize: 30, marginLeft: "10px", color: "green" }}
+              />
+            </Button>
+          </Grid>
+        </Grid>
+        <h3 style={{ textAlign: "center", color: "gray" }}>
+          Categoria a guardar
+        </h3>
+        <TableContainer component={Paper} style={{ width: "100%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre de la categoria</TableCell>
+                <TableCell>Estado</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {nombre_category_temp.map((element) => (
+                <TableRow key={element.CategoryID}>
+                  <TableCell>{element.CategoryID}</TableCell>
+                  <TableCell>
+                    {element.ProfileStatus ? "Activo" : "No activo"}
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      onClick={(e) =>
+                        eliminar_category_temp(element.CategoryID)
+                      }
+                      children={
+                        <DeleteOutline
+                          style={{
+                            fontSize: 25,
+                            marginLeft: "8px",
+                            color: "red",
+                          }}
+                        />
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <div style={{ textAlign: "center", marginTop: "4%" }}>
+          <Button
+            style={{ color: "white", backgroundColor: "green" }}
+            variant="contained"
+            endIcon={<Done />}
+            onClick={(e) => guardar_categoria()}
+          >
+            REGISTRAR CATEGORIA
+          </Button>
+        </div>
+        <br></br>
+        <h3 style={{ textAlign: "center", color: "gray" }}>
+          Categorias registradas
+        </h3>
+        <TableContainer component={Paper} style={{ width: "97%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Categoria</TableCell>
+                <TableCell>Estado</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetch_categories.map((element) => (
+                <TableRow key={element.CategoryID}>
+                  <TableCell>{element.CategoryID}</TableCell>
+                  <TableCell>
+                    {element.CategoryStatus ? "Activo" : "No activo"}
+                  </TableCell>
+                  <TableCell>
+                    {element.CategoryStatus ? (
+                      <IconButton
+                        onClick={(e) =>
+                          update_category(element.CategoryID, false)
+                        }
+                        children={
+                          <DeleteOutline
+                            style={{
+                              fontSize: 25,
+                              marginLeft: "8px",
+                              color: "red",
+                            }}
+                          />
+                        }
+                      />
+                    ) : (
+                      <IconButton
+                        onClick={(e) =>
+                          update_category(
+                            element.CategoryID,
+                            true
+                          )
+                        }
+                        children={
+                          <AddCircleIcon
+                            style={{
+                              fontSize: 25,
+                              marginLeft: "8px",
+                              color: "green",
+                            }}
+                          />
+                        }
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
         </TabPanel>
         <Dialog
           open={error}
@@ -547,6 +897,20 @@ export default function Products() {
                 <InputAdornment position="start">$</InputAdornment>
               }
             />
+            <div className={classes.chips}>
+              {options.length>0?options.map((element, index) => {
+                return (catPerProd.some((cat => cat.CategoryID === element.CategoryID))?<Chip onDelete={e => removeProdToCat(currentProd, element.CategoryID)} label={""+element.CategoryID} color="primary" variant="outlined"/>:
+                <Chip
+                label={""+element.CategoryID}
+                onClick={e => addProdToCat(currentProd ,element.CategoryID)}
+                onDelete={(e) => {}}
+                color="primary"
+                deleteIcon={<DoneIcon />}
+                variant="outlined"
+                />);
+              })
+              :null}
+            </div>
           </DialogContent>
           <DialogActions>
             <Button

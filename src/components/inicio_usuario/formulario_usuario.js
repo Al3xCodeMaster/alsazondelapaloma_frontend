@@ -34,7 +34,8 @@ import {
 	set_servicios,
 	subio_foto,
 	set_type_id,
-	set_date
+	set_date,
+	set_repeat_pass
 } from '../../redux/actions';
 import { CloudUpload} from '@material-ui/icons';
 import { IconButton } from '@material-ui/core';
@@ -148,7 +149,7 @@ function Informacion_basica() {
 						}}
 						getOptionSelected={(option, value) => option === value}
 						onChange={(event, newValue) => {
-							set_type_id(newValue);
+							set_state_type_id(newValue);
 						}}
 						getOptionLabel={(option) => option}
 						options={options}
@@ -195,7 +196,7 @@ function Informacion_seguridad() {
 	const classes = useStyles();
 	const [contrasenhaNew, set_contrasenhaNew] = useState('');
 	const [contrasenhaRepeat, set_contrasenhaRepeat] = useState('');
-	const [equalContrasenha, set_equalContrasenha] = useState(true	);
+	const [equalContrasenha, set_equalContrasenha] = useState(false);
 	const [showPassword, set_showPassword] = useState(false);
 	const [foto, set_foto] = useState(false);
 	const [open, setOpen] = React.useState(false);
@@ -217,13 +218,16 @@ function Informacion_seguridad() {
 	const set_state_contrasenhaNew = (value) => {
 		dispatch(set_contrasenha(value));
 		set_contrasenhaNew(value);
-		set_equalContrasenha(true);
+		set_equalContrasenha(false);
+		dispatch(set_repeat_pass(false));
 	}
 	const set_state_contrasenhaRepeat = (value) => {
 		if(value!=contrasenhaNew){
-			set_equalContrasenha(true);
-		}else{
 			set_equalContrasenha(false);
+			dispatch(set_repeat_pass(false));
+		}else{
+			dispatch(set_repeat_pass(true));
+			set_equalContrasenha(true);
 		}
 		set_contrasenhaRepeat(value);
 	}
@@ -270,7 +274,7 @@ function Informacion_seguridad() {
             type="password"
             value={contrasenhaRepeat}
 			onChange={e => set_state_contrasenhaRepeat(e.target.value)}
-			error={equalContrasenha} 
+			error={!equalContrasenha} 
 			/>	
 		</FormControl>
 			<div style={{ marginLeft: '20%' }}>
@@ -325,12 +329,11 @@ export default function Formulario_empleado() {
 	const [activeStep, setActiveStep] = React.useState(0);
 	const [skipped, setSkipped] = React.useState(new Set());
 	const steps = getSteps();
-	const { usuario, coordenadas, subio_fot, datePick, tipoId} = useSelector(state => ({
+	const { usuario, coordenadas, subio_fot, datePick} = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
 		coordenadas: state.redux_reducer.coordenadas,
 		subio_fot: state.redux_reducer.subio_fot,
 		datePick: state.redux_reducer.datePick,
-		tipoId: state.redux_reducer.tipoId
 	}));
 	const dispatch = useDispatch();
 	const handleClose = () => {
@@ -340,87 +343,95 @@ export default function Formulario_empleado() {
 		set_open_sucess(false);
 	};
 	const comprobar_info = () => {
-		if (!Number(usuario.id)) {
-			set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
+		if (usuario.id && usuario.nombre && usuario.apellido && usuario.tipoId) {
+			if (!Number(usuario.id)) {
+				set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
+				setOpen(true);
+			}
+			else if (usuario.nombre.length === 0) {
+				set_message('el nombre no puede estar vacio');
+				setOpen(true);
+			}
+			else if (usuario.apellido.length === 0) {
+				set_message('el apellido no puede estar vacio');
+				setOpen(true);
+			}
+			else {
+				setOpen(false);
+				handleNext()
+			}
+		}else{
+			set_message('Todos los campos son obligatorios');
 			setOpen(true);
-		}
-		else if (usuario.nombre.length === 0) {
-			set_message('el nombre no puede estar vacio');
-			setOpen(true);
-		}
-		else if (usuario.apellido.length === 0) {
-			set_message('el apellido no puede estar vacio');
-			setOpen(true);
-		}
-		else {
-			setOpen(false);
-			handleNext()
 		}
 	}
 	const subir_formulario = () => {
-		if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || usuario.contrasenha.length < 7) {
 
-			if (!Number(usuario.id)) {
-				set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
+		if (usuario.id && usuario.nombre && usuario.apellido && usuario.tipoId && usuario.contrasenha){
+			if (!Number(usuario.id) || usuario.nombre.length === 0 || usuario.apellido.length === 0 || usuario.contrasenha.length < 4 || !usuario.equalContrasenha) {
+
+				if (!Number(usuario.id)) {
+					set_message('la cédula no puede estar vacia y debe ser un dato tipo numérico');
+				}
+				if (usuario.nombre.length === 0) {
+					set_message('el nombre no puede estar vacio');
+				}
+				if (usuario.apellido.length === 0) {
+					set_message('el apellido no puede estar vacio');
+				}
+				if (usuario.contrasenha.length < 4) {
+					set_message('la contraseña debe ser mayor a 6 caracteres');
+				}
+				if (!usuario.equalContrasenha) {
+					set_message("Asegurese de repetir la contraseña");	
+				}
+				setOpen(true);
 			}
-			if (usuario.nombre.length === 0) {
-				set_message('el nombre no puede estar vacio');
-			}
-			if (usuario.apellido.length === 0) {
-				set_message('el apellido no puede estar vacio');
-			}
-			if (!Number(usuario.celular)) {
-				set_message('el celular no puede estar vacio y debe ser un dato tipo numérico');
-			}
-			if (!usuario.correo.includes('@')) {
-				set_message('el correo no puede estar vacio y debe ser de la forma example@example.com');
-			}
-			if (usuario.contrasenha.length < 7) {
-				set_message('la contraseña debe ser mayor a 6 caracteres');
-			}
+			else {
+				setOpen(false);
+				var formData = new FormData();
+				formData.append('photo', subio_fot);
+				formData.append('userInfo', JSON.stringify({
+					RestaurantUserID: parseInt(usuario.id),
+					RestaurantUserName: usuario.nombre,
+					RestaurantUserLastname: usuario.apellido,
+					RestaurantUserLatitude: parseFloat(coordenadas.lat),
+					RestaurantUserLongitude: parseFloat(coordenadas.lng),
+					RestaurantUserBirthdate: datePick,
+					RestaurantUserPass: usuario.contrasenha,
+					DocumentTypeID: usuario.tipoId
+				}));
+				fetch('http://localhost:4000/createUser', {
+					method: 'POST',
+					body: formData
+				}).then(res => res.json())
+					.then(response => {
+						if (response.status === 400) {
+							set_message(response.message);
+							setOpen(true);
+						}
+						else {
+							set_message_success(response.message);
+							set_open_sucess(true);
+							handleReset();
+							dispatch(set_id(''));
+							dispatch(set_nombre(''));
+							dispatch(set_apellido(''));
+							dispatch(set_celular(''));
+							dispatch(set_correo(''));
+							dispatch(set_servicios([]));
+							dispatch(set_contrasenha(''));
+							dispatch(subio_foto(false));
+							dispatch(set_repeat_pass(false));
+						}
+					})
+					.catch(error => {
+						alert("Conexión fallida con el servidor"+error);
+					});
+			}	
+		}else{
+			set_message("Todos los campos son obligatorios");
 			setOpen(true);
-		}
-		else {
-			setOpen(false);
-			var formData = new FormData();
-			formData.append('photo', subio_fot);
-			formData.append('userInfo', JSON.stringify({
-				RestaurantUserID: parseInt(usuario.id),
-				RestaurantUserName: usuario.nombre,
-				RestaurantUserLastname: usuario.apellido,
-				RestaurantUserLatitude: parseFloat(coordenadas.lat),
-				RestaurantUserLongitude: parseFloat(coordenadas.lng),
-				RestaurantUserBirthdate: datePick,
-				RestaurantUserPass: usuario.contrasenha,
-				DocumentTypeID: usuario.tipoId
-			}));
-			fetch('http://localhost:4000/createUser', {
-				method: 'POST',
-				body: formData
-			}).then(res => res.json())
-				.then(response => {
-					if (response.status === 400) {
-						set_message(response.message);
-						setOpen(true);
-					}
-					else {
-						set_message_success(response.message);
-						set_open_sucess(true);
-						handleReset();
-						dispatch(set_id(''));
-						dispatch(set_nombre(''));
-						dispatch(set_apellido(''));
-						dispatch(set_celular(''));
-						dispatch(set_correo(''));
-						dispatch(set_servicios([]));
-						dispatch(set_contrasenha(''));
-						dispatch(subio_foto(false));
-					}
-				})
-				.catch(error => {
-					set_message(error);
-					setOpen(true);
-				});
 		}
 	}
 	const isStepOptional = (step) => {
