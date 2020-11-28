@@ -137,6 +137,7 @@ const AppBarActions = () => {
   }));
   const dispatch = useDispatch();
   const classes = useStyles();
+  const [menuRedirect, setMenuRedirect] = React.useState(false);
   const [openDS, setOpenDS] = React.useState(false);
   const [openDU, setOpenDU] = React.useState(false);
   const [openDC, setOpenDC] = React.useState(false);
@@ -274,6 +275,7 @@ const AppBarActions = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box>
+        {client.status===200 ? <Redirect to="/inicio/cliente/carta" /> : null}
         <AppBar
           position="sticky"
           style={{
@@ -298,7 +300,7 @@ const AppBarActions = () => {
             {nav_bar==='principal'?null:<Button color="inherit" onClick={e => setOpenDC(true)}><LockIcon/></Button>}
             {nav_bar==='principal'?null:<Button color="inherit" onClick={updateDialog}><AccountCircleIcon/></Button>}
             <Button color="inherit"><ShoppingCartIcon/></Button>
-            <Button color="inherit">Carta</Button>
+            <Button color="inherit" onClick={(e)=> setMenuRedirect(true)}>Carta</Button>
             {nav_bar==='principal'?<Button color="inherit" onClick={e => setOpenDS(true)}>Login</Button>:<Button color="inherit">Salir</Button>}
           </Toolbar>
         </AppBar>
