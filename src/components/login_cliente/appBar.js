@@ -2,11 +2,7 @@ import React, { Fragment, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { withRouter, Redirect } from "react-router-dom";
 import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Grid from "@material-ui/core/Grid";
@@ -19,27 +15,9 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import RestaurantMenuIcon from "@material-ui/icons/RestaurantMenu";
-import cover from "../../images/cover.png";
-import chef1 from "../../images/chef1.jpg";
-import chef2 from "../../images/chef2.jpg";
-import chef3 from "../../images/chef3.jpg";
-import video from "../../images/coverVideo.mp4";
-import logo from "../../images/logo.png";
-import restaurante from "../../images/restaurante.jpg";
-import Fab from "@material-ui/core/Fab";
 import SignIn from "./login";
 //CARD
-import clsx from "clsx";
-import Card from "@material-ui/core/Card";
-import CardHeader from "@material-ui/core/CardHeader";
-import CardMedia from "@material-ui/core/CardMedia";
-import CardContent from "@material-ui/core/CardContent";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import FacebookIcon from "@material-ui/icons/Facebook";
-import InstagramIcon from "@material-ui/icons/Instagram";
-import PhoneIcon from "@material-ui/icons/Phone";
-import EmailIcon from "@material-ui/icons/Email";
-import TwitterIcon from "@material-ui/icons/Twitter";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
@@ -69,7 +47,17 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControl from '@material-ui/core/FormControl';
 import Search_location from '../mapas/search_location';
 import LockIcon from '@material-ui/icons/Lock';
-import LandingPage from './landingPage'
+import CreditCardIcon from '@material-ui/icons/CreditCard';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import { CheckCircleOutline, DeleteOutline } from "@material-ui/icons";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 // webfontloader configuration object. *REQUIRED*.
 const config = {
   google: {
@@ -101,9 +89,6 @@ const useStyles = makeStyles((theme) => ({
     height: 0,
     paddingTop: "56.25%", // 16:9
   },
-  root: {
-    flexGrow: 1,
-  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
@@ -123,10 +108,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
   },
-  input: {
+  root: {
 		width: '100%',
+	},
+	button: {
+		marginRight: theme.spacing(1),
+		background: 'green'
+	},
+	input: {
+		width: '95%',
 		margin: '1%'
-  }
+	}
 }));
 
 const AppBarActions = () => {
@@ -157,6 +149,37 @@ const AppBarActions = () => {
   const [contrasenhaNew, set_contrasenhaNew] = useState('');
   const [contrasenhaOld, set_contrasenhaOld] = useState('');
   const [showPassword, set_showPassword] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [openPM, setOpenPM] = useState(false);
+  const loading = openPM && options.length === 0;
+  const [bankSelected, setbankSelected] = useState("");
+  const [openDPM, setOpenDPM] = useState(false);
+  const [numero_tarjeta, set_numero_tarjeta] = useState("");
+  const [fetch_pay_method, set_fetch_pay_method] = useState([]);
+
+  const set_open_DMP = () => {
+    refresh();
+    setOpenDPM(true);
+  }
+
+  const refresh = () => {
+      fetch("http://localhost:4000/getAllPayMethodClient/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/"+false, {
+        method: "GET",
+      })
+        .then((res) => (res.status === 204 ? [] : res.json()))
+        .then((response) => {
+              if(response.error){
+                set_message(true);
+                setOpen("Error al cargar: "+response.error);
+                return; 
+              }
+              set_fetch_pay_method(response);
+        })
+        .catch((error) => {
+          alert(error);
+        });
+  }
+
   const perfomChange = (event) => {
     if(window.confirm("¿Desea cambiar la contraseña?")){
       fetch('http://localhost:4000/updateClientPassword', {
@@ -186,6 +209,33 @@ const AppBarActions = () => {
     }
 }
 
+
+React.useEffect(() => {
+  let active = true;
+
+  if (!loading) {
+    return undefined;
+  }
+
+  fetch('http://localhost:4000/getAllAvailableBanks', {
+      method: 'GET'
+    }).then(res => res.json())
+    .then(items => {
+      if(active){
+        setOptions(items.map((x) => x.BankID));
+      }
+    })
+    .catch(err => console.log(err));
+  return () => {
+    active = false;
+  };
+}, [loading]);
+
+React.useEffect(() => {
+  if (!openPM) {
+    setOptions([]);
+  }
+  }, [openPM]);
 
   const updateClient = () => {
     let status;
@@ -272,6 +322,60 @@ const AppBarActions = () => {
     dispatch(set_coordinates({ lat: client.clientInfo.Payload.ClientLatitude, lng: client.clientInfo.Payload.ClientLongitude }));
   }
 
+  const performSave = () => {
+    fetch("http://localhost:4000/addPayMethod", {
+      method: "POST",
+      body: JSON.stringify({
+        CardNumber: numero_tarjeta,
+        BankID: bankSelected,
+        ClientID: client.clientInfo.Payload.Id,
+        DocumentTypeID: client.clientInfo.Payload.DocType
+      }),
+    })
+      .then((res) => res.json())
+      .then((resp) => {
+        if(resp.error){
+          set_message(true);
+          setOpen("Error al añadir: "+resp.error);
+        }else{
+          set_open_sucess(true);
+          set_message_success("Metodo agregado con éxito");
+          set_numero_tarjeta("");
+          refresh();
+        }
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  }
+
+  const updatePayMethod = (cardN, bankId, state) => {
+    fetch("http://localhost:4000/updatePayMethod", {
+      method: "POST",
+      body: JSON.stringify({
+        CardNumber: cardN,
+        BankID: bankId,
+        ClientID: client.clientInfo.Payload.Id,
+        DocumentTypeID: client.clientInfo.Payload.DocType,
+        PayMethodStatus: state
+      }),
+    })
+      .then((res) => res.json())
+      .then((resp) => {
+        if(resp.error){
+          set_message(true);
+          setOpen("Error al cambiar el metodo: "+resp.error);
+        }else{
+          set_open_sucess(true);
+          set_message_success("Metodo cambiado con éxito");
+          refresh();
+        }
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Box>
@@ -301,6 +405,7 @@ const AppBarActions = () => {
             {nav_bar==='principal'?null:<Button color="inherit" onClick={updateDialog}><AccountCircleIcon/></Button>}
             <Button color="inherit"><ShoppingCartIcon/></Button>
             {nav_bar==='principal'?<Button color="inherit" onClick={(e)=> setMenuRedirect(true)}>Carta</Button>:null}
+            {nav_bar==='principal'?null:<Button color="inherit" onClick={e => set_open_DMP()}><CreditCardIcon/></Button>}
             {nav_bar==='principal'?<Button color="inherit" onClick={e => setOpenDS(true)}>Login</Button>:<Button color="inherit">Salir</Button>}
           </Toolbar>
         </AppBar>
@@ -368,7 +473,140 @@ const AppBarActions = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDC} onClose={e => setOpenDC(false)} aria-labelledby="form-dialog-title">
+      <Dialog open={openDPM} onClose={e => setOpenDPM(false)} aria-labelledby="form-dialog-title">
+              <DialogTitle id="form-dialog-title-dp">Mis metodos de pago</DialogTitle>
+              <DialogContent>
+        <Grid container className={classes.root} spacing={3}>
+          <Grid item xs={6}>
+            <TextField
+              id="standard-text-met-id"
+              label="Numero de tarjeta"
+              fullWidth
+              type="number"
+              value={numero_tarjeta}
+              onChange={(e) => set_numero_tarjeta(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Autocomplete
+              id="async-autocompl-pay"
+              open={openPM}
+              onOpen={() => {
+                setOpenPM(true);
+              }}
+              onClose={() => {
+                setOpenPM(false);
+              }}
+              getOptionSelected={(option, value) => option === value}
+              onChange={(event, newValue) => {
+                setbankSelected(newValue);
+              }}
+              getOptionLabel={(option) => option}
+              options={options}
+              loading={loading}
+              renderInput={(params) => (
+                <TextField 
+                  {...params}
+                  className={classes.input}
+                  label="Seleccione el banco"
+                  variant="outlined"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <Button
+              style={{ color: "green", marginLeft: "1%" }}
+              onClick={(e) => performSave()}
+            >
+              Agregar
+              <CheckCircleOutline
+                style={{ fontSize: 30, marginLeft: "10px", color: "green" }}
+              />
+            </Button>
+          </Grid>
+        </Grid>      
+        <br></br>
+        <h3 style={{ textAlign: "center", color: "gray" }}>
+          Mis metodos de pago registrados
+        </h3>
+        <TableContainer component={Paper} style={{ width: "97%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell># Tarjeta</TableCell>
+                <TableCell>Banco</TableCell>
+                <TableCell>Estado</TableCell>
+                <TableCell>Fecha de creación</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetch_pay_method.map((element) => (
+                <TableRow key={element.CardNumber+ "-" + element.ClientID}>
+                  <TableCell>{element.CardNumber}</TableCell>
+                  <TableCell>{element.BankID}</TableCell>
+                  <TableCell>
+                    {element.PayMethodStatus ? "Activo" : "No activo"}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(
+                          element.PayMethodCreationDate
+                        ).toLocaleDateString()
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {element.PayMethodStatus ? (
+                      <IconButton
+                        onClick={(e) => updatePayMethod(element.CardNumber,element.BankID, false)}
+                        children={
+                          <DeleteOutline
+                            style={{
+                              fontSize: 'inherit',
+                              marginLeft: "8px",
+                              color: "red",
+                            }}
+                          />
+                        }
+                      />
+                    ) : (
+                      <IconButton
+                        onClick={(e) =>
+                          updatePayMethod(element.CardNumber,element.BankID, true)
+                        }
+                        children={
+                          <AddCircleIcon
+                            style={{
+                              fontSize: 'inherit',
+                              marginLeft: "8px",
+                              color: "green",
+                            }}
+                          />
+                        }
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={e => setOpenDPM(false)} color="primary">
+                  Cerrar
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog open={openDC} onClose={e => setOpenDC(false)} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Cambio de contraseña</DialogTitle>
               <DialogContent>
                 <DialogContentText>

@@ -273,12 +273,12 @@ export default function Restaurants() {
         if(resp.error){
           set_error(true);
           set_error_message("Error en la creación"+resp.error);
-          set_openDD(false);
-          set_nombre_restaurant("");
-          set_capac_rest(0);
         }else{
           set_success(true);
           set_success_message("Perfil agregado con éxito");
+          set_nombre_restaurant("");
+          set_capac_rest(0);
+          set_openDD(false);
         }
       })
       .catch((err) => {
