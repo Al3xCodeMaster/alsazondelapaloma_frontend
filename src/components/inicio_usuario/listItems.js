@@ -8,6 +8,7 @@ import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import AddAPhoto from '@material-ui/icons/AddAPhoto';
 import { Link } from 'react-router-dom';
 import RestaurantIcon from '@material-ui/icons/Restaurant';
+import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 
 export const mainListItems = (
   <div>
@@ -40,6 +41,12 @@ export const mainListItems = (
       <RestaurantIcon/>
       </ListItemIcon>
       <ListItemText primary="Restaurantes" />
+    </ListItem>
+    <ListItem button component={Link} to='/admin/bancos'>
+      <ListItemIcon>
+      <AccountBalanceIcon/>
+      </ListItemIcon>
+      <ListItemText primary="Bancos" />
     </ListItem>
   </div>
 );

@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Perfiles() {
+export default function Restaurants() {
   const classes = useStyles();
   const [fetch_restaurants, set_fetch_restaurants] = useState([]);
   const [nombre_restaurant, set_nombre_restaurant] = useState("");
@@ -423,7 +423,7 @@ export default function Perfiles() {
           className={classes.indicator}
         >
           <Tab label="Crear Sede Restaurante" {...a11yProps(0)} />
-          <Tab label="Asignar Horarios" {...a11yProps(1)} />
+          <Tab label="Crear Horarios" {...a11yProps(1)} />
         </Tabs>
       </AppBar>
     <TabPanel value={value} index={0}>

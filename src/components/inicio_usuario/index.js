@@ -23,6 +23,7 @@ import { useSelector} from 'react-redux';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import Restaurants from './restaurants';
+import Banks from './banks';
 
 const theme = createMuiTheme({
     palette: {
@@ -194,6 +195,7 @@ export default function Dashboard_empleado() {
               <Route path="/admin/perfiles" component={Profiles} />
               <Route path="/admin/productos" component={Products} />
               <Route path="/admin/restaurantes" component={Restaurants} />
+              <Route path="/admin/bancos" component={Banks} />
               <Route path="/" component={DashboardUser} />
             </Switch>
           </Container>
