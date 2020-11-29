@@ -300,7 +300,7 @@ const AppBarActions = () => {
             {nav_bar==='principal'?null:<Button color="inherit" onClick={e => setOpenDC(true)}><LockIcon/></Button>}
             {nav_bar==='principal'?null:<Button color="inherit" onClick={updateDialog}><AccountCircleIcon/></Button>}
             <Button color="inherit"><ShoppingCartIcon/></Button>
-            <Button color="inherit" onClick={(e)=> setMenuRedirect(true)}>Carta</Button>
+            {nav_bar==='principal'?<Button color="inherit" onClick={(e)=> setMenuRedirect(true)}>Carta</Button>:null}
             {nav_bar==='principal'?<Button color="inherit" onClick={e => setOpenDS(true)}>Login</Button>:<Button color="inherit">Salir</Button>}
           </Toolbar>
         </AppBar>

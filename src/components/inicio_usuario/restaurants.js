@@ -35,19 +35,14 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import DateFnsUtils from '@date-io/date-fns';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-} from '@material-ui/pickers';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import {
   set_coordinates
 } from '../../redux/actions';
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const dayptions = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
@@ -109,6 +104,8 @@ export default function Perfiles() {
   const openP = Boolean(anchorEl);
   const id = openP ? "simple-popover" : undefined;
   const [selectedSchedule, setSelectedSchedule] = useState(0);
+  const [scheduleFromRest, setScheduleFromRest] = useState([]);
+  const [openDH, set_openDH] = useState(false);
   const { coordenadas } = useSelector((state) => ({
     coordenadas: state.redux_reducer.coordenadas,
   }));
@@ -174,6 +171,36 @@ export default function Perfiles() {
     set_capac_rest(capac);
     setRestSelected(id);
     set_openDU(true);
+  }
+
+  const set_close_DH = () => {
+    setScheduleFromRest([]);
+    setRestSelected("");
+    set_openDH(false);
+  }
+
+  const set_open_DH = (idRes) => {
+    fetch("http://localhost:4000/getAllRestaurantSchedules/" + idRes + "/" + true, {
+      method: "GET",
+    })
+      .then((res) => (res.status === 204 ? [] : res.json()))
+      .then((response) => {
+            if(response.error){
+              set_error(true);
+              set_error_message("Error: " + response.error);
+              return; 
+            }
+            setScheduleFromRest(
+              response.map((element) => {
+                return element.ScheduleID;
+              })
+            );
+            setRestSelected(idRes);
+            set_openDH(true);
+      })
+      .catch((error) => {
+        alert(error);
+      });
   }
 
   const changeStateRest = (valueId, state) => {
@@ -356,42 +383,32 @@ export default function Perfiles() {
       });
   };
 
-  const buscar_id = () => {
-    /*fetch("http://localhost:4000/getUser/" + id_type + "/" + id_doc, {
-      method: "GET",
+  const scheduleRestaurant = (schedId, status) => {
+    fetch("http://localhost:4000/assignScheduleToRestaurant", {
+      method: "POST",
+      body: JSON.stringify({
+        RestaurantID: restaSelected,
+        ScheduleID: schedId,
+        Status: status
+      }),
     })
       .then((res) => res.json())
-      .then((response) => {
-        set_user_cargado([response]);
-        set_user_temp(response);
-        getProfilesFromUser(id_type, id_doc);
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  };
-
-  const getProfilesFromUser = (id_type, id_doc) => {
-    fetch(
-      "http://localhost:4000/getAllUserProfiles/" + id_type + "/" + id_doc,
-      {
-        method: "GET",
-      }
-    )
-      .then((res) => (res.status == 204 ? [] : res.json()))
-      .then((response) => {
-        if (response.length > 0) {
-          set_prof_from_user(
-            response.map((element) => {
-              return element.ProfileID;
-            })
-          );
+      .then((resp) => {
+        if(resp.error){
+          set_error(true);
+          set_error_message("Error en la creación"+resp.error);
+          set_openDD(false);
+          set_nombre_restaurant("");
+          set_capac_rest(0);
+        }else{
+          set_success(true);
+          set_success_message("Horario agregado con éxito");
         }
       })
-      .catch((error) => {
-        alert(error);
-      });*/
-  };
+      .catch((err) => {
+        alert(err);
+      });
+  }
 
   return (
     <Fragment>
@@ -468,6 +485,7 @@ export default function Perfiles() {
                 <TableCell>Capacidad</TableCell>
                 <TableCell>Estado</TableCell>
                 <TableCell>Fecha de creación</TableCell>
+                <TableCell>Horario</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -487,13 +505,27 @@ export default function Perfiles() {
                   </TableCell>
                   <TableCell>
                     <IconButton
+                      onClick={(e) => set_open_DH(element.RestaurantID)}
+                      children={
+                        <ScheduleIcon
+                          style={{
+                            fontSize: 'inherit',
+                            marginLeft: "8px",
+                            color: "blue",
+                          }}
+                        />
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
                       onClick={(e) => set_open_DU(element.RestaurantID, element.RestaurantName, 
                                                   element.RestaurantCapacity, element.RestaurantLatitude, 
                                                   element.RestaurantLongitude)}
                       children={
                         <EditIcon
                           style={{
-                            fontSize: 25,
+                            fontSize: 'inherit',
                             marginLeft: "8px",
                             color: "green",
                           }}
@@ -510,7 +542,7 @@ export default function Perfiles() {
                         children={
                           <DeleteOutline
                             style={{
-                              fontSize: 25,
+                              fontSize: 'inherit',
                               marginLeft: "8px",
                               color: "red",
                             }}
@@ -528,7 +560,7 @@ export default function Perfiles() {
                         children={
                           <AddCircleIcon
                             style={{
-                              fontSize: 25,
+                              fontSize: 'inherit',
                               marginLeft: "8px",
                               color: "green",
                             }}
@@ -701,6 +733,77 @@ export default function Perfiles() {
           </Table>
         </TableContainer> 
     </TabPanel>
+    <Dialog
+          open={openDH}
+          onClose={set_close_DH}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="dialog-title-schedule" style={{ color: "red" }}>
+            {"Asignación de Horarios"}
+          </DialogTitle>
+          <DialogContent>
+          <TableContainer component={Paper} style={{ width: "97%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Día</TableCell>
+                <TableCell>Hora Apertura</TableCell>
+                <TableCell>Hora Cierre</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {fetch_schedules.map((element) => (
+                <TableRow key={element.ScheduleID}>
+                  <TableCell>{element.ScheduleID}</TableCell>
+                  <TableCell>{element.ScheduleDay}</TableCell>
+                  <TableCell>{element.ScheduleOpeningHour}</TableCell>
+                  <TableCell>{element.ScheduleClosingHour}</TableCell>
+                  <TableCell>
+                  {scheduleFromRest.length > 0 ? (
+                          scheduleFromRest.includes(element.ScheduleID) ? (
+                            <IconButton
+                              onClick={(e) => scheduleRestaurant(element.ScheduleID,false)}
+                              children={
+                                <CheckBoxIcon
+                                  style={{ fontSize: 25, marginLeft: "5px" }}
+                                />
+                              }
+                            />
+                          ) : (
+                            <IconButton
+                              onClick={(e) => scheduleRestaurant(element.ScheduleID,true)}
+                              children={
+                                <CheckBoxOutlineBlankIcon
+                                  style={{ fontSize: 25, marginLeft: "5px" }}
+                                />
+                              }
+                            />
+                          )
+                        ) : (
+                          <IconButton
+                            onClick={(e) => scheduleRestaurant(element.ScheduleID,true)}
+                            children={
+                              <CheckBoxOutlineBlankIcon
+                                style={{ fontSize: 25, marginLeft: "5px" }}
+                              />
+                            }
+                          />
+                        )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+          </DialogContent>
+          <DialogActions>
+          <Button onClick={set_close_DH} color="primary">
+                 Cerrar
+          </Button>
+          </DialogActions>
+    </Dialog>
     <Dialog
           open={openDU}
           onClose={set_close_DU}
