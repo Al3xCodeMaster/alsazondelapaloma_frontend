@@ -99,7 +99,7 @@ export default function Banks() {
   };
 
   useEffect(() => {
-    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllBanks", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllBanks", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -114,7 +114,7 @@ export default function Banks() {
   }, []);
 
   const refresh = () => {
-    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllBanks", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllBanks", {
         method: "GET",
       })
         .then((res) => res.json())
@@ -129,7 +129,7 @@ export default function Banks() {
   }
 
   const guardar_banco = () => {
-    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "createBank", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "createBank", {
       method: "POST",
       body: JSON.stringify(nombre_banco_temp[0]),
     })
@@ -152,7 +152,7 @@ export default function Banks() {
   };
 
   const update_banco = (valueId, status) => {
-    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateBank", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateBank", {
       method: "POST",
       body: JSON.stringify({
         BankID: valueId,

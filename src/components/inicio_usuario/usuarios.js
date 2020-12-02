@@ -436,7 +436,7 @@ function TabPanel(props) {
     }));
 
     const refresh = () => {
-      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "listUsers/50/0", {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listUsers/50/0", {
         method: "GET",
       })
         .then((res) => res.json())
@@ -453,7 +453,7 @@ function TabPanel(props) {
     }
 
     useEffect(() => {
-      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "listUsers/50/0", {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listUsers/50/0", {
         method: "GET",
       })
         .then((res) => res.json())
@@ -501,7 +501,7 @@ function TabPanel(props) {
     };
 
     const updateUser = () => {
-      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateUser", {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateUser", {
         method: "POST",
         body: JSON.stringify({
           RestaurantUserID: id,
@@ -625,7 +625,7 @@ function TabPanel(props) {
         <DialogContent>
         <div>
           <div style={{display: 'flex ', alignItems: 'center'}}>
-            <Avatar src={picture.length>0?(process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "file/"+picture:null} className={classes.avatar}/>   
+            <Avatar src={picture.length>0?(process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "file/"+picture:null} className={classes.avatar}/>   
           </div>
         <FormControlLabel
           control={<PurpleSwitch checked={status} onChange={(e) => setStatus(!status)} name="checkedStatus" />}

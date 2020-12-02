@@ -186,7 +186,7 @@ export default function Formulario_update_usuario() {
     } else {
       let status;
       setOpen(false);
-      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateUser", {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateUser", {
         method: "POST",
         body: JSON.stringify({
           RestaurantUserID: parseInt(usuario.id),

@@ -75,7 +75,7 @@ export default function SignIn() {
         return undefined;
     }
 
-    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
             method: 'GET'
         }).then(res => res.json())
         .then(items => {
