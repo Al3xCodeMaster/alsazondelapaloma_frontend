@@ -163,7 +163,7 @@ const AppBarActions = () => {
   }
 
   const refresh = () => {
-      fetch("http://localhost:4000/getAllPayMethodClient/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/"+false, {
+      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllPayMethodClient/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/"+false, {
         method: "GET",
       })
         .then((res) => (res.status === 204 ? [] : res.json()))
@@ -182,7 +182,7 @@ const AppBarActions = () => {
 
   const perfomChange = (event) => {
     if(window.confirm("¿Desea cambiar la contraseña?")){
-      fetch('http://localhost:4000/updateClientPassword', {
+      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateClientPassword", {
         method: 'POST',
         body: JSON.stringify({
           ClientID: client.clientInfo.Payload.Id,
@@ -217,7 +217,7 @@ React.useEffect(() => {
     return undefined;
   }
 
-  fetch('http://localhost:4000/getAllAvailableBanks', {
+  fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllAvailableBanks", {
       method: 'GET'
     }).then(res => res.json())
     .then(items => {
@@ -239,7 +239,7 @@ React.useEffect(() => {
 
   const updateClient = () => {
     let status;
-    fetch("http://localhost:4000/updateClient", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateClient", {
         method: "POST",
         body: JSON.stringify({
           ClientID: client.clientInfo.Payload.Id,
@@ -323,7 +323,7 @@ React.useEffect(() => {
   }
 
   const performSave = () => {
-    fetch("http://localhost:4000/addPayMethod", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "addPayMethod", {
       method: "POST",
       body: JSON.stringify({
         CardNumber: numero_tarjeta,
@@ -350,7 +350,7 @@ React.useEffect(() => {
   }
 
   const updatePayMethod = (cardN, bankId, state) => {
-    fetch("http://localhost:4000/updatePayMethod", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updatePayMethod", {
       method: "POST",
       body: JSON.stringify({
         CardNumber: cardN,

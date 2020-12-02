@@ -131,7 +131,7 @@ function Informacion_basica() {
 			return undefined;
 		}
 
-		fetch('http://localhost:4000/getAllDocuments', {
+		fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllDocuments", {
 				method: 'GET'
 			}).then(res => res.json())
 			.then(items => {
@@ -357,7 +357,7 @@ export default function Formulario_usuario() {
 		}
 		else {
 			setOpen(false);
-			fetch('http://localhost:4000/createClient', {
+			fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "createClient", {
 				method: 'POST',
 				body: JSON.stringify({
 					ClientID: parseInt(usuario.id),

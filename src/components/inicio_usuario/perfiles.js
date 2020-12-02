@@ -113,7 +113,7 @@ export default function Perfiles() {
       return undefined;
     }
 
-    fetch("http://localhost:4000/getAllDocuments", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllDocuments", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -185,7 +185,7 @@ export default function Perfiles() {
   };
 
   const borrar_perfil = (valueId, valueName) => {
-    fetch("http://localhost:4000/updateProfile", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProfile", {
       method: "POST",
       body: JSON.stringify({
         ProfileID: parseInt(valueId),
@@ -211,7 +211,7 @@ export default function Perfiles() {
   };
 
   const reactivar_perfil = (valueId, valueName) => {
-    fetch("http://localhost:4000/updateProfile", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProfile", {
       method: "POST",
       body: JSON.stringify({
         ProfileID: parseInt(valueId),
@@ -237,7 +237,7 @@ export default function Perfiles() {
   };
 
   const guardar_perfil = () => {
-    fetch("http://localhost:4000/createProfile", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "createProfile", {
       method: "POST",
       body: JSON.stringify(nombre_profile_temp[0]),
     })
@@ -253,7 +253,7 @@ export default function Perfiles() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/getAllProfiles", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllProfiles", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -277,7 +277,7 @@ export default function Perfiles() {
   };
 
   const cambiar_nom_perfil = () => {
-    fetch("http://localhost:4000/updateProfile", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProfile", {
       method: "POST",
       body: JSON.stringify({
         ProfileID: parseInt(valueId),
@@ -304,7 +304,7 @@ export default function Perfiles() {
   };
 
   const buscar_id = () => {
-    fetch("http://localhost:4000/getUser/" + id_type + "/" + id_doc, {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getUser/" + id_type + "/" + id_doc, {
       method: "GET",
     })
       .then((res) => res.json())
@@ -320,7 +320,7 @@ export default function Perfiles() {
 
   const getProfilesFromUser = (id_type, id_doc) => {
     fetch(
-      "http://localhost:4000/getAllUserProfiles/" + id_type + "/" + id_doc,
+      (process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllUserProfiles/" + id_type + "/" + id_doc,
       {
         method: "GET",
       }
@@ -341,7 +341,7 @@ export default function Perfiles() {
   };
 
   const quitar_perfil = (valueId) => {
-    fetch("http://localhost:4000/updateProfileUser", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProfileUser", {
       method: "POST",
       body: JSON.stringify({
         ProfileID: parseInt(valueId),
@@ -368,7 +368,7 @@ export default function Perfiles() {
   };
 
   const asignar_perfil = (valueId) => {
-    fetch("http://localhost:4000/assignProfileToUser", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "assignProfileToUser", {
       method: "POST",
       body: JSON.stringify({
         ProfileID: parseInt(valueId),

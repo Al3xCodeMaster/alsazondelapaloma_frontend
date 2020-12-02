@@ -159,7 +159,7 @@ export default function Products() {
   const [products, setProds] = React.useState([]);
 
   const getAllProducts = () => {
-    fetch("http://localhost:4000/getAllProducts", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllProducts", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -221,7 +221,7 @@ export default function Products() {
         ProductPrice: parseFloat(productPrice),
       })
     );
-    fetch("http://localhost:4000/createProduct", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "createProduct", {
       method: "POST",
       body: formData,
     })
@@ -251,7 +251,7 @@ export default function Products() {
   };
 
   const actDesProd = (id_value, status) => {
-    fetch("http://localhost:4000/updateProduct", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProduct", {
       method: "POST",
       body: JSON.stringify({
         ProductID: id_value,
@@ -290,7 +290,7 @@ export default function Products() {
       set_error_price(true);
       set_message("El precio debe ser mayor a cero");
     } else {
-      fetch("http://localhost:4000/updateProduct", {
+      fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "updateProduct", {
         method: "POST",
         body: JSON.stringify({
           ProductID: currentProd,
@@ -364,7 +364,7 @@ export default function Products() {
   };
 
   const guardar_categoria = () => {
-    fetch("http://localhost:4000/createCategory", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "createCategory", {
       method: "POST",
       body: JSON.stringify(nombre_category_temp[0]),
     })
@@ -384,7 +384,7 @@ export default function Products() {
   };
 
   const update_category = (id, status) => {
-    fetch("http://localhost:4000/modifyCategory", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "modifyCategory", {
       method: "POST",
       body: JSON.stringify({
         CategoryID: id,
@@ -407,7 +407,7 @@ export default function Products() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:4000/getAllCategories", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllCategories", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -422,7 +422,7 @@ export default function Products() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:4000/getAllActiveCategories", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllActiveCategories", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -437,7 +437,7 @@ export default function Products() {
   }, []);
   
   const getCatPerProd = (id) => {
-    fetch("http://localhost:4000/getAllProductCategories/"+id, {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "getAllProductCategories/"+id, {
       method: "GET"
     })
       .then((res) => res.json())
@@ -457,7 +457,7 @@ export default function Products() {
   };
 
   const addProdToCat = (prodId, catID) => {
-    fetch("http://localhost:4000/addProductToCategory", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "addProductToCategory", {
       method: "POST",
       body: JSON.stringify({
         ProductID: prodId,
@@ -481,7 +481,7 @@ export default function Products() {
   }
 
   const removeProdToCat = (prodId, catID) => {
-    fetch("http://localhost:4000/removeProductFromCategory", {
+    fetch((process.env.URL_HEROKU_BACKEND || "http://localhost:4000/") + "removeProductFromCategory", {
       method: "POST",
       body: JSON.stringify({
         ProductID: prodId,
