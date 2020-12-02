@@ -206,7 +206,7 @@ export default function Dashboard() {
 
     useEffect(() => {
       if(usuario.status==200){
-        fetch('http://localhost:4000/getAllUserProfiles/'+usuario.userInfo.Payload.DocType+"/"+usuario.userInfo.Payload.Id, {
+        fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllUserProfiles/"+usuario.userInfo.Payload.DocType+"/"+usuario.userInfo.Payload.Id, {
           method: 'GET'
       }).then(res => res.status==204?[]:res.json())
           .then(response => {

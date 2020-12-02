@@ -74,9 +74,8 @@ export default function SignIn() {
     if (!loading) {
         return undefined;
     }
-    let path = process.env.REACT_APP_BACKEND || "http://localhost:4000/"
-    console.log(path);
-    fetch(path+"getAllDocuments", {
+    
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
             method: 'GET'
         }).then(res => res.json())
         .then(items => {
@@ -104,7 +103,7 @@ export default function SignIn() {
         set_helper_pass('');
         set_helper_cc('');
         let status;
-        fetch('http://localhost:4000/clientLogin', {
+        fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"clientLogin", {
           method: 'POST',
           body: JSON.stringify({ ClientID: parseInt(cedula), DocumentTypeID: type_id, ClientPass: contrasenha }) // data can be `string` or {object}!
         }).then(res => { status = res.status; return res.json()})
