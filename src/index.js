@@ -11,7 +11,8 @@ import Carta from './components/carta';
 import Dashboard_usuario from './components/inicio_usuario';
 
   
-const Root = (
+const Root = () =>{
+    return (
     <Provider store={store}>
     <BrowserRouter>
     <Switch>
@@ -23,6 +24,7 @@ const Root = (
     </Switch>
     </BrowserRouter>
     </Provider>
-);
+    )
+}
 
-ReactDOM.render(Root, document.getElementById('root'));
+ReactDOM.render(<Root />, document.getElementById('root'));
