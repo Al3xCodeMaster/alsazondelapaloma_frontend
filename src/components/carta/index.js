@@ -247,7 +247,7 @@ const Carta = () => {
       }
     } else {
       fetch(
-        "http://localhost:4000/getAllProductsRestaurant/" +
+        (process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllProductsRestaurant/" +
           restaurantID +
           "/" +
           categoryID +
@@ -384,7 +384,7 @@ const Carta = () => {
                   <CardMedia
                     className={classes.media}
                     image={
-                      "http://localhost:4000/getPictureProducts/" +
+                      (process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getPictureProducts/" +
                       item.ProductPicture
                     }
                   />

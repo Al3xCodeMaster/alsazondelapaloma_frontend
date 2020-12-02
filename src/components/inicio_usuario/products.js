@@ -615,7 +615,7 @@ export default function Products() {
                         <CardMedia
                           className={classes.cardMedia}
                           image={
-                            "http://localhost:4000/getPictureProducts/" +
+                            (process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getPictureProducts/" +
                             card.ProductPicture
                           }
                           title={card.ProductID}
