@@ -74,8 +74,9 @@ export default function SignIn() {
     if (!loading) {
         return undefined;
     }
-
-    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
+    let path = process.env.REACT_APP_BACKEND || "http://localhost:4000/"
+    console.log(path);
+    fetch(path+"getAllDocuments", {
             method: 'GET'
         }).then(res => res.json())
         .then(items => {
