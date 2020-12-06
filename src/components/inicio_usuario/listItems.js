@@ -9,6 +9,7 @@ import AddAPhoto from '@material-ui/icons/AddAPhoto';
 import { Link } from 'react-router-dom';
 import RestaurantIcon from '@material-ui/icons/Restaurant';
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
+import BarChartIcon from '@material-ui/icons/BarChart';
 
 export const mainListItems = (
   <div>
@@ -47,6 +48,12 @@ export const mainListItems = (
       <AccountBalanceIcon/>
       </ListItemIcon>
       <ListItemText primary="Bancos" />
+    </ListItem>
+    <ListItem button component={Link} to='/usuario/reportes'>
+      <ListItemIcon>
+      <BarChartIcon/>
+      </ListItemIcon>
+      <ListItemText primary="Reportes" />
     </ListItem>
   </div>
 );

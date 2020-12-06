@@ -24,6 +24,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import Restaurants from './restaurants';
 import Banks from './banks';
+import Reports from './reports';
 
 const theme = createMuiTheme({
     palette: {
@@ -196,6 +197,7 @@ export default function Dashboard_empleado() {
               <Route path="/admin/productos" component={Products} />
               <Route path="/admin/restaurantes" component={Restaurants} />
               <Route path="/admin/bancos" component={Banks} />
+              <Route path="/usuario/reportes" component={Reports} />
               <Route path="/" component={DashboardUser} />
             </Switch>
           </Container>
