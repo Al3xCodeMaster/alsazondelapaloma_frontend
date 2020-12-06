@@ -112,7 +112,7 @@ export default function Restaurants() {
   const dispatch = useDispatch();
 
   const updateSchedule = () => {
-    fetch("http://localhost:4000/updateSchedule", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateSchedule", {
       method: "POST",
       body: JSON.stringify({
         ScheduleID: parseInt(selectedSchedule),
@@ -180,7 +180,7 @@ export default function Restaurants() {
   }
 
   const set_open_DH = (idRes) => {
-    fetch("http://localhost:4000/getAllRestaurantSchedules/" + idRes + "/" + true, {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllRestaurantSchedules/" + idRes + "/" + true, {
       method: "GET",
     })
       .then((res) => (res.status === 204 ? [] : res.json()))
@@ -204,7 +204,7 @@ export default function Restaurants() {
   }
 
   const changeStateRest = (valueId, state) => {
-    fetch("http://localhost:4000/updateRestaurant", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateRestaurant", {
       method: "POST",
       body: JSON.stringify({
         RestaurantID: parseInt(valueId),
@@ -229,7 +229,7 @@ export default function Restaurants() {
   };
 
   const performUpdate = () => {
-    fetch("http://localhost:4000/updateRestaurant", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateRestaurant", {
       method: "POST",
       body: JSON.stringify({
         RestaurantID: parseInt(restaSelected),
@@ -258,7 +258,7 @@ export default function Restaurants() {
   };
 
   const performSave = () => {
-    fetch("http://localhost:4000/createRestaurant", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "createRestaurant", {
       method: "POST",
       body: JSON.stringify({
         RestaurantName: nombre_restaurant,
@@ -287,7 +287,7 @@ export default function Restaurants() {
   };
 
   const refresh = () => {
-    fetch("http://localhost:4000/listRestaurants/50/0", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listRestaurants/50/0", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -302,7 +302,7 @@ export default function Restaurants() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:4000/listRestaurants/50/0", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listRestaurants/50/0", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -317,7 +317,7 @@ export default function Restaurants() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:4000/listSchedules/50/0", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listSchedules/50/0", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -333,7 +333,7 @@ export default function Restaurants() {
 
 
   const refreshSchedules = () => {
-    fetch("http://localhost:4000/listSchedules/50/0", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listSchedules/50/0", {
       method: "GET",
     })
       .then((res) => res.json())
@@ -357,7 +357,7 @@ export default function Restaurants() {
   };
 
   const saveSchedule = () => {
-    fetch("http://localhost:4000/createSchedule", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "createSchedule", {
       method: "POST",
       body: JSON.stringify({
         ScheduleDay: daySelected,
@@ -384,7 +384,7 @@ export default function Restaurants() {
   };
 
   const scheduleRestaurant = (schedId, status) => {
-    fetch("http://localhost:4000/assignScheduleToRestaurant", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "assignScheduleToRestaurant", {
       method: "POST",
       body: JSON.stringify({
         RestaurantID: restaSelected,

@@ -58,6 +58,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import { CheckCircleOutline, DeleteOutline } from "@material-ui/icons";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 // webfontloader configuration object. *REQUIRED*.
 const config = {
   google: {
@@ -156,14 +157,15 @@ const AppBarActions = () => {
   const [openDPM, setOpenDPM] = useState(false);
   const [numero_tarjeta, set_numero_tarjeta] = useState("");
   const [fetch_pay_method, set_fetch_pay_method] = useState([]);
-
+  const [historicRes, setHistoricRes] = useState([]);
+  const [openHistoric, setOpenHistoric] = useState(false);
   const set_open_DMP = () => {
     refresh();
     setOpenDPM(true);
   }
 
   const refresh = () => {
-      fetch("http://localhost:4000/getAllPayMethodClient/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/"+false, {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllPayMethodClient/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/"+false, {
         method: "GET",
       })
         .then((res) => (res.status === 204 ? [] : res.json()))
@@ -182,7 +184,7 @@ const AppBarActions = () => {
 
   const perfomChange = (event) => {
     if(window.confirm("¿Desea cambiar la contraseña?")){
-      fetch('http://localhost:4000/updateClientPassword', {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateClientPassword", {
         method: 'POST',
         body: JSON.stringify({
           ClientID: client.clientInfo.Payload.Id,
@@ -217,7 +219,7 @@ React.useEffect(() => {
     return undefined;
   }
 
-  fetch('http://localhost:4000/getAllAvailableBanks', {
+  fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllAvailableBanks", {
       method: 'GET'
     }).then(res => res.json())
     .then(items => {
@@ -239,7 +241,7 @@ React.useEffect(() => {
 
   const updateClient = () => {
     let status;
-    fetch("http://localhost:4000/updateClient", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateClient", {
         method: "POST",
         body: JSON.stringify({
           ClientID: client.clientInfo.Payload.Id,
@@ -323,7 +325,7 @@ React.useEffect(() => {
   }
 
   const performSave = () => {
-    fetch("http://localhost:4000/addPayMethod", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "addPayMethod", {
       method: "POST",
       body: JSON.stringify({
         CardNumber: numero_tarjeta,
@@ -350,7 +352,7 @@ React.useEffect(() => {
   }
 
   const updatePayMethod = (cardN, bankId, state) => {
-    fetch("http://localhost:4000/updatePayMethod", {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updatePayMethod", {
       method: "POST",
       body: JSON.stringify({
         CardNumber: cardN,
@@ -374,6 +376,25 @@ React.useEffect(() => {
       .catch((err) => {
         alert(err);
       });
+  }
+
+  const showReservas = () => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "historicReservation/"+client.clientInfo.Payload.Id+"/"+client.clientInfo.Payload.DocType+"/15/0", {
+        method: "GET",
+      })
+        .then((res) => (res.status === 204 ? [] : res.json()))
+        .then((response) => {
+              if(response.error){
+                set_message(true);
+                setOpen("Error al cargar: "+response.error);
+                return; 
+              }
+              setHistoricRes(response);
+              setOpenHistoric(true);
+        })
+        .catch((error) => {
+          alert(error);
+        });
   }
 
   return (
@@ -403,6 +424,7 @@ React.useEffect(() => {
             </Typography>
             {nav_bar==='principal'?null:<Button color="inherit" onClick={e => setOpenDC(true)}><LockIcon/></Button>}
             {nav_bar==='principal'?null:<Button color="inherit" onClick={updateDialog}><AccountCircleIcon/></Button>}
+            {nav_bar==='principal'?null:<Button color="inherit" onClick={showReservas}><EventAvailableIcon/></Button>}
             <Button color="inherit"><ShoppingCartIcon/></Button>
             {nav_bar==='principal'?<Button color="inherit" onClick={(e)=> setMenuRedirect(true)}>Carta</Button>:null}
             {nav_bar==='principal'?null:<Button color="inherit" onClick={e => set_open_DMP()}><CreditCardIcon/></Button>}
@@ -651,6 +673,52 @@ React.useEffect(() => {
                 </Button>
               </DialogActions>
             </Dialog>
+            <Dialog
+              open={openHistoric}
+              onClose={e => setOpenHistoric(false)}
+              scroll="paper"
+              aria-labelledby="scroll-dialog-title"
+              aria-describedby="scroll-dialog-description"
+            >
+        <DialogTitle id="scroll-dialog-title-historic">Historial de Reservas</DialogTitle>
+        <DialogContent dividers>
+        <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Id reservación</TableCell>
+            <TableCell >Mesa</TableCell>
+            <TableCell >Numero de personas</TableCell>
+            <TableCell >Fecha de reserva</TableCell>
+            <TableCell >Estado</TableCell>
+            <TableCell >Recoger</TableCell>
+            <TableCell >Restaurante</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {historicRes.map((row) => (
+            <TableRow key={row.ReservationId}>
+              <TableCell component="th" scope="row">
+                {row.ReservationId}
+              </TableCell>
+              <TableCell >{row.ReservationTable}</TableCell>
+              <TableCell>{row.ReservationNumberOfPeople}</TableCell>
+              <TableCell>{new Date(row.ReservationDate).toLocaleDateString()}</TableCell>
+              <TableCell>{row.ReservationStatus}</TableCell>
+              <TableCell >{row.ReservationToPickUp?"Si":"No"}</TableCell>
+              <TableCell >{row.RestaurantId}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={e => setOpenHistoric(false)} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog> 
       <Snackbar
         open={open}
         autoHideDuration={3000}

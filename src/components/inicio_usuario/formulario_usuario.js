@@ -115,7 +115,7 @@ function Informacion_basica() {
 			return undefined;
 		}
 
-		fetch('http://localhost:4000/getAllDocuments', {
+		fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
 				method: 'GET'
 			}).then(res => res.json())
 			.then(items => {
@@ -401,7 +401,7 @@ export default function Formulario_empleado() {
 					RestaurantUserPass: usuario.contrasenha,
 					DocumentTypeID: usuario.tipoId
 				}));
-				fetch('http://localhost:4000/createUser', {
+				fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"createUser", {
 					method: 'POST',
 					body: formData
 				}).then(res => res.json())

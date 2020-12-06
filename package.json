@@ -1,7 +1,9 @@
 {
   "name": "proyecto_al_sazon_de_la_paloma",
   "version": "0.1.0",
-  "private": true,
+  "engines": {
+    "node": "15.2.1"
+  },
   "dependencies": {
     "@date-io/date-fns": "^1.3.13",
     "@dr-kobros/react-webfont-loader": "^8.0.0",

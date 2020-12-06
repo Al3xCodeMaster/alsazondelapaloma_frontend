@@ -112,7 +112,7 @@ const Login_usuario = () => {
 			return undefined;
 		}
 
-		fetch('http://localhost:4000/getAllDocuments', {
+		fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllDocuments", {
 				method: 'GET'
 			}).then(res => res.json())
 			.then(items => {
@@ -139,7 +139,7 @@ const Login_usuario = () => {
       set_helper_pass('');
       set_helper_cc('');
       let status;
-      fetch('http://localhost:4000/userLogin', {
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"userLogin", {
         method: 'POST',
         body: JSON.stringify({ RestaurantUserID: parseInt(cedula), DocumentTypeID: type_id, RestaurantUserPass: contrasenha }) // data can be `string` or {object}!
       }).then(res => { status = res.status; return res.json()})

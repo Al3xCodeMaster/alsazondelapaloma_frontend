@@ -127,7 +127,7 @@ export default function Dashboard() {
 
     const perfomChange = (event) => {
         if(window.confirm("¿Desea cambiar la contraseña?")){
-          fetch('http://localhost:4000/updateUserPassword', {
+          fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateUserPassword", {
             method: 'POST',
             body: JSON.stringify({
               RestaurantUserID: usuario.status==200?usuario.userInfo.Payload.Id:"",
@@ -182,7 +182,7 @@ export default function Dashboard() {
             RestaurantUserID: parseInt(usuario.userInfo.Payload.Id),
             DocumentTypeID: usuario.userInfo.Payload.DocType
           }));
-          fetch('http://localhost:4000/updatePhoto', {
+          fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updatePhoto", {
             method: 'POST',
             body: formData
           }).then(res => res.json())
@@ -206,7 +206,7 @@ export default function Dashboard() {
 
     useEffect(() => {
       if(usuario.status==200){
-        fetch('http://localhost:4000/getAllUserProfiles/'+usuario.userInfo.Payload.DocType+"/"+usuario.userInfo.Payload.Id, {
+        fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllUserProfiles/"+usuario.userInfo.Payload.DocType+"/"+usuario.userInfo.Payload.Id, {
           method: 'GET'
       }).then(res => res.status==204?[]:res.json())
           .then(response => {
@@ -255,7 +255,7 @@ export default function Dashboard() {
                                                                                                                                                                                 style={{ display: "none" }}
                                                                                                                                                                                 /></IconButton></Tooltip>}
                                                                                                                                                                                 >
-                        <Avatar src={usuario.status==200?"http://localhost:4000/file/"+usuario.userInfo.Payload.UrlPhoto:null } className={classes.avatar}/> 
+                        <Avatar src={usuario.status==200?(process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "file/"+usuario.userInfo.Payload.UrlPhoto:null } className={classes.avatar}/> 
                   </Badge>
                   
                 </Grid>
