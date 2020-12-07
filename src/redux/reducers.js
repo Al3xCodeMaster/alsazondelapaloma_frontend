@@ -17,13 +17,15 @@ import {
     SET_SEX,
     SUCESS_LOGIN_CLIENT,
     ERROR_LOGIN_CLIENT,
-    SET_REPEAT_CONTRASENHA
+    SET_REPEAT_CONTRASENHA,
+    SAVE_PRODUCTS
 }
     from './actions';
 
 const initialState = {
     usuario: {},
     client: {},
+    products: [],
     message: 'Hola redux',
     cargando: false,
     coordenadas: { lat: 3.382225, lng: -76.531584 },
@@ -35,6 +37,8 @@ const initialState = {
 
 function redux_reducer(state = initialState, action) {
     switch (action.type) {
+        case SAVE_PRODUCTS:
+            return { ...state, products: action.payload};
         case SUCCESS_LOGIN:
             return { ...state, usuario: {userInfo: action.payload, status: action.status}};
         case ERROR_LOGIN:

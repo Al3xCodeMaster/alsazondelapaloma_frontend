@@ -17,6 +17,7 @@ export const SET_SEX = 'SET_SEX';
 export const SUCESS_LOGIN_CLIENT = 'SUCESS_LOGIN_CLIENT';
 export const ERROR_LOGIN_CLIENT = 'ERROR_LOGIN_CLIENT';
 export const SET_REPEAT_CONTRASENHA = 'SET_REPEAT_CONTRASENHA';
+export const SAVE_PRODUCTS = 'SAVE_PRODUCTS';
 
 //******************LOGIN*******************
 export const success_login = (payload,status) => {
@@ -24,6 +25,13 @@ export const success_login = (payload,status) => {
         type: SUCCESS_LOGIN,
         payload,
         status
+    }
+}
+//*****************GET PREVIEW **************/
+export const save_products = (payload) => {
+    return {
+        type: SAVE_PRODUCTS,
+        payload
     }
 }
 
