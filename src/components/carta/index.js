@@ -45,6 +45,12 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 //DIVIDER
 import Divider from "@material-ui/core/Divider";
+//CHECKBOX
+import Checkbox from "@material-ui/core/Checkbox";
+//ACTIONS
+import {
+  save_products,
+} from "../../redux/actions";
 
 //SLIDE
 function ValueLabelComponent(props) {
@@ -190,18 +196,26 @@ const Carta = () => {
   const ref = useRef();
 
   React.useEffect(() => {
-    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listRestaurantsToClient", {
-      method: "GET",
-    })
+    fetch(
+      (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+        "listRestaurantsToClient",
+      {
+        method: "GET",
+      }
+    )
       .then((res) => res.json())
       .then((response) => {
         setRestaurants(response);
       })
       .catch((err) => console.log(err));
 
-    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllActiveCategories", {
-      method: "GET",
-    })
+    fetch(
+      (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+        "getAllActiveCategories",
+      {
+        method: "GET",
+      }
+    )
       .then((res) => res.json())
       .then((response) => {
         setCategories(response);
@@ -209,26 +223,51 @@ const Carta = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  //Get Preview
+  const getPreview = () => {
+    let temp = filterCategories;
+    let filter = temp.filter((element) => element.checked === true);
+    let requestItems = [];
+    for (let i = 0; i < filter.length; i++) {
+      requestItems.push({
+        BillId: 0,
+        RestaurantProductID: filter[i].ProductID,
+        Amount: filter[i].Amount,
+      });
+    }
+    let status = 500;
+    fetch(
+      (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+        "getReceiptPreview",
+      {
+        method: "POST",
+        body: JSON.stringify(requestItems), // data can be `string` or {object}!
+      }
+    )
+      .then((res) => {
+        status = res.status;
+        return res.json();
+      })
+      .then((response) => {
+        if (status !== 200) {
+          alert("error");
+        } else {
+          alert(JSON.stringify(response));
+        }
+      })
+      .catch((error) => alert("Error con la conexión al servidor " + error));
+  };
   //Select Product
-  const selectedProduct = (event, item) => {
-    let color = "red";
+  const selectedProduct = (item) => {
     let temp = filterCategories;
 
-    if (event.target.style.color == "") {
-      event.target.style.color = "red";
-    } else if (event.target.style.color != "red") {
-      event.target.style.color = "red";
-    } else {
-      event.target.style.color = "black";
-      color = "black";
-    }
-
     for (let i = 0; i < temp.length; i++) {
-      if ((temp[i].RestaurantProductID = item.RestaurantProductID)) {
-        temp[i].color = color;
+      if (temp[i].RestaurantProductID === item.RestaurantProductID) {
+        temp[i].checked = !temp[i].checked;
       }
     }
     setFilterCategories(temp);
+    dispatch(save_products(temp));
   };
   //Filter Products
   const filterProducts = () => {
@@ -247,7 +286,8 @@ const Carta = () => {
       }
     } else {
       fetch(
-        (process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getAllProductsRestaurant/" +
+        (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+          "getAllProductsRestaurant/" +
           restaurantID +
           "/" +
           categoryID +
@@ -270,7 +310,8 @@ const Carta = () => {
             let temp = [];
             for (let i = 0; i < response.length; i++) {
               let element = response[i];
-              element.color = "secondary";
+              element.checked = false;
+              element.Amount = 1;
               temp.push(element);
             }
             setFilterCategories(temp);
@@ -371,20 +412,21 @@ const Carta = () => {
                       </Avatar>
                     }
                     action={
-                      <IconButton
-                        aria-label="settings"
-                        onClick={(e) => selectedProduct(e, item)}
-                      >
-                        <FavoriteIcon  style={{ color: item.color }} />
-                      </IconButton>
+                      <Checkbox
+                        onChange={(e) => selectedProduct(item)}
+                        color="primary"
+                        inputProps={{ "aria-label": "secondary checkbox" }}
+                      />
                     }
                     title={item.ProductID}
-                    subheader={"$" + item.ProductPrice}
+                    subheader={(item.ProductPrice).toLocaleString('en-US', {style: 'currency',currency: 'USD',})}
                   />
                   <CardMedia
                     className={classes.media}
                     image={
-                      (process.env.REACT_APP_BACKEND || "http://localhost:4000/")+"getPictureProducts/" +
+                      (process.env.REACT_APP_BACKEND ||
+                        "http://localhost:4000/") +
+                      "getPictureProducts/" +
                       item.ProductPicture
                     }
                   />
