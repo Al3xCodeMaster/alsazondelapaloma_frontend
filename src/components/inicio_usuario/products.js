@@ -43,6 +43,11 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import Chip from '@material-ui/core/Chip';
 import DoneIcon from '@material-ui/icons/Done';
+import RestaurantMenuIcon from '@material-ui/icons/RestaurantMenu';
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import Popover from '@material-ui/core/Popover';
+import CheckIcon from "@material-ui/icons/Check";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -124,7 +129,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export default function Products() {
   const classes = useStyles();
@@ -151,12 +155,30 @@ export default function Products() {
   const [activado, set_activado] = useState("Activo");
   const [options, setOptions] = useState([]);
   const [catPerProd, setCatPerProd] = useState([]);
-
+  const [allAvaibleRest, setAllAvaibleRest] = useState([]);
+  const [restPerProd, setRestPerProd] = useState([]);
+  const [openDR, setOpenDR] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const componRef = React.useRef();
+  const [restSelected, setRestSelected] = useState("");
+  const [cantidadProd, setCantidadProd] = useState(0);
   const { usuario } = useSelector((state) => ({
     usuario: state.redux_reducer.usuario,
   }));
   const dispatch = useDispatch();
   const [products, setProds] = React.useState([]);
+
+  const handleClick = (event, valueId) => {
+    setRestSelected(valueId);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openP = Boolean(anchorEl);
+  const id = openP ? "simple-popover-pr" : undefined;
 
   const getAllProducts = () => {
     fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllProducts", {
@@ -320,13 +342,18 @@ export default function Products() {
     }
   };
 
-  const editPerf = (valueID) => {
+  const editProd = (valueID) => {
     set_productID("");
     set_productDesc("");
     set_productPrice(0);
     setcurrentProd(valueID);
     getCatPerProd(valueID);
     setopenDialog(true);
+  };
+  
+  const restProd = (valueID) => {
+    setcurrentProd(valueID);
+    getRestFromProd(valueID);
   };
 
   const set_state_gilad = () => {
@@ -383,6 +410,56 @@ export default function Products() {
       });
   };
 
+  const perfomSaveRes = () => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "assignProductToRestaurant", {
+      method: "POST",
+      body: JSON.stringify({
+        RestaurantID: parseInt(restSelected),
+        ProductID: currentProd,
+        RestaurantProductAmount: parseInt(cantidadProd)
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+            set_error(true);
+            set_message("Error: " + response.error);
+            return;
+        }
+        getRestFromProd(currentProd);
+        handleClose();
+        set_success(true);
+        set_message("Restaurante agregado con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+
+  const perfomUpdateRes = (state, id) => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "updateProductToRestaurant", {
+      method: "POST",
+      body: JSON.stringify({
+        RestaurantProductID: parseInt(id),
+        RestaurantProductState: state
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+            set_error(true);
+            set_message("Error: " + response.error);
+            return;
+        }
+        getRestFromProd(currentProd);
+        set_success(true);
+        set_message("Estado cambiado con éxito");
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+  
   const update_category = (id, status) => {
     fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "modifyCategory", {
       method: "POST",
@@ -435,6 +512,21 @@ export default function Products() {
         alert(error);
       });
   }, []);
+
+  useEffect(() => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "listRestaurantsToClient", {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if (response.length > 0) {
+          setAllAvaibleRest(response);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }, []);
   
   const getCatPerProd = (id) => {
     fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllProductCategories/"+id, {
@@ -454,6 +546,27 @@ export default function Products() {
       .catch((err) => {
         alert("Error en la conexión con el servidor: "+err);
       });
+  };
+
+  const getRestFromProd = (id) => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getRestaurantsToProduct/"+id, {
+      method: "GET"
+    })
+    .then((res) => (res.status === 204 ? [] : res.json()))
+    .then((response) => {
+          if(response.error){
+            set_error(true);
+            set_message("Error: " + response.error);
+            return; 
+          }
+          setRestPerProd(response.map((data) => { return {RestaurantID: data.RestaurantID, 
+                                                RestaurantProductID: data.RestaurantProductID,
+                                                RestaurantProductState: data.RestaurantProductState}}));
+          setOpenDR(true);
+    })
+    .catch((error) => {
+      alert(error);
+    });
   };
 
   const addProdToCat = (prodId, catID) => {
@@ -502,6 +615,13 @@ export default function Products() {
       .catch((err) => {
         alert("Error en la conexión con el servidor: "+err);
       });
+  }
+
+  const set_close_res = () => {
+    setcurrentProd("");
+    setRestPerProd([]);
+    setRestSelected("");
+    setOpenDR(false);
   }
 
   return (
@@ -651,9 +771,15 @@ export default function Products() {
                           )}
                           <IconButton
                             aria-label="editar-producto"
-                            onClick={(e) => editPerf(card.ProductID)}
+                            onClick={(e) => editProd(card.ProductID)}
                           >
                             <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="asignar-rest"
+                            onClick={(e) => restProd(card.ProductID)}
+                          >
+                            <RestaurantMenuIcon />
                           </IconButton>
                         </CardActions>
                       </Card>
@@ -930,6 +1056,120 @@ export default function Products() {
               autoFocus
             >
               Cambiar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDR}
+          onClose={() => set_close_res()}
+          aria-labelledby="alert-dialog-title-t"
+          aria-describedby="alert-dialog-description-t"
+        >
+          <DialogTitle id="dialog-title-prod-res" style={{ color: "green" }}>
+            {"Asignar restaurantes al producto: " + currentProd}
+          </DialogTitle>
+          <DialogContent>
+          <TableContainer component={Paper} style={{ width: "95%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Restaurante</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allAvaibleRest.map((element) => (
+                <TableRow key={element.RestaurantID}>
+                  <TableCell>{element.RestaurantID}</TableCell>
+                  <TableCell>{element.RestaurantName}</TableCell>
+                  <TableCell>
+                      {
+                        restPerProd.some(data => data.RestaurantID === element.RestaurantID)? 
+                        restPerProd.find(data => data.RestaurantID === element.RestaurantID).RestaurantProductState?
+                        <IconButton
+                                onClick={(e) => perfomUpdateRes(false, restPerProd.find(data => data.RestaurantID === element.RestaurantID).RestaurantProductID)}
+                                children={
+                                  <CheckBoxIcon
+                                    style={{color: 'green', fontSize: 'inherit', marginLeft: "2px" }}
+                                  />
+                                  }
+                        />:
+                        <IconButton
+                                onClick={(e) => perfomUpdateRes(true, restPerProd.find(data => data.RestaurantID === element.RestaurantID).RestaurantProductID)}
+                                children={
+                                  <CheckBoxOutlineBlankIcon
+                                    style={{fontSize: 'inherit', marginLeft: "2px" }}
+                                  />
+                                  }
+                        />:
+                        <div>
+                        <IconButton
+                          onClick={(e) => handleClick(e, element.RestaurantID)}
+                          children={
+                            <AddCircleIcon
+                              style={{color: 'green', fontSize: 'inherit', marginLeft: "2px" }}
+                            />
+                            
+                          }
+                        />
+                        <Popover
+                          id={id}
+                          open={openP}
+                          ref={componRef}
+                          anchorEl={anchorEl}
+                          onClose={handleClose}
+                          anchorOrigin={{
+                            vertical: "top",
+                            horizontal: "center",
+                          }}
+                          transformOrigin={{
+                            vertical: "top",
+                            horizontal: "center",
+                          }}
+                        >
+                          <Typography className={classes.typography}>
+                            Disponibilidad
+                          </Typography>
+                          <TextField
+                            id="cambio-cantidad"
+                            label="Ingrese cantidad"
+                            fullWidth
+                            type="number"
+                            value={cantidadProd}
+                            onChange={(e) => setCantidadProd(e.target.value)
+                            }
+                          />
+                          <IconButton
+                            onClick={perfomSaveRes}
+                            children={
+                              <CheckIcon
+                                style={{
+                                  fontSize: "inherit",
+                                  marginLeft: "2px",
+                                  color: "green",
+                                }}
+                              />
+                            }
+                          />
+                        </Popover>
+                        </div>
+                      }
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={(e) => set_close_res()}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Cerrar
             </Button>
           </DialogActions>
         </Dialog>
