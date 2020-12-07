@@ -18,13 +18,15 @@ import {
     SUCESS_LOGIN_CLIENT,
     ERROR_LOGIN_CLIENT,
     SET_REPEAT_CONTRASENHA,
-    SAVE_PRODUCTS
+    SAVE_PRODUCTS,
+    CHANGE_RESTAURANT
 }
     from './actions';
 
 const initialState = {
     usuario: {},
     client: {},
+    restaurantID:0,
     products: [],
     message: 'Hola redux',
     cargando: false,
@@ -37,6 +39,8 @@ const initialState = {
 
 function redux_reducer(state = initialState, action) {
     switch (action.type) {
+        case CHANGE_RESTAURANT:
+            return { ...state, restaurantID: action.payload};
         case SAVE_PRODUCTS:
             return { ...state, products: action.payload};
         case SUCCESS_LOGIN:

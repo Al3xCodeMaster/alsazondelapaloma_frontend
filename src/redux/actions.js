@@ -18,6 +18,7 @@ export const SUCESS_LOGIN_CLIENT = 'SUCESS_LOGIN_CLIENT';
 export const ERROR_LOGIN_CLIENT = 'ERROR_LOGIN_CLIENT';
 export const SET_REPEAT_CONTRASENHA = 'SET_REPEAT_CONTRASENHA';
 export const SAVE_PRODUCTS = 'SAVE_PRODUCTS';
+export const CHANGE_RESTAURANT = 'CHANGE_RESTAURANT';
 
 //******************LOGIN*******************
 export const success_login = (payload,status) => {
@@ -31,6 +32,12 @@ export const success_login = (payload,status) => {
 export const save_products = (payload) => {
     return {
         type: SAVE_PRODUCTS,
+        payload
+    }
+}
+export const change_restaurant = (payload) => {
+    return {
+        type: CHANGE_RESTAURANT,
         payload
     }
 }

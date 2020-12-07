@@ -67,6 +67,11 @@ import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import logo from "../../images/logo.png";
+import MenuItem from "@material-ui/core/MenuItem";
+import Select from "@material-ui/core/Select";
+//FORM
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 //******************ACTIONS**********************
 import { save_products } from "../../redux/actions";
 // webfontloader configuration object. *REQUIRED*.
@@ -137,6 +142,14 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     flex: 1,
   },
+  container: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  textField: {},
+  formControl: {
+    minWidth: 120,
+  },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -144,12 +157,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const AppBarActions = () => {
-  const { nav_bar, client, coordenadas, products } = useSelector((state) => ({
-    nav_bar: state.redux_reducer.nav_bar,
-    client: state.redux_reducer.client,
-    coordenadas: state.redux_reducer.coordenadas,
-    products: state.redux_reducer.products,
-  }));
+  const { nav_bar, client, coordenadas, products, restaurantID } = useSelector(
+    (state) => ({
+      nav_bar: state.redux_reducer.nav_bar,
+      client: state.redux_reducer.client,
+      coordenadas: state.redux_reducer.coordenadas,
+      products: state.redux_reducer.products,
+      restaurantID: state.redux_reducer.restaurantID,
+    })
+  );
   const dispatch = useDispatch();
   const classes = useStyles();
   const [menuRedirect, setMenuRedirect] = React.useState(false);
@@ -182,6 +198,11 @@ const AppBarActions = () => {
   const [fetch_pay_method, set_fetch_pay_method] = useState([]);
   const [historicRes, setHistoricRes] = useState([]);
   const [openHistoric, setOpenHistoric] = useState(false);
+  const [fechaReserva, setFechaReserva] = useState("");
+  const [mesa, setMesa] = useState("MESA 1");
+  const [numeroPersonas, setNumeroPersonas] = useState(1);
+  const [paraRecoger, setParaRecoger] = useState(false);
+
   const [preview, setPreview] = useState({
     ProductList: [],
     TotalBeforeTax: 0,
@@ -193,6 +214,50 @@ const AppBarActions = () => {
     setOpenDPM(true);
   };
 
+  const realizarReserva = () => {
+    if (fechaReserva == "" || (numeroPersonas <= 0 && paraRecoger == false)) {
+      if (fechaReserva == "") {
+        alert("Debe seleccionar una fecha de reserva válida");
+      } else {
+        alert("el número de personas debe ser mayor a cero");
+      }
+    } else {
+      let cedula = client.clientInfo.Payload.Id;
+      let docTypeS = client.clientInfo.Payload.DocType;
+      let status = 500;
+      let jsonRequest = {
+        ReservationTable: mesa,
+        ReservationNumberOfPeople: parseInt(numeroPersonas),
+        ReservationDate: fechaReserva + ":00Z",
+        ReservationToPickUp: paraRecoger,
+        RestaurantId: restaurantID,
+        ClientId: cedula,
+        DocumentTypeID: docTypeS,
+      };
+      fetch(
+        (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+          "createReservation",
+        {
+          method: "POST",
+          body: JSON.stringify(jsonRequest), // data can be `string` or {object}!
+        }
+      )
+        .then((res) => {
+          status = res.status;
+          return res.json();
+        })
+        .then((response) => {
+          if (status !== 201) {
+            setOpen(true);
+            set_message("No se puede crear el registro");
+          } else {
+            set_open_sucess(true);
+            set_message_success("Reservación realizada con éxito");
+          }
+        })
+        .catch((error) => alert("Error con la conexión al servidor " + error));
+    }
+  };
   const refresh = () => {
     fetch(
       (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
@@ -971,7 +1036,7 @@ const AppBarActions = () => {
             </Toolbar>
           </AppBar>
           <Grid container spacing={2}>
-            <Grid item xs={3}>
+            <Grid item xs={4}>
               <Grid container spacing={2}>
                 <Grid item xs={12} style={{ textAlign: "center" }}>
                   <img src={logo} height="200" width="200" alt="Logo" />
@@ -993,7 +1058,7 @@ const AppBarActions = () => {
                       </Grid>
                     );
                   })}
-                  <Divider/>
+                  <Divider />
                   <br />
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
@@ -1015,8 +1080,8 @@ const AppBarActions = () => {
                       })}
                     </Grid>
                     <br />
-                    <Divider/>
-                    
+                    <Divider />
+
                     <Grid item xs={6}>
                       <b>Total</b>
                     </Grid>
@@ -1029,6 +1094,78 @@ const AppBarActions = () => {
                       </b>
                     </Grid>
                   </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={4}>
+              <br />
+              <h2 style={{ textAlign: "center" }}>Paso 1 Realizar Reserva</h2>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <form className={classes.container} noValidate>
+                    <TextField
+                      fullWidth
+                      id="datetime-local"
+                      label="Fecha de Reserva"
+                      value={fechaReserva}
+                      onChange={(e) => setFechaReserva(e.target.value)}
+                      type="datetime-local"
+                      className={classes.textField}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </form>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl className={classes.formControl} fullWidth>
+                    <InputLabel id="demo-simple-select-label">
+                      Mesa 1
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={mesa}
+                      onChange={(e) => setMesa(e.target.value)}
+                    >
+                      <MenuItem value={"MESA 1"}>MESA 1</MenuItem>
+                      <MenuItem value={"MESA 2"}>MESA 2</MenuItem>
+                      <MenuItem value={"MESA 3"}>MESA 3</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <form noValidate autoComplete="off">
+                    <TextField
+                      fullWidth
+                      id="standard-basic"
+                      type="number"
+                      label="Número de Personas"
+                      value={numeroPersonas}
+                      onChange={(e) => setNumeroPersonas(e.target.value)}
+                    />
+                  </form>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="checkedB"
+                        color="primary"
+                        onChange={(e) => setParaRecoger(e.target.checked)}
+                      />
+                    }
+                    label="Para recoger?"
+                  />
+                </Grid>
+                <Grid item xs={12} style={{ textAlign: "center" }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={(e) => realizarReserva()}
+                  >
+                    Realizar Reserva
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>

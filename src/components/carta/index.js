@@ -50,6 +50,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 //ACTIONS
 import {
   save_products,
+  change_restaurant,
 } from "../../redux/actions";
 
 //SLIDE
@@ -322,7 +323,10 @@ const Carta = () => {
         );
     }
   };
-
+  const changeRestaurantAux = (e) => {
+    setRestaurantID(e.target.value);
+    dispatch(change_restaurant(e.target.value));
+  }
   return (
     <ThemeProvider theme={theme}>
       <AppBarActions />
@@ -338,7 +342,7 @@ const Carta = () => {
               labelId="restaurantsId"
               id="selectRestaurants"
               value={restaurantID}
-              onChange={(e) => setRestaurantID(e.target.value)}
+              onChange={(e) => changeRestaurantAux(e)}
             >
               {restaurants.map((item, key) => {
                 return (
