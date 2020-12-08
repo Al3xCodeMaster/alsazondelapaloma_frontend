@@ -19,6 +19,15 @@ import InstagramIcon from "@material-ui/icons/Instagram";
 import PhoneIcon from "@material-ui/icons/Phone";
 import EmailIcon from "@material-ui/icons/Email";
 import TwitterIcon from "@material-ui/icons/Twitter";
+import ChatIcon from '@material-ui/icons/Chat';
+import Fab from '@material-ui/core/Fab';
+import Backdrop from '@material-ui/core/Backdrop';
+import Chatbot from 'react-chatbot-kit'
+import ActionProvider from "./ActionProvider";
+import MessageParser from "./MessageParser";
+import config from "./config";
+import CardActions from '@material-ui/core/CardActions';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
     rootCard: {
@@ -53,11 +62,32 @@ const useStyles = makeStyles((theme) => ({
     input: {
           width: '100%',
           margin: '1%'
-    }
+    },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
+    fab: {
+      position: 'absolute',
+      bottom: theme.spacing(2),
+      right: theme.spacing(2),
+    },
+    extendedIcon: {
+      marginRight: theme.spacing(1),
+    },
   }));
   
 const LandingPage =() =>{
     const classes = useStyles();
+    const [open, setOpen] = React.useState(false);
+    const handleClose = () => {
+    setOpen(false);
+    };
+    
+    const handleToggle = () => {
+      setOpen(!open);
+    };
+    
     return (
         <Grid container className={classes.root} style={{ marginBottom: "2%" }}>
           <Grid item xs={12}>
@@ -257,6 +287,23 @@ const LandingPage =() =>{
               </Grid>
             </div>
           </Grid>
+          <Fab size='large' variant="extended" color="secondary" aria-label="Ayuda" className={classes.fab} onClick={e => setOpen(true)}> 
+            <ChatIcon className={classes.extendedIcon}/> Asistente virtual
+          </Fab>
+          <Backdrop className={classes.backdrop} open={open}>
+            <Card variant="outlined">
+              <CardContent>
+              <Chatbot
+                  config={config}
+                  actionProvider={ActionProvider}
+                  messageParser={MessageParser}
+                  />
+              </CardContent>
+              <CardActions>
+                <Button onClick={handleClose} size="small">Cerrar</Button>
+              </CardActions>
+            </Card>
+          </Backdrop>
         </Grid>
     )
 }
