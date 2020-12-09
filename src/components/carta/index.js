@@ -49,10 +49,7 @@ import Divider from "@material-ui/core/Divider";
 //CHECKBOX
 import Checkbox from "@material-ui/core/Checkbox";
 //ACTIONS
-import {
-  save_products,
-  change_restaurant,
-} from "../../redux/actions";
+import { save_products, change_restaurant } from "../../redux/actions";
 
 //SLIDE
 function ValueLabelComponent(props) {
@@ -322,12 +319,24 @@ const Carta = () => {
             setMessage(response.Message);
           } else {
             let temp = [];
+            let descuentos = response.ResulDiscount;
             for (let i = 0; i < response.length; i++) {
               let element = response[i];
               element.checked = false;
               element.Amount = 1;
               temp.push(element);
             }
+            for (let j = 0; j < descuentos.length; j++) {
+              for (let i = 0; i < temp.length; i++) {
+                temp[i].tieneDescuento = false;
+                temp[i].porcentaje = 0;
+                if (temp[i].ProductID == descuentos[j].ProductID) {
+                  temp[i].tieneDescuento = true;
+                  temp[i].porcentaje = descuentos[j].DiscountPercentage;
+                  temp[i].ProductPrice = temp[i].ProductPrice - Math.round((temp[i].porcentaje*temp[i].ProductPrice))
+                }
+            }
+          }
             setFilterCategories(temp);
           }
         })
@@ -339,7 +348,7 @@ const Carta = () => {
   const changeRestaurantAux = (e) => {
     setRestaurantID(e.target.value);
     dispatch(change_restaurant(e.target.value));
-  }
+  };
   return (
     <ThemeProvider theme={theme}>
       <AppBarActions />
@@ -436,7 +445,10 @@ const Carta = () => {
                       />
                     }
                     title={item.ProductID}
-                    subheader={(item.ProductPrice).toLocaleString('en-US', {style: 'currency',currency: 'USD',})}
+                    subheader={item.ProductPrice.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}
                   />
                   <CardMedia
                     className={classes.media}
