@@ -6,6 +6,15 @@ import MenuList from '@material-ui/core/MenuList';
 import makinola from "../../images/makinola.png";
 import logo from "../../images/logo.png";
 import Avatar from '@material-ui/core/Avatar';
+import Geocode from "react-geocode";
+Geocode.setApiKey("AIzaSyDcpnTaFMV5WjJULkv5HTKX5kHw7FeL8A4");
+// set response language. Defaults to english.
+Geocode.setLanguage("es");
+ 
+// set response region. Its optional.
+// A Geocoding request with region=es (Spain) will return the Spanish city.
+Geocode.setRegion("es");
+ 
 
 const useStyles = makeStyles((theme) => ({
  linklist: {
@@ -30,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 const LinkList = (props) => {
     const classes = useStyles();
     const linkMarkup = props.options.map((link) => (
-          <MenuItem onClick={e => handleLinks(link.url, props.actionProvider)}>{link.text}</MenuItem>
+          <MenuItem key={link.id} onClick={e => handleLinks(link.id, link.url, props.actionProvider)}>{link.text}</MenuItem>
     ));
   
     return <MenuList className={classes.linklist}>{linkMarkup}</MenuList>;
@@ -41,9 +50,38 @@ const CustomImages = (props) => {
   return <img src={makinola} alt="pana" />;
 };
 
-const handleLinks = (mess,acction) => {
-  let message = createChatBotMessage("Aquí tengo la info "+mess,{widget: "initialLinks"});
-  acction.updateChatbotState(message);
+const handleLinks = (id, mess,action) => {
+    let status;
+    let respuesta="";
+    let message
+    var address="";
+    if(id===4){
+      fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
+        method: "GET",
+      })
+        .then((res) => {status=res.status; return status==204? []:res.json()})
+        .then((response) => {
+          if (response.length > 0) {
+            for(var i=0;i<response.length;i++){
+              respuesta+="- "+response[i].RestaurantName+"\n";
+              Geocode.fromLatLng(response[i].RestaurantLatitude, response[i].RestaurantLongitude).then(
+                response => {
+                  respuesta += response.results[0].formatted_address + "\n";
+                },
+                error => {
+                  address = "No se puede determinar dir";
+                }
+              );
+              
+            }
+          }
+          message = createChatBotMessage("Aquí tengo la info \n"+respuesta,{widget: "initialLinks"});
+          action.updateChatbotState(message);
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    }
 }
 
 const config = {
@@ -56,6 +94,7 @@ const config = {
   ],
   customComponents: {
     botAvatar: (props) => <Avatar src={logo} {...props} />,
+    userChatMessage: (props) => <div {...props} />
   },
   customStyles: {
     botMessageBox: {
@@ -72,21 +111,26 @@ const config = {
       props: {
         options: [
           {
-            text: "Plato del día",
+            text: "Nuestros 5 mejores platos",
             url:
-              "foodOfTheDay",
+              "",
             id: 1,
           },
           {
-            text: "Horarios de restaurantes",
+            text: "Nuestros descuentos",
             url:
-              "restSchedules",
+              "availableDiscounts",
             id: 2,
           },
           {
-            text:"¿Lugar de algún restaurante?",
-            url: "restPlaces",
+            text:"Nuestros tipos de plato",
+            url: "availableCategories",
             id: 3,
+          },
+          {
+            text:"¿Lugar de algún restaurante?",
+            url: "restaurantsAddresses",
+            id: 4,
           },
         ],
       },

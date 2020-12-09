@@ -9,7 +9,7 @@ import Carta from './components/carta';
 //import Dashboard from './components/inicio_usuario';
 //import Reporte from './components/inicio_usuario/reporte';
 import Dashboard_usuario from './components/inicio_usuario';
-
+import './index.css';
   
 const Root = () =>{
     return (
