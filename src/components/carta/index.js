@@ -43,6 +43,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import TextField from '@material-ui/core/TextField';
 //DIVIDER
 import Divider from "@material-ui/core/Divider";
 //CHECKBOX
@@ -268,7 +269,19 @@ const Carta = () => {
       }
     }
     setFilterCategories(temp);
-    dispatch(save_products(temp));
+    dispatch(save_products(temp.filter(x => x.checked == true)));
+  };
+
+  const cantProduct = (item, value) => {
+    let temp = filterCategories;
+
+    for (let i = 0; i < temp.length; i++) {
+      if (temp[i].RestaurantProductID === item.RestaurantProductID) {
+        temp[i].Amount = parseInt(value);
+      }
+    }
+    setFilterCategories(temp);
+    dispatch(save_products(temp.filter(x => x.checked == true)));
   };
   //Filter Products
   const filterProducts = () => {
@@ -442,6 +455,18 @@ const Carta = () => {
                     >
                       {item.ProductDescription}
                     </Typography>
+                    <br></br>
+                    <TextField
+                        fullWidth
+                        label="Cantidad de producto"
+                        onChange={(e) => cantProduct(item, e.target.value)}
+                        type="number"
+                        InputProps={{
+                          inputProps: { 
+                              max: 100, min: 1 
+                          }
+                        }}
+                    />
                   </CardContent>
                   <CardActions disableSpacing></CardActions>
                 </Card>
