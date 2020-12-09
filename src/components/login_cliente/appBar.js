@@ -196,12 +196,15 @@ const AppBarActions = () => {
   const [openDPM, setOpenDPM] = useState(false);
   const [numero_tarjeta, set_numero_tarjeta] = useState("");
   const [fetch_pay_method, set_fetch_pay_method] = useState([]);
+  const [valorTarjeta, setValorTarjeta] = useState(2);
   const [historicRes, setHistoricRes] = useState([]);
   const [openHistoric, setOpenHistoric] = useState(false);
   const [fechaReserva, setFechaReserva] = useState("");
+  const [reservationID, setReservationID] = useState(-1);
   const [mesa, setMesa] = useState("MESA 1");
   const [numeroPersonas, setNumeroPersonas] = useState(1);
   const [paraRecoger, setParaRecoger] = useState(false);
+  const [tarjetaID, setTarjetaID] = useState("");
 
   const [preview, setPreview] = useState({
     ProductList: [],
@@ -251,6 +254,8 @@ const AppBarActions = () => {
             setOpen(true);
             set_message("No se puede crear el registro");
           } else {
+            setReservationID(response.ReservationId);
+            getPayMethodsClient();
             set_open_sucess(true);
             set_message_success("Reservación realizada con éxito");
           }
@@ -279,6 +284,31 @@ const AppBarActions = () => {
           return;
         }
         set_fetch_pay_method(response);
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  };
+  const getPayMethodsClient = () => {
+    fetch(
+      (process.env.REACT_APP_BACKEND || "http://localhost:4000/") +
+        "getAllPayMethodClient/" +
+        client.clientInfo.Payload.Id +
+        "/" +
+        client.clientInfo.Payload.DocType +
+        "/" +
+        true,
+      {
+        method: "GET",
+      }
+    )
+      .then((res) => (res.status === 204 ? [] : res.json()))
+      .then((response) => {
+        if (response.error) {
+          set_fetch_pay_method([]);
+        } else {
+          set_fetch_pay_method(response);
+        }
       })
       .catch((error) => {
         alert(error);
@@ -567,6 +597,57 @@ const AppBarActions = () => {
       .catch((error) => {
         alert(error);
       });
+  };
+
+  const realizarPago = () => {
+    let sendProducts = [];
+    let status = 500;
+    for (let i = 0; i < products.length; i++) {
+      sendProducts.push({
+        BillId: 0,
+        RestaurantProductID: products[i].ProductID,
+        Amount: products[i].Amount,
+      });
+    }
+    let amounts = [];
+    amounts.push(parseInt(valorTarjeta));
+    if (reservationID == -1 || tarjetaID == "") {
+      if (tarjetaID == "") {
+        setOpen(true);
+        set_message("Seleccione un metodo de pago válido");
+      } else {
+        setOpen(true);
+        set_message("Debe realizar una reservación antes de realizar el pago");
+      }
+    } else {
+      fetch(
+        (process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "payBill",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            ReservationID: reservationID,
+            Products: sendProducts,
+            PayAmounts: amounts,
+          }),
+        }
+      )
+        .then((res) => {
+          status = res.status;
+          return res.json();
+        })
+        .then((resp) => {
+          if (status != 200) {
+            setOpen(true);
+            set_message("No se pudo realizar el pago");
+          } else {
+            set_open_sucess(true);
+            set_message_success("Pago realizado");
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    }
   };
 
   return (
@@ -1165,6 +1246,42 @@ const AppBarActions = () => {
                     onClick={(e) => realizarReserva()}
                   >
                     Realizar Reserva
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={4}>
+              <br />
+              <h2 style={{ textAlign: "center" }}>Paso 2 Realizar Pago</h2>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <FormControl className={classes.formControl} fullWidth>
+                    <InputLabel id="restaurantsId">
+                      Seleccionar Tarjeta
+                    </InputLabel>
+                    <Select
+                      labelId="tarjetaID"
+                      id="selectTarjeta"
+                      value={tarjetaID}
+                      onChange={(e) => setTarjetaID(e.target.value)}
+                    >
+                      {fetch_pay_method.map((item, key) => {
+                        return (
+                          <MenuItem value={item.CardNumber} key={key}>
+                            {item.CardNumber}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} style={{ textAlign: "center" }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => realizarPago()}
+                  >
+                    Realizar Pago
                   </Button>
                 </Grid>
               </Grid>
