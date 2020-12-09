@@ -10,11 +10,11 @@ class ActionProvider {
       this.updateChatbotState(greetingMessage);
     }
   
-    handleJavascriptList = () => {
+    handlePana = () => {
       const message = this.createChatBotMessage(
-        "Fantastic, I've got the following resources for you on Javascript:",
+        "Pana",
         {
-          widget: "javascriptLinks",
+          widget: "panaeasteregg",
         }
       );
   

@@ -3,6 +3,9 @@ import { createChatBotMessage } from "react-chatbot-kit";
 import { makeStyles } from "@material-ui/core/styles";
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
+import makinola from "../../images/makinola.png";
+import logo from "../../images/logo.png";
+import Avatar from '@material-ui/core/Avatar';
 
 const useStyles = makeStyles((theme) => ({
  linklist: {
@@ -27,19 +30,33 @@ const useStyles = makeStyles((theme) => ({
 const LinkList = (props) => {
     const classes = useStyles();
     const linkMarkup = props.options.map((link) => (
-          <MenuItem>{link.text}</MenuItem>
+          <MenuItem onClick={e => handleLinks(link.url, props.actionProvider)}>{link.text}</MenuItem>
     ));
   
     return <MenuList className={classes.linklist}>{linkMarkup}</MenuList>;
-  };
+};
+
+const CustomImages = (props) => {
+  
+  return <img src={makinola} alt="pana" />;
+};
+
+const handleLinks = (mess,acction) => {
+  let message = createChatBotMessage("Aquí tengo la info "+mess,{widget: "initialLinks"});
+  acction.updateChatbotState(message);
+}
 
 const config = {
   botName: "Atención al cliente",
+  lang: "es",
   initialMessages: [
     createChatBotMessage("¡Hola!, que desea conocer de nuestro restaurante?", {
-      widget: "javascriptLinks",
+      widget: "initialLinks",
     }),
   ],
+  customComponents: {
+    botAvatar: (props) => <Avatar src={logo} {...props} />,
+  },
   customStyles: {
     botMessageBox: {
       backgroundColor: "#376B7E",
@@ -50,28 +67,34 @@ const config = {
   },
   widgets: [
     {
-      widgetName: "javascriptLinks",
+      widgetName: "initialLinks",
       widgetFunc: (props) => <LinkList {...props} />,
       props: {
         options: [
           {
             text: "Plato del día",
             url:
-              "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/basic-javascript/",
+              "foodOfTheDay",
             id: 1,
           },
           {
             text: "Horarios de restaurantes",
             url:
-              "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+              "restSchedules",
             id: 2,
           },
           {
             text:"¿Lugar de algún restaurante?",
-            url: "https://frontendmasters.com",
+            url: "restPlaces",
             id: 3,
           },
         ],
+      },
+    },
+    {
+      widgetName: "panaeasteregg",
+      widgetFunc: (props) => <CustomImages {...props} />,
+      props: {
       },
     },
   ],

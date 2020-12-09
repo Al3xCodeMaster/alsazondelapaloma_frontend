@@ -309,6 +309,11 @@ export default function Perfiles() {
     })
       .then((res) => res.json())
       .then((response) => {
+        if (response.error) {
+          set_error(true);
+          set_error_message("Error: " + response.error);
+          return;
+        }
         set_user_cargado([response]);
         set_user_temp(response);
         getProfilesFromUser(id_type, id_doc);
