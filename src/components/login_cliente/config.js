@@ -54,7 +54,6 @@ const handleLinks = (id, mess,action) => {
     let status;
     let respuesta="";
     let message
-    var address="";
     if(id===4){
       fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
         method: "GET",
@@ -64,15 +63,8 @@ const handleLinks = (id, mess,action) => {
           if (response.length > 0) {
             for(var i=0;i<response.length;i++){
               respuesta+="- "+response[i].RestaurantName+"\n";
-              Geocode.fromLatLng(response[i].RestaurantLatitude, response[i].RestaurantLongitude).then(
-                response => {
-                  respuesta += response.results[0].formatted_address + "\n";
-                },
-                error => {
-                  address = "No se puede determinar dir";
-                }
-              );
-              
+              const address = getAddress(response[i].RestaurantLatitude,response[i].RestaurantLongitude);
+              respuesta+= address+"\n";  
             }
           }
           message = createChatBotMessage("Aquí tengo la info \n"+respuesta,{widget: "initialLinks"});
@@ -82,6 +74,27 @@ const handleLinks = (id, mess,action) => {
           alert(error);
         });
     }
+}
+
+const getAddress = async (lat, lng) =>{
+ 
+ let temp = await Geocode.fromLatLng(lat, lng).then(
+   response => {
+     return Promise.resolve(response.results[0].formatted_address);
+   },
+   error => {
+     return Promise.resolve("No disponible");  
+   }
+ );
+ 
+ return temp;
+}
+
+const request = async (lat, long) => {
+  
+  const response = await Geocode.fromLatLng(lat, long);
+  const jsonAd = await response.json();
+  return jsonAd.results[0].formatted_address;
 }
 
 const config = {
