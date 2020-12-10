@@ -119,7 +119,7 @@ const handleLinks = (id, mess,action) => {
             .then((response) => {
               if (response.length > 0) {
                 for(var i=0;i<response.length;i++){
-                  respuesta += (i+1)+") <"+response[i].DiscountName+", "+response[i].DiscountDescription+", "+response[i].RestaurantPercentage + ">,  "; 
+                  respuesta += (i+1)+") <"+response[i].DiscountName+", "+response[i].DiscountDescription+" Porcentaje: "+response[i].DiscountPercentage*100 + "% " + ">,  "; 
                 }
               }
               message = createChatBotMessage("Aquí tengo la info: \n"+respuesta,{widget: "initialLinks"});
