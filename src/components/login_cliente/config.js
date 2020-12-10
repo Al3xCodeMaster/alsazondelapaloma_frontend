@@ -63,7 +63,7 @@ const handleLinks = (id, mess,action) => {
           if (response.length > 0) {
             for(var i=0;i<response.length;i++){
               respuesta+="- "+response[i].RestaurantName+"\n";
-              const address = getAddress(response[i].RestaurantLatitude,response[i].RestaurantLongitude);
+              const address = getAddress(response[i].RestaurantLatitude,response[i].RestaurantLongitude).formatted_address;
               respuesta+= address+"\n";  
             }
           }
@@ -76,17 +76,20 @@ const handleLinks = (id, mess,action) => {
     }
 }
 
-const getAddress = async (lat, lng) =>{
- 
- let temp = await Geocode.fromLatLng(lat, lng).then(
+const promise = async (lat, lng) =>{
+  Geocode.fromLatLng(lat, lng).then(
    response => {
-     return Promise.resolve(response.results[0].formatted_address);
+     return response.results[0].formatted_address;
    },
    error => {
-     return Promise.resolve("No disponible");  
+     return "No disponible";  
    }
  );
+}
+const getAddress = async (lat, lng) =>{
  
+ let temp = await promise(lat, lng);
+ console.log(temp);
  return temp;
 }
 
