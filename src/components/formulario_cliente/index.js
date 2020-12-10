@@ -204,6 +204,7 @@ function Informacion_basica() {
 			<TextField id="usuario_correo" value={correo} onChange={e => set_state_correo(e.target.value)} className={classes.input} label="Correo" variant="outlined" />
 			<MuiPickersUtilsProvider utils={DateFnsUtils}>
 				<KeyboardDatePicker
+					disableFuture
 					className={classes.input}
 					margin="normal"
 					id="date-picker-birthday-client"

@@ -806,6 +806,7 @@ const AppBarActions = () => {
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
+                        disableFuture
                         disabled={edit}
                         id="date-picker-birthday-client-update"
                         label="Fecha de nacimiento"
