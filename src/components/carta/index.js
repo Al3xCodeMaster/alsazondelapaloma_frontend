@@ -7,6 +7,7 @@ import { withStyles, makeStyles } from "@material-ui/core/styles";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import AppBarActions from "../login_cliente/appBar";
+import { TextField, Input } from '@material-ui/core';
 //SELECT RESTAURANT
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -48,10 +49,7 @@ import Divider from "@material-ui/core/Divider";
 //CHECKBOX
 import Checkbox from "@material-ui/core/Checkbox";
 //ACTIONS
-import {
-  save_products,
-  change_restaurant,
-} from "../../redux/actions";
+import { save_products, change_restaurant } from "../../redux/actions";
 
 //SLIDE
 function ValueLabelComponent(props) {
@@ -224,7 +222,18 @@ const Carta = () => {
       })
       .catch((err) => console.log(err));
   }, []);
+  //SET CANTIDAD
+  const cantProduct = (item, value) => {
+    let temp = filterCategories;
 
+    for (let i = 0; i < temp.length; i++) {
+      if (temp[i].RestaurantProductID === item.RestaurantProductID) {
+        temp[i].Amount = parseInt(value);
+      }
+    }
+    setFilterCategories(temp);
+    dispatch(save_products(temp.filter(x => x.checked == true)));
+  };
   //Get Preview
   const getPreview = () => {
     let temp = filterCategories;
@@ -269,7 +278,7 @@ const Carta = () => {
       }
     }
     setFilterCategories(temp);
-    dispatch(save_products(temp));
+    dispatch(save_products(temp.filter(x => x.checked == true)));
   };
   //Filter Products
   const filterProducts = () => {
@@ -317,9 +326,9 @@ const Carta = () => {
               element.checked = false;
               element.Amount = 1;
               temp.push(element);
-              tempDes.push({tieneDescuento: false, porcentaje: 1});
+              tempDes.push({ tieneDescuento: false, porcentaje: 1 });
             }
-            if(descuentos != null){
+            if (descuentos != null) {
               for (let j = 0; j < temp.length; j++) {
                 for (let i = 0; i < descuentos.length; i++) {
                   if (temp[j].ProductID == descuentos[i].ProductID) {
@@ -341,7 +350,7 @@ const Carta = () => {
   const changeRestaurantAux = (e) => {
     setRestaurantID(e.target.value);
     dispatch(change_restaurant(e.target.value));
-  }
+  };
   return (
     <ThemeProvider theme={theme}>
       <AppBarActions />
@@ -437,7 +446,16 @@ const Carta = () => {
                         inputProps={{ "aria-label": "secondary checkbox" }}
                       />
                     }
-                    title={item.ProductID+(discounts[key]?discounts[key].tieneDescuento?" - Aplicable descuento del "+discounts[key].porcentaje*100+" %":"":"")}
+                    title={
+                      item.ProductID +
+                      (discounts[key]
+                        ? discounts[key].tieneDescuento
+                          ? " - Aplicable descuento del " +
+                            discounts[key].porcentaje * 100 +
+                            " %"
+                          : ""
+                        : "")
+                    }
                     subheader={item.ProductPrice.toLocaleString("en-US", {
                       style: "currency",
                       currency: "USD",
@@ -459,6 +477,19 @@ const Carta = () => {
                       component="p"
                     >
                       {item.ProductDescription}
+                      <br></br>
+                      <TextField
+                        fullWidth
+                        label="Cantidad de producto"
+                        onChange={(e) => cantProduct(item, e.target.value)}
+                        type="number"
+                        InputProps={{
+                          inputProps: {
+                            max: 100,
+                            min: 1,
+                          },
+                        }}
+                      />
                     </Typography>
                   </CardContent>
                   <CardActions disableSpacing></CardActions>

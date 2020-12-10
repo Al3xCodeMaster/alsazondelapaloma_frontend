@@ -188,6 +188,7 @@ const AppBarActions = () => {
   const [open, setOpen] = React.useState(false);
   const [openShop, setOpenShop] = React.useState(false);
   const [open_success, set_open_sucess] = React.useState(false);
+  const [permitirPago, setPermitirPago] = React.useState(true);
   const [message, set_message] = React.useState("");
   const [pagos, setPagos] = React.useState([]);
   const [message_success, set_message_success] = React.useState("");
@@ -613,6 +614,15 @@ const AppBarActions = () => {
   const agregarPago = () => {
     let temp = pagos;
     temp.push({ PayBillAmount: parseInt(valorTarjeta), CardNumber: tarjetaID });
+    let total = 0;
+    for(let i =0; i< temp.length; i++){
+      total = total + temp[i].PayBillAmount;
+    }
+    console.log(preview.Total);
+    console.log(total);
+    if (total >= preview.Total) {
+      setPermitirPago(false);
+    }
     setPagos(temp);
     set_open_sucess(true);
     set_message_success("Pago Agregado con éxito");
@@ -1314,10 +1324,11 @@ const AppBarActions = () => {
                     {pagos.map((item, key) => {
                       return (
                         <li key={key}>
-                          Tarjeta {item.CardNumber} Valor {item.PayBillAmount.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
+                          Tarjeta {item.CardNumber} Valor{" "}
+                          {item.PayBillAmount.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                          })}
                         </li>
                       );
                     })}
@@ -1336,6 +1347,7 @@ const AppBarActions = () => {
                   <Button
                     variant="contained"
                     color="primary"
+                    disabled ={permitirPago}
                     onClick={(e) => realizarPago()}
                   >
                     Realizar Pago
