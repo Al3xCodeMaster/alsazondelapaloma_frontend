@@ -19,12 +19,15 @@ import Usuarios from './usuarios';
 import DashboardUser from './dashboard';
 import Profiles from './perfiles';
 import Products from './products';
-import { useSelector} from 'react-redux';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import Restaurants from './restaurants';
 import Banks from './banks';
 import Reports from './reports';
+import { useSelector, useDispatch } from "react-redux";
+import { set_log_out } from "../../redux/actions";
+import Button from '@material-ui/core/Button';
+import { useHistory } from "react-router-dom";
 
 const theme = createMuiTheme({
     palette: {
@@ -135,11 +138,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard_empleado() {
+
+  const dispatch = useDispatch();
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { usuario } = useSelector(state => ({
 		usuario: state.redux_reducer.usuario,
-	}));
+  }));
+  const history = useHistory()
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -147,12 +153,16 @@ export default function Dashboard_empleado() {
     setOpen(false);
   };
 
+  const logout = () => {
+    dispatch(set_log_out({}));
+  }
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <ThemeProvider theme={theme}>
     <BrowserRouter>
+    {usuario.status===200 ? null: history.push("/login/usuario") }
       <div className={classes.root}>
         <CssBaseline />
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -186,6 +196,7 @@ export default function Dashboard_empleado() {
           </div>
           <Divider/>
           <List>{mainListItems}</List>
+          <Button onClick={e => logout()}>Salir</Button>
           <Divider />
         </Drawer>
         <main className={classes.content}>

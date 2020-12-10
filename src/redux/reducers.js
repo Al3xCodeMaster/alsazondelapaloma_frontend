@@ -19,7 +19,8 @@ import {
     ERROR_LOGIN_CLIENT,
     SET_REPEAT_CONTRASENHA,
     SAVE_PRODUCTS,
-    CHANGE_RESTAURANT
+    CHANGE_RESTAURANT,
+    SET_LOG_OUT
 }
     from './actions';
 
@@ -81,6 +82,8 @@ function redux_reducer(state = initialState, action) {
             return {...state, usuario: {...state.usuario, sex: action.payload}}    
         case SET_NAVBAR:
             return { ...state, nav_bar: action.payload}
+        case SET_LOG_OUT:
+            return initialState    
         default:
             return state;
     }

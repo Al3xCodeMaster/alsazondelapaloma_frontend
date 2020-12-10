@@ -29,7 +29,7 @@ import {
 } from "@material-ui/core";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Input, DialogContentText } from "@material-ui/core";
-import { success_login_client, set_coordinates } from "../../redux/actions";
+import { success_login_client, set_coordinates, set_log_out} from "../../redux/actions";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import DateFnsUtils from "@date-io/date-fns";
@@ -599,6 +599,10 @@ const AppBarActions = () => {
       });
   };
 
+  const logout = () => {
+    dispatch(set_log_out({}));
+  }
+
   const realizarPago = () => {
     let sendProducts = [];
     let status = 500;
@@ -715,7 +719,7 @@ const AppBarActions = () => {
                 Login
               </Button>
             ) : (
-              <Button color="inherit">Salir</Button>
+              <Button onClick={e => logout()} color="inherit">Salir</Button>
             )}
           </Toolbar>
         </AppBar>
