@@ -19,7 +19,8 @@ export const ERROR_LOGIN_CLIENT = 'ERROR_LOGIN_CLIENT';
 export const SET_REPEAT_CONTRASENHA = 'SET_REPEAT_CONTRASENHA';
 export const SAVE_PRODUCTS = 'SAVE_PRODUCTS';
 export const CHANGE_RESTAURANT = 'CHANGE_RESTAURANT';
-
+export const SET_LOG_OUT = 'SET_LOG_OUT';
+export const SAVE_BILL = 'SAVE_BILL';
 //******************LOGIN*******************
 export const success_login = (payload,status) => {
     return {
@@ -152,6 +153,13 @@ export const set_navbar = payload => {
 export const set_repeat_pass = payload => {
     return {
         type: SET_REPEAT_CONTRASENHA,
+        payload
+    }
+}
+
+export const set_log_out = payload => {
+    return {
+        type: SET_LOG_OUT,
         payload
     }
 }

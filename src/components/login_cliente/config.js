@@ -52,19 +52,20 @@ const CustomImages = (props) => {
 
 const handleLinks = (id, mess,action) => {
     let status;
-    let respuesta="";
+    let promise;
+    let respuesta="\n";
     let message
-    if(id===4){
+    switch (id) {
+      case 4:
       fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
         method: "GET",
       })
         .then((res) => {status=res.status; return status==204? []:res.json()})
-        .then((response) => {
+        .then( async (response) => {
           if (response.length > 0) {
             for(var i=0;i<response.length;i++){
-              respuesta+="- "+response[i].RestaurantName+"\n";
-              const address = getAddress(response[i].RestaurantLatitude,response[i].RestaurantLongitude).formatted_address;
-              respuesta+= address+"\n";  
+              promise = await request(response[i].RestaurantLatitude,response[i].RestaurantLongitude).then((value) => value.results[0].formatted_address)+"\n"; 
+              respuesta += "<"+ response[i].RestaurantName +" - "+promise + ">"+ "\n"; 
             }
           }
           message = createChatBotMessage("Aquí tengo la info \n"+respuesta,{widget: "initialLinks"});
@@ -73,31 +74,68 @@ const handleLinks = (id, mess,action) => {
         .catch((error) => {
           alert(error);
         });
-    }
-}
-
-const promise = async (lat, lng) =>{
-  Geocode.fromLatLng(lat, lng).then(
-   response => {
-     return response.results[0].formatted_address;
-   },
-   error => {
-     return "No disponible";  
-   }
- );
-}
-const getAddress = async (lat, lng) =>{
- 
- let temp = await promise(lat, lng);
- console.log(temp);
- return temp;
+        break;
+      case 3:
+        fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
+          method: "GET",
+        })
+          .then((res) => {status=res.status; return status==204? []:res.json()})
+          .then((response) => {
+            if (response.length > 0) {
+              for(var i=0;i<response.length;i++){
+                respuesta += response[i].CategoryID + ", "; 
+              }
+            }
+            message = createChatBotMessage("Aquí tengo la info: \n"+respuesta,{widget: "initialLinks"});
+            action.updateChatbotState(message);
+          })
+          .catch((error) => {
+            alert(error);
+          });
+        break;
+        case 1:
+          fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
+          method: "GET",
+          })
+            .then((res) => {status=res.status; return status==204? []:res.json()})
+            .then((response) => {
+              if (response.length > 0) {
+                for(var i=0;i<response.length;i++){
+                  respuesta += (i+1)+") "+response[i].ProductID + "  "; 
+                }
+              }
+              message = createChatBotMessage("Aquí tengo la info: \n"+respuesta,{widget: "initialLinks"});
+              action.updateChatbotState(message);
+            })
+            .catch((error) => {
+              alert(error);
+            });
+          break;
+          case 2:
+            fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + mess, {
+          method: "GET",
+          })
+            .then((res) => {status=res.status; return status==204? []:res.json()})
+            .then((response) => {
+              if (response.length > 0) {
+                for(var i=0;i<response.length;i++){
+                  respuesta += (i+1)+") <"+response[i].DiscountName+", "+response[i].DiscountDescription+", "+response[i].RestaurantPercentage + ">,  "; 
+                }
+              }
+              message = createChatBotMessage("Aquí tengo la info: \n"+respuesta,{widget: "initialLinks"});
+              action.updateChatbotState(message);
+            })
+            .catch((error) => {
+              alert(error);
+            });
+          break;
+      }      
 }
 
 const request = async (lat, long) => {
   
   const response = await Geocode.fromLatLng(lat, long);
-  const jsonAd = await response.json();
-  return jsonAd.results[0].formatted_address;
+  return response;
 }
 
 const config = {
@@ -109,8 +147,7 @@ const config = {
     }),
   ],
   customComponents: {
-    botAvatar: (props) => <Avatar src={logo} {...props} />,
-    userChatMessage: (props) => <div {...props} />
+    botAvatar: (props) => <Avatar src={logo} {...props} />
   },
   customStyles: {
     botMessageBox: {
@@ -129,7 +166,7 @@ const config = {
           {
             text: "Nuestros 5 mejores platos",
             url:
-              "",
+              "moreAmountProductsSalesChat",
             id: 1,
           },
           {

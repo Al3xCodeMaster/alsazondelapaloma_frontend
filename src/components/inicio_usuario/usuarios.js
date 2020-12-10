@@ -659,6 +659,7 @@ function TabPanel(props) {
         />
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <KeyboardDatePicker
+              disableFuture
 			        fullWidth
               margin="normal"
               id="date-picker-birthday-user-admin"

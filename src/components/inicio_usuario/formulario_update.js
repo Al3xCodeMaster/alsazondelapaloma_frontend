@@ -106,7 +106,8 @@ function Informacion_basica() {
         <Grid item xs={11}>
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <KeyboardDatePicker
-			fullWidth
+              disableFuture
+			        fullWidth
               margin="normal"
               id="date-picker-birthday-user"
               label="Fecha de nacimiento"

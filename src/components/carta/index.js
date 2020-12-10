@@ -187,6 +187,7 @@ const Carta = () => {
   const [categoryID, setCategoryID] = useState("");
   const [maxPrice, setMaxPrice] = useState(0);
   const [filterCategories, setFilterCategories] = useState([]);
+  const [discounts, setDiscount] = useState([]);
   //redux
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -309,13 +310,27 @@ const Carta = () => {
             setMessage(response.Message);
           } else {
             let temp = [];
+            let tempDes = [];
+            let descuentos = response.ResulDiscount;
             for (let i = 0; i < response.ResulProducts.length; i++) {
               let element = response.ResulProducts[i];
               element.checked = false;
               element.Amount = 1;
               temp.push(element);
+              tempDes.push({tieneDescuento: false, porcentaje: 1});
+            }
+            if(descuentos != null){
+              for (let j = 0; j < temp.length; j++) {
+                for (let i = 0; i < descuentos.length; i++) {
+                  if (temp[j].ProductID == descuentos[i].ProductID) {
+                    tempDes[j].tieneDescuento = true;
+                    tempDes[j].porcentaje = descuentos[i].DiscountPercentage;
+                  }
+                }
+              }
             }
             setFilterCategories(temp);
+            setDiscount(tempDes);
           }
         })
         .catch((error) =>
@@ -379,7 +394,7 @@ const Carta = () => {
             <Typography gutterBottom>Seleccionar Precio</Typography>
             <br />
             <IOSSlider
-              max={100000}
+              max={110000}
               name={"Seleccionar Precio"}
               aria-label="ios slider"
               defaultValue={50000}
@@ -422,8 +437,11 @@ const Carta = () => {
                         inputProps={{ "aria-label": "secondary checkbox" }}
                       />
                     }
-                    title={item.ProductID}
-                    subheader={(item.ProductPrice).toLocaleString('en-US', {style: 'currency',currency: 'USD',})}
+                    title={item.ProductID+(discounts[key]?discounts[key].tieneDescuento?" - Aplicable descuento del "+discounts[key].porcentaje*100+" %":"":"")}
+                    subheader={item.ProductPrice.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}
                   />
                   <CardMedia
                     className={classes.media}

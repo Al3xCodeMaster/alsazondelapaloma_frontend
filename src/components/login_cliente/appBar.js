@@ -29,7 +29,11 @@ import {
 } from "@material-ui/core";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import { Input, DialogContentText } from "@material-ui/core";
-import { success_login_client, set_coordinates } from "../../redux/actions";
+import {
+  success_login_client,
+  set_coordinates,
+  set_log_out,
+} from "../../redux/actions";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import DateFnsUtils from "@date-io/date-fns";
@@ -98,6 +102,9 @@ function Alert(props) {
 }
 
 const useStyles = makeStyles((theme) => ({
+  table: {
+    minWidth: 650,
+  },
   rootCard: {
     maxWidth: 345,
   },
@@ -182,6 +189,7 @@ const AppBarActions = () => {
   const [openShop, setOpenShop] = React.useState(false);
   const [open_success, set_open_sucess] = React.useState(false);
   const [message, set_message] = React.useState("");
+  const [pagos, setPagos] = React.useState([]);
   const [message_success, set_message_success] = React.useState("");
   const vertical = "top";
   const horizontal = "right";
@@ -599,6 +607,16 @@ const AppBarActions = () => {
       });
   };
 
+  const logout = () => {
+    dispatch(set_log_out({}));
+  };
+  const agregarPago = () => {
+    let temp = pagos;
+    temp.push({ PayBillAmount: parseInt(valorTarjeta), CardNumber: tarjetaID });
+    setPagos(temp);
+    set_open_sucess(true);
+    set_message_success("Pago Agregado con éxito");
+  };
   const realizarPago = () => {
     let sendProducts = [];
     let status = 500;
@@ -627,7 +645,7 @@ const AppBarActions = () => {
           body: JSON.stringify({
             ReservationID: reservationID,
             Products: sendProducts,
-            PayAmounts: amounts,
+            PayAmounts: pagos,
           }),
         }
       )
@@ -640,6 +658,7 @@ const AppBarActions = () => {
             setOpen(true);
             set_message("No se pudo realizar el pago");
           } else {
+            console.log(JSON.stringify(resp));
             set_open_sucess(true);
             set_message_success("Pago realizado");
           }
@@ -715,7 +734,9 @@ const AppBarActions = () => {
                 Login
               </Button>
             ) : (
-              <Button color="inherit">Salir</Button>
+              <Button onClick={(e) => logout()} color="inherit">
+                Salir
+              </Button>
             )}
           </Toolbar>
         </AppBar>
@@ -802,6 +823,7 @@ const AppBarActions = () => {
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
+                        disableFuture
                         disabled={edit}
                         id="date-picker-birthday-client-update"
                         label="Fecha de nacimiento"
@@ -1275,7 +1297,42 @@ const AppBarActions = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} style={{ textAlign: "center" }}>
+                <Grid item xs={12}>
+                  <form noValidate autoComplete="off">
+                    <TextField
+                      fullWidth
+                      id="standard-basic"
+                      type="number"
+                      label="Valor a Pagar"
+                      value={valorTarjeta}
+                      onChange={(e) => setValorTarjeta(e.target.value)}
+                    />
+                  </form>
+                </Grid>
+                <Grid item xs={12}>
+                  <ul>
+                    {pagos.map((item, key) => {
+                      return (
+                        <li key={key}>
+                          Tarjeta {item.CardNumber} Valor {item.PayBillAmount.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        })}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Grid>
+                <Grid item xs={6} style={{ textAlign: "center" }}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={(e) => agregarPago()}
+                  >
+                    Agregar Pago
+                  </Button>
+                </Grid>
+                <Grid item xs={6} style={{ textAlign: "center" }}>
                   <Button
                     variant="contained"
                     color="primary"
