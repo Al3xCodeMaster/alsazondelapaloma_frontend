@@ -48,6 +48,7 @@ import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import Popover from '@material-ui/core/Popover';
 import CheckIcon from "@material-ui/icons/Check";
+import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -162,6 +163,9 @@ export default function Products() {
   const componRef = React.useRef();
   const [restSelected, setRestSelected] = useState("");
   const [cantidadProd, setCantidadProd] = useState(0);
+  const [discPerProd, setDiscPerProd] = useState([]);
+  const [openDiscounts, setOpenDiscounts] = useState(false);
+  const [allDiscounts, setAllDiscounts] = useState([]);
   const { usuario } = useSelector((state) => ({
     usuario: state.redux_reducer.usuario,
   }));
@@ -356,6 +360,11 @@ export default function Products() {
     getRestFromProd(valueID);
   };
 
+  const discountProd = (valueID) => {
+    setcurrentProd(valueID);
+    getDiscountsFromProd(valueID);
+  };
+
   const set_state_gilad = () => {
     set_gilad(!gilad);
     set_activado(!gilad ? "Activo" : "No activo");
@@ -483,6 +492,32 @@ export default function Products() {
       });
   };
 
+  const update_discount = (id, status) => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "assignDiscountToProduct", {
+      method: "POST",
+      body: JSON.stringify({
+        DiscountID: parseInt(id),
+        ProductID: currentProd,
+        ProductDiscountStatus: status
+      }),
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        if(response.error){
+          set_error(true);
+          set_message("Error: " + response.error);
+          return;
+        }
+        getDiscountsFromProd(currentProd);
+        set_success(true);
+        set_message("Descuento modificado con exito");
+
+      })
+      .catch((err) => {
+        alert("Error en la conexión con el servidor: "+err);
+      });
+  };
+
   useEffect(() => {
     fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllCategories", {
       method: "GET",
@@ -491,6 +526,22 @@ export default function Products() {
       .then((response) => {
         if (response.length > 0) {
           set_fetch_categories(response);
+        }
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }, []);
+
+  useEffect(() => {
+
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "getAllDiscounts", {
+      method: "GET",
+    })
+      .then((res) => (res.status === 204 ? [] : res.json()))
+      .then((response) => {
+        if (response.length > 0) {
+          setAllDiscounts(response);
         }
       })
       .catch((error) => {
@@ -569,6 +620,26 @@ export default function Products() {
     });
   };
 
+  const getDiscountsFromProd = (id) => {
+    fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "sendDiscountsForProduct/"+id, {
+      method: "GET"
+    })
+    .then((res) => (res.status === 204 ? [] : res.json()))
+    .then((response) => {
+          if(response.error){
+            set_error(true);
+            set_message("Error: " + response.error);
+            return; 
+          }
+          setDiscPerProd(response.map(value => value.DiscountID));
+          setOpenDiscounts(true);
+    })
+    .catch((error) => {
+      alert(error);
+    });
+  };
+  
+
   const addProdToCat = (prodId, catID) => {
     fetch((process.env.REACT_APP_BACKEND || "http://localhost:4000/") + "addProductToCategory", {
       method: "POST",
@@ -622,6 +693,12 @@ export default function Products() {
     setRestPerProd([]);
     setRestSelected("");
     setOpenDR(false);
+  }
+
+  const set_close_discounts = () => {
+    setcurrentProd("");
+    setDiscPerProd([]);
+    setOpenDiscounts(false);
   }
 
   return (
@@ -780,6 +857,12 @@ export default function Products() {
                             onClick={(e) => restProd(card.ProductID)}
                           >
                             <RestaurantMenuIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="asignar-discount"
+                            onClick={(e) => discountProd(card.ProductID)}
+                          >
+                            <MonetizationOnIcon />
                           </IconButton>
                         </CardActions>
                       </Card>
@@ -1164,6 +1247,107 @@ export default function Products() {
           <DialogActions>
             <Button
               onClick={(e) => set_close_res()}
+              color="primary"
+              variant="outlined"
+              color="primary"
+              autoFocus
+            >
+              Cerrar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDiscounts}
+          onClose={() => set_close_discounts()}
+          aria-labelledby="alert-dialog-title-disc"
+          aria-describedby="alert-dialog-description-disc"
+        >
+          <DialogTitle id="dialog-title-prod-discounts" style={{ color: "green" }}>
+            {"Asignar descuentos: " + currentProd}
+          </DialogTitle>
+          <DialogContent>
+          <TableContainer component={Paper} style={{ width: "95%" }}>
+          <Table stickyHeader={true} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Descripción</TableCell>
+                <TableCell>Percentage</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {allDiscounts.map((element) => (
+                <TableRow key={element.DiscountID}>
+                  <TableCell>{element.DiscountID}</TableCell>
+                  <TableCell>{element.DiscountName}</TableCell>
+                  <TableCell>{element.DiscountDescription}</TableCell>
+                  <TableCell>{element.DiscountPercentage}</TableCell>
+                  <TableCell>
+                  {discPerProd.length>0 ? 
+                    discPerProd.includes(element.DiscountID)?
+                    (
+                      <IconButton
+                        onClick={(e) =>
+                          update_discount(element.DiscountID, false)
+                        }
+                        children={
+                          <DeleteOutline
+                            style={{
+                              fontSize: 'inherit',
+                              marginLeft: "8px",
+                              color: "red",
+                            }}
+                          />
+                        }
+                      />
+                    ) : (
+                      <IconButton
+                        onClick={(e) =>
+                          update_discount(
+                            element.DiscountID,
+                            true
+                          )
+                        }
+                        children={
+                          <AddCircleIcon
+                            style={{
+                              fontSize: 'inherit',
+                              marginLeft: "8px",
+                              color: "green",
+                            }}
+                          />
+                        }
+                      />
+                    ):
+                    <IconButton
+                        onClick={(e) =>
+                          update_discount(
+                            element.DiscountID,
+                            true
+                          )
+                        }
+                        children={
+                          <AddCircleIcon
+                            style={{
+                              fontSize: 'inherit',
+                              marginLeft: "8px",
+                              color: "green",
+                            }}
+                          />
+                        }
+                      />
+                  }
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={(e) => set_close_discounts()}
               color="primary"
               variant="outlined"
               color="primary"
